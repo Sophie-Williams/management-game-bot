@@ -76,7 +76,7 @@ ServerMsg* ServerMsgLexer::stHeadStart()
             break;
         case MSG_UNKNOWN:
             timestampSkipped = 0;
-            state = ST_ERROR;
+            state = ST_SKIP_TO_NEXT_HEAD;
             break;
         case MSG_LEXER_ERROR:
             /* Not possible. */
