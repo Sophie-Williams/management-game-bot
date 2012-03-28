@@ -29,7 +29,7 @@ int CharQueue::hasNextChar()
     return (onEOF || readAvailable > 0);
 }
 
-char CharQueue::getNextChar()
+int CharQueue::getNextChar()
     throw (int)
 {
     int c;

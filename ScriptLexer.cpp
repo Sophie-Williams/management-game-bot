@@ -1,8 +1,8 @@
 #include "ScriptLexer.hpp"
 
-char spaceSymbols[] = " \t\n"; /* and EOF */
-char oneSymLexSymbols[] = "*/%+-<>!()[]:;,";
-char twoSymLexSymbols[] = "=&|"; /* ==, &&, || */
+char ScriptLexer::spaceSymbols[] = " \t\n"; /* and EOF */
+char ScriptLexer::oneSymLexSymbols[] = "*/%+-<>!()[]:;,";
+char ScriptLexer::twoSymLexSymbols[] = "=&|"; /* ==, &&, || */
 
 void ScriptLexer::die(int line)
 {
@@ -20,6 +20,7 @@ int ScriptLexer::isSpaceSymbol(int c)
     while (*p != '\0') {
         if (*p == c)
             return 1;
+        ++p;
     }
 
     return 0;
@@ -48,6 +49,7 @@ int ScriptLexer::isOneSymLexSymbol(int c)
     while (*p != '\0') {
         if (*p == c)
             return 1;
+        ++p;
     }
 
     return 0;
@@ -60,6 +62,7 @@ int ScriptLexer::isTwoSymLexSymbol(int c)
     while (*p != '\0') {
         if (*p == c)
             return 1;
+        ++p;
     }
 
     return 0;
@@ -159,19 +162,24 @@ ScriptLexeme* ScriptLexer::stOneSymLex()
     case '<':
     case '>':
     case '!':
+        state = ST_START;
         /* TODO: save lexeme subtype (e.g. symbol) */
         return new ScriptLexeme(SCR_LEX_OPERATION);
     case '(':
     case ')':
     case '[':
     case ']':
+        state = ST_START;
         /* TODO: save lexeme subtype (e.g. symbol) */
         return new ScriptLexeme(SCR_LEX_BRACKET);
     case ':':
+        state = ST_START;
         return new ScriptLexeme(SCR_LEX_COLON);
     case ';':
+        state = ST_START;
         return new ScriptLexeme(SCR_LEX_SEMICOLON);
     case ',':
+        state = ST_START;
         return new ScriptLexeme(SCR_LEX_COMMA);
     }
 
@@ -217,6 +225,7 @@ ScriptLexeme* ScriptLexer::stNumber()
         return 0;
     } else {
         tmpBuffer.clear();
+        notTakeNextChar = 1;
         state = ST_START;
         /* TODO: save number */
         return new ScriptLexeme(SCR_LEX_NUMBER);
@@ -337,10 +346,13 @@ ScriptLexeme* ScriptLexer::getLex()
         }
 
         lex = invokeStateHandler(state);
-    } while (lex == NULL);
+    } while (lex == 0);
 
     /* Additional check */
-    if (state != ST_START) {
+    if (state != ST_START &&
+        state != ST_EOF &&
+        state != ST_ERROR)
+    {
         die(__LINE__);
     }
 

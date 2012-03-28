@@ -16,7 +16,7 @@ public:
     void putEOF()
         throw (int);
     int hasNextChar();
-    char getNextChar()
+    int getNextChar()
         throw (int);
 };
 

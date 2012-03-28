@@ -3,3 +3,4 @@
 *.o
 *.hpp.gch
 ServerMsgLexerTest
+ScriptLexerTest
