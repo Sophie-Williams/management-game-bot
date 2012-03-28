@@ -5,6 +5,7 @@ CharQueue::CharQueue()
         readAvailable(0) {}
 
 void CharQueue::putNewData(char *buffer, int size)
+    throw (int)
 {
     if (readAvailable != 0)
         throw 1; /* TODO */
@@ -19,6 +20,7 @@ int CharQueue::hasNextChar()
 }
 
 char CharQueue::getNextChar()
+    throw (int)
 {
     int c;
 

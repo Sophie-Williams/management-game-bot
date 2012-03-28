@@ -11,9 +11,11 @@ class CharQueue {
 
 public:
     CharQueue();
-    void putNewData(char *buffer, int size);
+    void putNewData(char *buffer, int size)
+        throw (int);
     int hasNextChar();
-    char getNextChar();
+    char getNextChar()
+        throw (int);
 };
 
 #endif /* CHAR_QUEUE_HPP_SENTRY */
