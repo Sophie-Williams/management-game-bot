@@ -1,0 +1,1013 @@
+==== Server info ====
+Connected (clients): 2
+In round (players):  2
+
+==== Market info ====
+Current month:   11
+Market level:    3
+Raws on market:  4 / 2          (in all / per player)
+Min raw price:   500
+Productions:     4 / 2          (in all / per player)
+Max prod. price: 5500
+Next level:      1, 3, 4, 3, 1  (probability * 12)
+
+==== Totktonada ====
+Money:           32288
+Raws:            3
+Productions:     0
+Factories:       3
+State:           month *not* completed.
+
+--- Requests info ---
+Requested raw:      0 / 0    (count / cost of one)
+Offered production: 0 / 0    (count / cost of one)
+Productions:        0
+Factories:          0
+
+--- Building factories ---
+1/2/3/4 month old:  0 / 0 / 0 / 0
+
+==== R2-D2 ====
+Money:           9510
+Raws:            1
+Productions:     2
+Factories:       3
+State:           month *not* completed.
+
+[02:46:01] Totktonada $ make 3
+
+[02:46:07] [Make]
+Okay! Your request stored to after-step processing.
+
+[02:46:07] Totktonada $ buy 4 500
+
+[02:46:31] [Buy]
+Okay! Your request stored to after-step processing.
+
+[02:46:31] Totktonada $ turn
+
+[02:46:37] [Turn]
+This month completed.
+Expected: R2-D2
+
+[02:46:37] Totktonada $ nick :
+<02:46:51> [Turn]
+Client R2-D2 completed this month.
+
+<02:46:51> [Month completed]
+Yeah! All players completed this month!
+
+<02:46:51> [Raw auction]
+Player R2-D2 buy raws: 3 / 500  (count / cost of one)
+Raw: 3 + 1 = 4
+Money: 32288 - (1 * 500) = 31788
+
+<02:46:51> [Production auction]
+Player R2-D2 sell prod.: 2 / 5500  (count / cost of one)
+
+<02:46:51> [Make production]
+Raw: 4 - 3 = 1
+Prod.: 0 + 3 = 3
+Money: 31788 - (3 * 2000) = 25788
+
+<02:46:51> [Raw expenses]
+Money: 25788 - (1 * 300) = 25488
+
+<02:46:51> [Prod. expenses]
+Money: 25488 - (3 * 500) = 23988
+
+<02:46:51> [Factory expenses]
+Money: 23988 - (3 * 1000) = 20988
+-)
+
+[02:46:52] [Username changing]
+Your username: :-)
+
+[02:46:52] :-) $ nick Totkotnada
+
+[02:46:59] [Username changing]
+Your username: Totkotnada
+
+[02:46:59] Totkotnada $ nick Totktonada
+
+[02:47:03] [Username changing]
+Your username: Totktonada
+
+[02:47:03] Totktonada $ status -a
+
+[02:47:09] [Status]
+
+==== Server info ====
+Connected (clients): 2
+In round (players):  2
+
+==== Market info ====
+Current month:   12
+Market level:    4
+Raws on market:  5 / 2.5          (in all / per player)
+Min raw price:   400
+Productions:     3 / 1.5          (in all / per player)
+Max prod. price: 5000
+Next level:      1, 1, 3, 4, 3  (probability * 12)
+
+==== Totktonada ====
+Money:           20988
+Raws:            1
+Productions:     3
+Factories:       3
+State:           month *not* completed.
+
+--- Requests info ---
+Requested raw:      0 / 0    (count / cost of one)
+Offered production: 0 / 0    (count / cost of one)
+Productions:        0
+Factories:          0
+
+--- Building factories ---
+1/2/3/4 month old:  0 / 0 / 0 / 0
+
+==== R2-D2 ====
+Money:           12610
+Raws:            3
+Productions:     1
+Factories:       3
+State:           month *not* completed.
+
+[02:47:09] Totktonada $ make 1
+
+[02:47:34] [Make]
+Okay! Your request stored to after-step processing.
+
+[02:47:34] Totktonada $ sell 3 3000
+
+[02:47:45] [Sell]
+Okay! Your request stored to after-step processing.
+
+[02:47:45] Totktonada $ sell 3
+<02:47:50> [Turn]
+Client R2-D2 completed this month.
+Expected: Totktonada
+ 3400
+
+[02:47:55] [Sell]
+Okay! Your old request replaced with this.
+
+[02:47:55] Totktonada $ buy 3 500
+
+[02:48:09] [Buy]
+Okay! Your request stored to after-step processing.
+
+[02:48:09] Totktonada $ turn
+
+[02:48:10] [Turn]
+This month completed.
+
+<02:48:10> [Month completed]
+Yeah! All players completed this month!
+
+<02:48:10> [Raw auction]
+Raw: 1 + 3 = 4
+Money: 20988 - (3 * 500) = 19488
+Player R2-D2 buy raws: 2 / 400  (count / cost of one)
+
+<02:48:10> [Production auction]
+Production: 3 - 3 = 0
+Money: 19488 + (3 * 3400) = 29688
+
+<02:48:10> [Make production]
+Raw: 4 - 1 = 3
+Prod.: 0 + 1 = 1
+Money: 29688 - (1 * 2000) = 27688
+
+<02:48:10> [Raw expenses]
+Money: 27688 - (3 * 300) = 26788
+
+<02:48:10> [Prod. expenses]
+Money: 26788 - (1 * 500) = 26288
+
+<02:48:10> [Factory expenses]
+Money: 26288 - (3 * 1000) = 23288
+
+[02:48:10] Totktonada $ status -a
+
+[02:48:24] [Status]
+
+==== Server info ====
+Connected (clients): 2
+In round (players):  2
+
+==== Market info ====
+Current month:   13
+Market level:    3
+Raws on market:  4 / 2          (in all / per player)
+Min raw price:   500
+Productions:     4 / 2          (in all / per player)
+Max prod. price: 5500
+Next level:      1, 3, 4, 3, 1  (probability * 12)
+
+==== Totktonada ====
+Money:           23288
+Raws:            3
+Productions:     1
+Factories:       3
+State:           month *not* completed.
+
+--- Requests info ---
+Requested raw:      0 / 0    (count / cost of one)
+Offered production: 0 / 0    (count / cost of one)
+Productions:        0
+Factories:          0
+
+--- Building factories ---
+1/2/3/4 month old:  0 / 0 / 0 / 0
+
+==== R2-D2 ====
+Money:           2410
+Raws:            3
+Productions:     3
+Factories:       3
+State:           month *not* completed.
+
+[02:48:24] Totktonada $ sell 1 5500
+
+[02:48:38] [Sell]
+Okay! Your request stored to after-step processing.
+
+[02:48:38] Totktonada $ make 3
+
+[02:48:57] [Make]
+Okay! Your request stored to after-step processing.
+
+[02:48:57] Totktonada $ buy 4 610
+
+[02:49:05] [Buy]
+Okay! Your request stored to after-step processing.
+
+[02:49:05] Totktonada $ turn
+
+[02:49:06] [Turn]
+This month completed.
+Expected: R2-D2
+
+[02:49:06] Totktonada $ 
+<02:49:14> [Turn]
+Client R2-D2 completed this month.
+
+<02:49:14> [Month completed]
+Yeah! All players completed this month!
+
+<02:49:14> [Raw auction]
+Raw: 3 + 4 = 7
+Money: 23288 - (4 * 610) = 20848
+
+<02:49:14> [Production auction]
+Player R2-D2 sell prod.: 3 / 5500  (count / cost of one)
+Production: 1 - 1 = 0
+Money: 20848 + (1 * 5500) = 26348
+
+<02:49:14> [Make production]
+Raw: 7 - 3 = 4
+Prod.: 0 + 3 = 3
+Money: 26348 - (3 * 2000) = 20348
+
+<02:49:14> [Raw expenses]
+Money: 20348 - (4 * 300) = 19148
+
+<02:49:14> [Prod. expenses]
+Money: 19148 - (3 * 500) = 17648
+
+<02:49:14> [Factory expenses]
+Money: 17648 - (3 * 1000) = 14648
+status -a
+
+[02:49:31] [Status]
+
+==== Server info ====
+Connected (clients): 2
+In round (players):  2
+
+==== Market info ====
+Current month:   14
+Market level:    3
+Raws on market:  4 / 2          (in all / per player)
+Min raw price:   500
+Productions:     4 / 2          (in all / per player)
+Max prod. price: 5500
+Next level:      1, 3, 4, 3, 1  (probability * 12)
+
+==== Totktonada ====
+Money:           14648
+Raws:            4
+Productions:     3
+Factories:       3
+State:           month *not* completed.
+
+--- Requests info ---
+Requested raw:      0 / 0    (count / cost of one)
+Offered production: 0 / 0    (count / cost of one)
+Productions:        0
+Factories:          0
+
+--- Building factories ---
+1/2/3/4 month old:  0 / 0 / 0 / 0
+
+==== R2-D2 ====
+Money:           10610
+Raws:            1
+Productions:     2
+Factories:       3
+State:           month *not* completed.
+
+[02:49:31] Totktonada $ make 3 
+
+[02:49:40] [Make]
+Okay! Your request stored to after-step processing.
+
+[02:49:40] Totktonada $ sell 3 
+<02:49:53> [Turn]
+Client R2-D2 completed this month.
+Expected: Totktonada
+3893
+
+[02:50:02] [Sell]
+Okay! Your request stored to after-step processing.
+
+[02:50:02] Totktonada $ buy 2 769
+
+[02:50:23] [Buy]
+Okay! Your request stored to after-step processing.
+
+[02:50:23] Totktonada $ turn
+
+[02:50:24] [Turn]
+This month completed.
+
+<02:50:24> [Month completed]
+Yeah! All players completed this month!
+
+<02:50:24> [Raw auction]
+Raw: 4 + 2 = 6
+Money: 14648 - (2 * 769) = 13110
+Player R2-D2 buy raws: 2 / 500  (count / cost of one)
+
+<02:50:24> [Production auction]
+Production: 3 - 3 = 0
+Money: 13110 + (3 * 3893) = 24789
+Player R2-D2 sell prod.: 1 / 5500  (count / cost of one)
+
+<02:50:24> [Make production]
+Raw: 6 - 3 = 3
+Prod.: 0 + 3 = 3
+Money: 24789 - (3 * 2000) = 18789
+
+<02:50:24> [Raw expenses]
+Money: 18789 - (3 * 300) = 17889
+
+<02:50:24> [Prod. expenses]
+Money: 17889 - (3 * 500) = 16389
+
+<02:50:24> [Factory expenses]
+Money: 16389 - (3 * 1000) = 13389
+
+[02:50:24] Totktonada $ status -a
+
+[02:50:26] [Status]
+
+==== Server info ====
+Connected (clients): 2
+In round (players):  2
+
+==== Market info ====
+Current month:   15
+Market level:    3
+Raws on market:  4 / 2          (in all / per player)
+Min raw price:   500
+Productions:     4 / 2          (in all / per player)
+Max prod. price: 5500
+Next level:      1, 3, 4, 3, 1  (probability * 12)
+
+==== Totktonada ====
+Money:           13389
+Raws:            3
+Productions:     3
+Factories:       3
+State:           month *not* completed.
+
+--- Requests info ---
+Requested raw:      0 / 0    (count / cost of one)
+Offered production: 0 / 0    (count / cost of one)
+Productions:        0
+Factories:          0
+
+--- Building factories ---
+1/2/3/4 month old:  0 / 0 / 0 / 0
+
+==== R2-D2 ====
+Money:           8510
+Raws:            2
+Productions:     2
+Factories:       3
+State:           month *not* completed.
+
+[02:50:26] Totktonada $ sell 3     
+<02:51:09> [Turn]
+Client R2-D2 completed this month.
+Expected: Totktonada
+3900
+
+[02:51:13] [Sell]
+Okay! Your request stored to after-step processing.
+
+[02:51:13] Totktonada $ buy 3 500
+
+[02:51:18] [Buy]
+Okay! Your request stored to after-step processing.
+
+[02:51:18] Totktonada $ make 3
+
+[02:51:20] [Make]
+Okay! Your request stored to after-step processing.
+
+[02:51:20] Totktonada $ turn
+
+[02:51:21] [Turn]
+This month completed.
+
+<02:51:21> [Month completed]
+Yeah! All players completed this month!
+
+<02:51:21> [Raw auction]
+Raw: 3 + 3 = 6
+Money: 13389 - (3 * 500) = 11889
+Player R2-D2 buy raws: 1 / 500  (count / cost of one)
+
+<02:51:21> [Production auction]
+Production: 3 - 3 = 0
+Money: 11889 + (3 * 3900) = 23589
+Player R2-D2 sell prod.: 1 / 5500  (count / cost of one)
+
+<02:51:21> [Make production]
+Raw: 6 - 3 = 3
+Prod.: 0 + 3 = 3
+Money: 23589 - (3 * 2000) = 17589
+
+<02:51:21> [Raw expenses]
+Money: 17589 - (3 * 300) = 16689
+
+<02:51:21> [Prod. expenses]
+Money: 16689 - (3 * 500) = 15189
+
+<02:51:21> [Factory expenses]
+Money: 15189 - (3 * 1000) = 12189
+
+[02:51:21] Totktonada $ status -a
+
+[02:51:23] [Status]
+
+==== Server info ====
+Connected (clients): 2
+In round (players):  2
+
+==== Market info ====
+Current month:   16
+Market level:    3
+Raws on market:  4 / 2          (in all / per player)
+Min raw price:   500
+Productions:     4 / 2          (in all / per player)
+Max prod. price: 5500
+Next level:      1, 3, 4, 3, 1  (probability * 12)
+
+==== Totktonada ====
+Money:           12189
+Raws:            3
+Productions:     3
+Factories:       3
+State:           month *not* completed.
+
+--- Requests info ---
+Requested raw:      0 / 0    (count / cost of one)
+Offered production: 0 / 0    (count / cost of one)
+Productions:        0
+Factories:          0
+
+--- Building factories ---
+1/2/3/4 month old:  0 / 0 / 0 / 0
+
+==== R2-D2 ====
+Money:           4710
+Raws:            1
+Productions:     3
+Factories:       3
+State:           month *not* completed.
+
+[02:51:23] Totktonada $ make 3
+
+[02:51:54] [Make]
+Okay! Your request stored to after-step processing.
+
+[02:51:54] Totktonada $ buy 2 600
+
+[02:52:16] [Buy]
+Okay! Your request stored to after-step processing.
+
+[02:52:16] Totktonada $ sell 3 5500
+
+[02:52:20] [Sell]
+Okay! Your request stored to after-step processing.
+
+[02:52:20] Totktonada $ turn
+
+[02:52:21] [Turn]
+This month completed.
+Expected: R2-D2
+
+[02:52:21] Totktonada $ 
+<02:52:40> [Turn]
+Client R2-D2 completed this month.
+
+<02:52:40> [Month completed]
+Yeah! All players completed this month!
+
+<02:52:40> [Raw auction]
+Raw: 3 + 2 = 5
+Money: 12189 - (2 * 600) = 10989
+Player R2-D2 buy raws: 1 / 500  (count / cost of one)
+
+<02:52:40> [Production auction]
+Player R2-D2 sell prod.: 3 / 2480  (count / cost of one)
+Production: 3 - 1 = 2
+Money: 10989 + (1 * 5500) = 16489
+
+<02:52:40> [Make production]
+Raw: 5 - 3 = 2
+Prod.: 2 + 3 = 5
+Money: 16489 - (3 * 2000) = 10489
+
+<02:52:40> [Raw expenses]
+Money: 10489 - (2 * 300) = 9889
+
+<02:52:40> [Prod. expenses]
+Money: 9889 - (5 * 500) = 7389
+
+<02:52:40> [Factory expenses]
+Money: 7389 - (3 * 1000) = 4389
+status -a
+
+[02:52:43] [Status]
+
+==== Server info ====
+Connected (clients): 2
+In round (players):  2
+
+==== Market info ====
+Current month:   17
+Market level:    2
+Raws on market:  3 / 1.5          (in all / per player)
+Min raw price:   650
+Productions:     5 / 2.5          (in all / per player)
+Max prod. price: 6000
+Next level:      3, 4, 3, 1, 1  (probability * 12)
+
+==== Totktonada ====
+Money:           4389
+Raws:            2
+Productions:     5
+Factories:       3
+State:           month *not* completed.
+
+--- Requests info ---
+Requested raw:      0 / 0    (count / cost of one)
+Offered production: 0 / 0    (count / cost of one)
+Productions:        0
+Factories:          0
+
+--- Building factories ---
+1/2/3/4 month old:  0 / 0 / 0 / 0
+
+==== R2-D2 ====
+Money:           5850
+Raws:            1
+Productions:     1
+Factories:       3
+State:           month *not* completed.
+
+[02:52:43] Totktonada $ sell 5 6000
+
+[02:53:34] [Sell]
+Okay! Your request stored to after-step processing.
+
+[02:53:34] Totktonada $ buy 3 1000
+
+[02:53:44] [Buy]
+Okay! Your request stored to after-step processing.
+
+[02:53:44] Totktonada $ make 
+<02:53:51> [Turn]
+Client R2-D2 completed this month.
+Expected: Totktonada
+2
+
+[02:53:54] [Make]
+Okay! Your request stored to after-step processing.
+
+[02:53:54] Totktonada $ turn
+
+[02:53:55] [Turn]
+This month completed.
+
+<02:53:55> [Month completed]
+Yeah! All players completed this month!
+
+<02:53:55> [Raw auction]
+Raw: 2 + 3 = 5
+Money: 4389 - (3 * 1000) = 1389
+
+<02:53:55> [Production auction]
+Player R2-D2 sell prod.: 1 / 5800  (count / cost of one)
+Production: 5 - 4 = 1
+Money: 1389 + (4 * 6000) = 25389
+
+<02:53:55> [Make production]
+Raw: 5 - 2 = 3
+Prod.: 1 + 2 = 3
+Money: 25389 - (2 * 2000) = 21389
+
+<02:53:55> [Raw expenses]
+Money: 21389 - (3 * 300) = 20489
+
+<02:53:55> [Prod. expenses]
+Money: 20489 - (3 * 500) = 18989
+
+<02:53:55> [Factory expenses]
+Money: 18989 - (3 * 1000) = 15989
+
+[02:53:55] Totktonada $ status -a
+
+[02:54:09] [Status]
+
+==== Server info ====
+Connected (clients): 2
+In round (players):  2
+
+==== Market info ====
+Current month:   18
+Market level:    3
+Raws on market:  4 / 2          (in all / per player)
+Min raw price:   500
+Productions:     4 / 2          (in all / per player)
+Max prod. price: 5500
+Next level:      1, 3, 4, 3, 1  (probability * 12)
+
+==== Totktonada ====
+Money:           15989
+Raws:            3
+Productions:     3
+Factories:       3
+State:           month *not* completed.
+
+--- Requests info ---
+Requested raw:      0 / 0    (count / cost of one)
+Offered production: 0 / 0    (count / cost of one)
+Productions:        0
+Factories:          0
+
+--- Building factories ---
+1/2/3/4 month old:  0 / 0 / 0 / 0
+
+==== R2-D2 ====
+Money:           6150
+Raws:            0
+Productions:     1
+Factories:       3
+State:           month *not* completed.
+
+[02:54:09] Totktonada $ make 3
+
+[02:54:15] [Make]
+Okay! Your request stored to after-step processing.
+
+[02:54:15] Totktonada $ sell 3 5500
+
+[02:54:25] [Sell]
+Okay! Your request stored to after-step processing.
+
+[02:54:25] Totktonada $ buy 3 
+<02:54:38> [Turn]
+Client R2-D2 completed this month.
+Expected: Totktonada
+769
+
+[02:54:45] [Buy]
+Okay! Your request stored to after-step processing.
+
+[02:54:45] Totktonada $ turn
+
+[02:54:47] [Turn]
+This month completed.
+
+<02:54:47> [Month completed]
+Yeah! All players completed this month!
+
+<02:54:47> [Raw auction]
+Raw: 3 + 3 = 6
+Money: 15989 - (3 * 769) = 13682
+Player R2-D2 buy raws: 1 / 620  (count / cost of one)
+
+<02:54:47> [Production auction]
+Production: 3 - 3 = 0
+Money: 13682 + (3 * 5500) = 30182
+Player R2-D2 sell prod.: 1 / 5500  (count / cost of one)
+
+<02:54:47> [Make production]
+Raw: 6 - 3 = 3
+Prod.: 0 + 3 = 3
+Money: 30182 - (3 * 2000) = 24182
+
+<02:54:47> [Raw expenses]
+Money: 24182 - (3 * 300) = 23282
+
+<02:54:47> [Prod. expenses]
+Money: 23282 - (3 * 500) = 21782
+
+<02:54:47> [Factory expenses]
+Money: 21782 - (3 * 1000) = 18782
+
+[02:54:47] Totktonada $ status -a
+
+[02:55:01] [Status]
+
+==== Server info ====
+Connected (clients): 2
+In round (players):  2
+
+==== Market info ====
+Current month:   19
+Market level:    3
+Raws on market:  4 / 2          (in all / per player)
+Min raw price:   500
+Productions:     4 / 2          (in all / per player)
+Max prod. price: 5500
+Next level:      1, 3, 4, 3, 1  (probability * 12)
+
+==== Totktonada ====
+Money:           18782
+Raws:            3
+Productions:     3
+Factories:       3
+State:           month *not* completed.
+
+--- Requests info ---
+Requested raw:      0 / 0    (count / cost of one)
+Offered production: 0 / 0    (count / cost of one)
+Productions:        0
+Factories:          0
+
+--- Building factories ---
+1/2/3/4 month old:  0 / 0 / 0 / 0
+
+==== R2-D2 ====
+Money:           7730
+Raws:            1
+Productions:     0
+Factories:       3
+State:           month *not* completed.
+
+[02:55:01] Totktonada $ make 3
+
+[02:55:09] [Make]
+Okay! Your request stored to after-step processing.
+
+[02:55:09] Totktonada $ buy 
+<02:55:14> [Turn]
+Client R2-D2 completed this month.
+Expected: Totktonada
+3 777
+
+[02:55:21] [Buy]
+Okay! Your request stored to after-step processing.
+
+[02:55:21] Totktonada $ sell 3 5000
+
+[02:55:32] [Sell]
+Okay! Your request stored to after-step processing.
+
+[02:55:32] Totktonada $ turn
+
+[02:55:33] [Turn]
+This month completed.
+
+<02:55:33> [Month completed]
+Yeah! All players completed this month!
+
+<02:55:33> [Raw auction]
+Raw: 3 + 3 = 6
+Money: 18782 - (3 * 777) = 16451
+
+<02:55:33> [Production auction]
+Production: 3 - 3 = 0
+Money: 16451 + (3 * 5000) = 31451
+
+<02:55:33> [Make production]
+Raw: 6 - 3 = 3
+Prod.: 0 + 3 = 3
+Money: 31451 - (3 * 2000) = 25451
+
+<02:55:33> [Raw expenses]
+Money: 25451 - (3 * 300) = 24551
+
+<02:55:33> [Prod. expenses]
+Money: 24551 - (3 * 500) = 23051
+
+<02:55:33> [Factory expenses]
+Money: 23051 - (3 * 1000) = 20051
+
+[02:55:33] Totktonada $ status -a
+
+[02:55:36] [Status]
+
+==== Server info ====
+Connected (clients): 2
+In round (players):  2
+
+==== Market info ====
+Current month:   20
+Market level:    4
+Raws on market:  5 / 2.5          (in all / per player)
+Min raw price:   400
+Productions:     3 / 1.5          (in all / per player)
+Max prod. price: 5000
+Next level:      1, 1, 3, 4, 3  (probability * 12)
+
+==== Totktonada ====
+Money:           20051
+Raws:            3
+Productions:     3
+Factories:       3
+State:           month *not* completed.
+
+--- Requests info ---
+Requested raw:      0 / 0    (count / cost of one)
+Offered production: 0 / 0    (count / cost of one)
+Productions:        0
+Factories:          0
+
+--- Building factories ---
+1/2/3/4 month old:  0 / 0 / 0 / 0
+
+==== R2-D2 ====
+Money:           2230
+Raws:            0
+Productions:     1
+Factories:       3
+State:           month *not* completed.
+
+[02:55:36] Totktonada $ make 3
+
+[02:55:49] [Make]
+Okay! Your request stored to after-step processing.
+
+[02:55:49] Totktonada $ sell 3 5000
+
+[02:56:03] [Sell]
+Okay! Your request stored to after-step processing.
+
+[02:56:03] Totktonada $ buy 
+<02:56:06> [Turn]
+Client R2-D2 completed this month.
+Expected: Totktonada
+3 400
+
+[02:56:13] [Buy]
+Okay! Your request stored to after-step processing.
+
+[02:56:13] Totktonada $ turn
+
+[02:56:14] [Turn]
+This month completed.
+
+<02:56:14> [Month completed]
+Yeah! All players completed this month!
+
+<02:56:14> [Raw auction]
+Raw: 3 + 3 = 6
+Money: 20051 - (3 * 400) = 18851
+Player R2-D2 buy raws: 1 / 400  (count / cost of one)
+
+<02:56:14> [Production auction]
+Player R2-D2 sell prod.: 1 / 3780  (count / cost of one)
+Production: 3 - 2 = 1
+Money: 18851 + (2 * 5000) = 28851
+
+<02:56:14> [Make production]
+Raw: 6 - 3 = 3
+Prod.: 1 + 3 = 4
+Money: 28851 - (3 * 2000) = 22851
+
+<02:56:14> [Raw expenses]
+Money: 22851 - (3 * 300) = 21951
+
+<02:56:14> [Prod. expenses]
+Money: 21951 - (4 * 500) = 19951
+
+<02:56:14> [Factory expenses]
+Money: 19951 - (3 * 1000) = 16951
+
+[02:56:14] Totktonada $ status -a
+
+[02:56:17] [Status]
+
+==== Server info ====
+Connected (clients): 2
+In round (players):  2
+
+==== Market info ====
+Current month:   21
+Market level:    5
+Raws on market:  6 / 3          (in all / per player)
+Min raw price:   300
+Productions:     2 / 1          (in all / per player)
+Max prod. price: 4500
+Next level:      1, 1, 2, 4, 4  (probability * 12)
+
+==== Totktonada ====
+Money:           16951
+Raws:            3
+Productions:     4
+Factories:       3
+State:           month *not* completed.
+
+--- Requests info ---
+Requested raw:      0 / 0    (count / cost of one)
+Offered production: 0 / 0    (count / cost of one)
+Productions:        0
+Factories:          0
+
+--- Building factories ---
+1/2/3/4 month old:  0 / 0 / 0 / 0
+
+==== R2-D2 ====
+Money:           2310
+Raws:            1
+Productions:     0
+Factories:       3
+State:           month *not* completed.
+
+[02:56:17] Totktonada $ sell 2 3500
+
+[02:56:31] [Sell]
+Okay! Your request stored to after-step processing.
+
+[02:56:31] Totktonada $ 
+<02:56:31> [Turn]
+Client R2-D2 completed this month.
+Expected: Totktonada
+make 3
+
+[02:56:36] [Make]
+Okay! Your request stored to after-step processing.
+
+[02:56:36] Totktonada $ buy 3 600
+
+[02:57:13] [Buy]
+Okay! Your request stored to after-step processing.
+
+[02:57:13] Totktonada $ turn
+
+[02:57:15] [Turn]
+This month completed.
+
+<02:57:15> [Month completed]
+Yeah! All players completed this month!
+
+<02:57:15> [Raw auction]
+Raw: 3 + 3 = 6
+Money: 16951 - (3 * 600) = 15151
+
+<02:57:15> [Production auction]
+Production: 4 - 2 = 2
+Money: 15151 + (2 * 3500) = 22151
+
+<02:57:15> [Make production]
+Raw: 6 - 3 = 3
+Prod.: 2 + 3 = 5
+Money: 22151 - (3 * 2000) = 16151
+
+<02:57:15> [Raw expenses]
+Money: 16151 - (3 * 300) = 15251
+
+<02:57:15> [Prod. expenses]
+Money: 15251 - (5 * 500) = 12751
+
+<02:57:15> [Factory expenses]
+Money: 12751 - (3 * 1000) = 9751
+
+<02:57:15> [Bankrupting]
+Player R2-D2 is bankrupt.
+
+<02:57:15> [Winner(s)]
+Winner: Totktonada
+
+<02:57:15> [Rounds]
+Time remaining to the next game round: 60 (sec)
+You *not* send request for participating in this round.
+You can do it by join command (see "help join").
