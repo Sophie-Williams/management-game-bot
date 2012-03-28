@@ -24,43 +24,51 @@ int printLexemes(ScriptLexer& lexer)
 
         switch (lex->type) {
         case SCR_LEX_LABEL:
-            printf("[Label]\n");
+            printf("[Label]");
             break;
         case SCR_LEX_VARIABLE:
-            printf("[Variable]\n");
+            printf("[Variable]");
             break;
         case SCR_LEX_FUNCTION:
-            printf("[Function]\n");
+            printf("[Function]");
             break;
         case SCR_LEX_OPERATOR:
-            printf("[Operator]\n");
+            printf("[Operator]");
             break;
         case SCR_LEX_OPERATION:
-            printf("[Operation]\n");
+            printf("[Operation]");
             break;
         case SCR_LEX_BRACKET:
-            printf("[Bracket]\n");
+            printf("[Bracket]");
             break;
         case SCR_LEX_COLON:
-            printf("[Colon]\n");
+            printf("[Colon]");
             break;
         case SCR_LEX_SEMICOLON:
-            printf("[Semicolon]\n");
+            printf("[Semicolon]");
             break;
         case SCR_LEX_COMMA:
-            printf("[Comma]\n");
+            printf("[Comma]");
             break;
         case SCR_LEX_NUMBER:
-            printf("[Number]\n");
+            printf("[Number]");
             break;
         case SCR_LEX_STRING:
-            printf("[String]\n");
+            printf("[String]");
             break;
         case SCR_LEX_EOF:
-            printf("[EOF]\n");
-            return 0;
+            printf("[EOF]");
+            break;
         case SCR_LEX_ERROR:
-            printf("[Error]\n");
+            printf("[Error]");
+            break;
+        }
+
+        printf(" %d:%d\n", lex->line, lex->pos);
+
+        if (lex->type == SCR_LEX_EOF ||
+            lex->type == SCR_LEX_ERROR)
+        {
             return 0;
         }
     } while (1);

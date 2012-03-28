@@ -13,6 +13,19 @@ void ScriptLexer::die(int line)
     exit(INTERNAL_ERROR);
 }
 
+void ScriptLexer::updateLinePos(int& line, int& pos)
+{
+    if (c == EOF)
+        return;
+
+    if (c == '\n') {
+        ++line;
+        pos = 0;
+    } else {
+        ++pos;
+    }
+}
+
 int ScriptLexer::isSpaceSymbol(int c)
 {
     char *p = spaceSymbols;
@@ -306,9 +319,10 @@ ScriptLexer::ScriptLexer()
     tmpBuffer(),
     /* lexType is undefined */
     notTakeNextChar(0),
-    queue()
+    queue(),
     /* c is undefined */
-        {}
+    line(1),
+    pos(1) {}
 
 void ScriptLexer::putNewData(char *buffer, int size)
 {
@@ -339,6 +353,7 @@ ScriptLexeme* ScriptLexer::getLex()
         } else {
             if (queue.hasNextChar()) {
                 c = queue.getNextChar();
+                updateLinePos(line, pos);
             } else {
                 /* Request for new data */
                 return 0;
@@ -354,6 +369,9 @@ ScriptLexeme* ScriptLexer::getLex()
         state != ST_ERROR)
     {
         die(__LINE__);
+    } else {
+        lex->line = line;
+        lex->pos = pos;
     }
 
     return lex;

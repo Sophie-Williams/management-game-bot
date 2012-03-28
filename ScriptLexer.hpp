@@ -30,10 +30,14 @@ enum ScriptLexemeType {
 
 struct ScriptLexeme {
     ScriptLexemeType type;
-    /* TODO */
+    /* TODO: value */
+    int line;
+    int pos;
 
     ScriptLexeme(ScriptLexemeType aType)
-        : type(aType) {}
+        : type(aType)
+        /* line and pos is undefined */
+            {}
 };
 
 #ifndef INTERNAL_ERROR
@@ -65,7 +69,11 @@ class ScriptLexer {
     CharQueue queue;
     int c;
 
+    int line;
+    int pos;
+
     void die(int line);
+    void updateLinePos(int& line, int& pos);
 
     int isSpaceSymbol(int c);
     int isFirstIdentifierSymbol(int c);
