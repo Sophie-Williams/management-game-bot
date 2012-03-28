@@ -1,10 +1,7 @@
 #ifndef SCRIPT_LEXER_SENTRY
 #define SCRIPT_LEXER_SENTRY
 
-#if 0
 #include <stdlib.h>
-#include <ctype.h>
-#endif
 #include "String/String.hpp"
 #include "CharQueue.hpp"
 
@@ -27,7 +24,8 @@ enum ScriptLexemeType {
     SCR_LEX_COMMA,     /* , */
     SCR_LEX_NUMBER,
     SCR_LEX_STRING,
-    SCR_LEX_EOF
+    SCR_LEX_EOF,
+    SCR_LEX_ERROR
 };
 
 struct ScriptLexeme {
@@ -42,13 +40,12 @@ struct ScriptLexeme {
 #define INTERNAL_ERROR 1
 #endif
 
-
 class ScriptLexer {
-    static char spaceSymbols[] = " \t\n"; /* and EOF */
-    static char oneSymLexSymbols[] = "*/%+-<>!()[]:;,";
-    static char twoSymLexSymbols[] = "=&|"; /* ==, &&, || */
+    static char spaceSymbols[];
+    static char oneSymLexSymbols[];
+    static char twoSymLexSymbols[];
 
-    enum lexerState {
+    enum LexerState {
         ST_START,
         ST_IDENTIFIER_FIRST,
         ST_IDENTIFIER,
@@ -61,7 +58,7 @@ class ScriptLexer {
         ST_ERROR
     };
 
-    lexerState state;
+    LexerState state;
     String tmpBuffer;
     ScriptLexemeType lexType;
     int notTakeNextChar;
@@ -70,14 +67,12 @@ class ScriptLexer {
 
     void die(int line);
 
-    /* TODO: move to special class */
     int isSpaceSymbol(int c);
     int isFirstIdentifierSymbol(int c);
+    int isIdentifierSymbol(int c);
     int isOneSymLexSymbol(int c);
     int isTwoSymLexSymbol(int c);
     int isDigit(int c);
-    // TODO: necessary?
-    //int isDelimiter(int c); /* space or one/two sym lex */
 
     ScriptLexeme* stStart();
     ScriptLexeme* stIdentifierFirst();
@@ -90,6 +85,7 @@ class ScriptLexer {
     ScriptLexeme* stEOF();
     ScriptLexeme* stError();
 
+    ScriptLexeme* invokeStateHandler(LexerState state);
 public:
     ScriptLexer();
     void putNewData(char *newBuffer, int size);

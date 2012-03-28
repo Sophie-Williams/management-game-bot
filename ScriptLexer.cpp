@@ -1,5 +1,9 @@
 #include "ScriptLexer.hpp"
 
+char spaceSymbols[] = " \t\n"; /* and EOF */
+char oneSymLexSymbols[] = "*/%+-<>!()[]:;,";
+char twoSymLexSymbols[] = "=&|"; /* ==, &&, || */
+
 void ScriptLexer::die(int line)
 {
 #ifndef DAEMON
@@ -9,10 +13,67 @@ void ScriptLexer::die(int line)
     exit(INTERNAL_ERROR);
 }
 
+int ScriptLexer::isSpaceSymbol(int c)
+{
+    char *p = spaceSymbols;
+
+    while (*p != '\0') {
+        if (*p == c)
+            return 1;
+    }
+
+    return 0;
+}
+
+int ScriptLexer::isFirstIdentifierSymbol(int c)
+{
+    return ((c >= 'a') && (c <= 'z'))
+        || ((c >= 'A') && (c <= 'Z'))
+        || c == '_';
+}
+
+int ScriptLexer::isIdentifierSymbol(int c)
+{
+    return ((c >= '0') && (c <= '9'))
+        || ((c >= 'a') && (c <= 'z'))
+        || ((c >= 'A') && (c <= 'Z'))
+        || c == '_';
+
+}
+
+int ScriptLexer::isOneSymLexSymbol(int c)
+{
+    char *p = oneSymLexSymbols;
+
+    while (*p != '\0') {
+        if (*p == c)
+            return 1;
+    }
+
+    return 0;
+}
+
+int ScriptLexer::isTwoSymLexSymbol(int c)
+{
+    char *p = twoSymLexSymbols;
+
+    while (*p != '\0') {
+        if (*p == c)
+            return 1;
+    }
+
+    return 0;
+}
+
+int ScriptLexer::isDigit(int c)
+{
+    return (c >= '0') && (c <= '9');
+}
+
 ScriptLexeme *ScriptLexer::stStart()
 {
     if (isSpaceSymbol(c))
-        return;
+        return 0;
 
     if (c == '@') {
         lexType = SCR_LEX_LABEL;
@@ -25,7 +86,7 @@ ScriptLexeme *ScriptLexer::stStart()
         state = ST_IDENTIFIER_FIRST;
     } else if (isFirstIdentifierSymbol(c)) {
         notTakeNextChar = 1;
-        lexType = SRC_LEX_OPERATOR;
+        lexType = SCR_LEX_OPERATOR;
         state = ST_IDENTIFIER_FIRST;
     } else if (isOneSymLexSymbol(c)) {
         notTakeNextChar = 1;
@@ -43,7 +104,8 @@ ScriptLexeme *ScriptLexer::stStart()
         state = ST_EOF;
     } else {
         notTakeNextChar = 1;
-        tmpBuffer = "Unrecognized symbol: \'" + c + "\'";
+        tmpBuffer = String("Unrecognized symbol: \'")
+            + c + "\'";
         state = ST_ERROR;
     }
 
@@ -57,7 +119,7 @@ ScriptLexeme* ScriptLexer::stIdentifierFirst()
         state = ST_IDENTIFIER;
     } else {
         notTakeNextChar = 1;
-        tmpBuffer = "Bad first identifier symbol: \'"
+        tmpBuffer = String("Bad first identifier symbol: \'")
             + c + "\'";
         state = ST_ERROR;
     }
@@ -99,24 +161,22 @@ ScriptLexeme* ScriptLexer::stOneSymLex()
     case '!':
         /* TODO: save lexeme subtype (e.g. symbol) */
         return new ScriptLexeme(SCR_LEX_OPERATION);
-        break;
     case '(':
     case ')':
     case '[':
     case ']':
         /* TODO: save lexeme subtype (e.g. symbol) */
         return new ScriptLexeme(SCR_LEX_BRACKET);
-        break;
     case ':':
         return new ScriptLexeme(SCR_LEX_COLON);
-        break;
     case ';':
         return new ScriptLexeme(SCR_LEX_SEMICOLON);
-        break;
     case ',':
         return new ScriptLexeme(SCR_LEX_COMMA);
-        break;
     }
+
+    /* Not possible */
+    return 0;
 }
 
 ScriptLexeme* ScriptLexer::stTwoSymLexFirst()
@@ -136,15 +196,15 @@ ScriptLexeme* ScriptLexer::stTwoSymLexFirst()
 
 ScriptLexeme* ScriptLexer::stTwoSymLex()
 {
-    if (isTwoSymLexSymbol() && tmpBuffer.isEqual(c)) {
+    if (isTwoSymLexSymbol(c) && tmpBuffer.isEqual(c)) {
         tmpBuffer.clear();
         state = ST_START;
         /* TODO: save lexeme subtype (e.g. symbol) */
         return new ScriptLexeme(SCR_LEX_OPERATION);
     } else {
         notTakeNextChar = 1;
-        tmpBuffer = "Lexer can not make two-symbol "
-            "lexeme, bad symbol: \'" + c + "\'";
+        tmpBuffer = String("Lexer can not make two-symbol "
+            "lexeme, bad symbol: \'") + c + "\'";
         state = ST_ERROR;
         return 0;
     }
@@ -152,7 +212,7 @@ ScriptLexeme* ScriptLexer::stTwoSymLex()
 
 ScriptLexeme* ScriptLexer::stNumber()
 {
-    if (idDigit(c)) {
+    if (isDigit(c)) {
         tmpBuffer += c;
         return 0;
     } else {
@@ -169,7 +229,7 @@ ScriptLexeme* ScriptLexer::stString()
         tmpBuffer.clear();
         state = ST_START;
         /* TODO: save string */
-        return ScriptLexeme(SCR_LEX_STRING);
+        return new ScriptLexeme(SCR_LEX_STRING);
     } else if (c == EOF) {
         notTakeNextChar = 1;
         tmpBuffer = "Not terminated string: EOF";
@@ -186,9 +246,9 @@ ScriptLexeme* ScriptLexer::stEOF()
     notTakeNextChar = 1;
 
     if (c == EOF) {
-        return new ScriptLexeme(SRC_LEX_EOF);
+        return new ScriptLexeme(SCR_LEX_EOF);
     } else {
-        tmpBuffer = "Symbol after EOF: \'" + c "\'";
+        tmpBuffer = String("Symbol after EOF: \'") + c + "\'";
         state = ST_ERROR;
         return 0;
     }
@@ -202,7 +262,37 @@ ScriptLexeme* ScriptLexer::stError()
     return new ScriptLexeme(SCR_LEX_ERROR);
 }
 
-void ScriptLexer::ScriptLexer()
+ScriptLexeme* ScriptLexer::invokeStateHandler(LexerState state)
+{
+    switch (state) {
+    case ST_START:
+        return stStart();
+    case ST_IDENTIFIER_FIRST:
+        return stIdentifierFirst();
+    case ST_IDENTIFIER:
+        return stIdentifier();
+    case ST_ONE_SYM_LEX:
+        return stOneSymLex();
+    case ST_TWO_SYM_LEX_FIRST:
+        return stTwoSymLexFirst();
+    case ST_TWO_SYM_LEX:
+        return stTwoSymLex();
+    case ST_NUMBER:
+        return stNumber();
+    case ST_STRING:
+        return stString();
+    case ST_EOF:
+        return stEOF();
+    case ST_ERROR:
+        return stError();
+    }
+
+    /* Not possible */
+    return 0;
+}
+
+
+ScriptLexer::ScriptLexer()
     : state(ST_START),
     tmpBuffer(),
     /* lexType is undefined */
@@ -211,7 +301,7 @@ void ScriptLexer::ScriptLexer()
     /* c is undefined */
         {}
 
-ScriptLexeme* getLex()
+ScriptLexeme* ScriptLexer::getLex()
 {
     ScriptLexeme *lex = NULL;
 
@@ -236,11 +326,7 @@ ScriptLexeme* getLex()
             }
         }
 
-        switch (state) {
-        case ST_START:
-            lex = stStart();
-            break;
-        } /* switch */
+        lex = invokeStateHandler(state);
     } while (lex == NULL);
 
     /* Additional check */
