@@ -4,6 +4,19 @@ char ScriptLexer::spaceSymbols[] = " \t\n"; /* and EOF */
 char ScriptLexer::oneSymLexSymbols[] = "*/%+-<>!()[]:;,";
 char ScriptLexer::twoSymLexSymbols[] = "=&|"; /* ==, &&, || */
 
+/* For find operation */
+char ScriptLexer::operationSymbols[] = "*/%+-<>=&|!";
+char ScriptLexer::bracketSymbols[] = "()[]";
+
+/* For print operation */
+const char* ScriptLexer::operationStrings[] = {
+    "*", "/", "%", "+", "-", "<", ">",
+    "==", "&&", "|", "!", ""
+};
+const char* ScriptLexer::bracketStrings[] = {
+    "(", ")", "[", "]", ""
+};
+
 void ScriptLexer::die(int line)
 {
 #ifndef DAEMON
@@ -86,6 +99,99 @@ int ScriptLexer::isDigit(int c)
     return (c >= '0') && (c <= '9');
 }
 
+Operations ScriptLexer::getOperationType(int c)
+{
+    for (unsigned int i = 0;
+        i < sizeof(operationSymbols); ++i)
+    {
+        if (operationSymbols[i] == c)
+            return (Operations) i;
+    }
+
+    return OP_UNKNOWN;
+}
+
+Brackets ScriptLexer::getBracketType(int c)
+{
+    for (unsigned int i = 0;
+        i < sizeof(bracketSymbols); ++i)
+    {
+        if (bracketSymbols[i] == c)
+            return (Brackets) i;
+    }
+
+    return BRACKET_UNKNOWN;
+}
+
+const char *ScriptLexer::getOperationString(unsigned int idx)
+{
+    if (idx > sizeof(operationStrings) / sizeof(char*)) {
+        return operationStrings[OP_UNKNOWN];
+    } else {
+        return operationStrings[idx];
+    }
+}
+
+const char *ScriptLexer::getBracketString(unsigned int idx)
+{
+    if (idx > sizeof(bracketStrings) / sizeof(char*)) {
+        return bracketStrings[OP_UNKNOWN];
+    } else {
+        return bracketStrings[idx];
+    }
+}
+
+#ifndef DAEMON
+void ScriptLexer::print(FILE *stream, const ScriptLexeme *lex)
+{
+    switch (lex->type) {
+    case SCR_LEX_LABEL:
+        fprintf(stream, "[Label: %s]", lex->strValue);
+        break;
+    case SCR_LEX_VARIABLE:
+        fprintf(stream, "[Variable: %s]", lex->strValue);
+        break;
+    case SCR_LEX_FUNCTION:
+        fprintf(stream, "[Function: %s]", lex->strValue);
+        break;
+    case SCR_LEX_OPERATOR:
+        fprintf(stream, "[Operator: %s]", lex->strValue);
+        break;
+    case SCR_LEX_OPERATION:
+        fprintf(stream, "[Operation: %s]",
+            getOperationString(lex->intValue));
+        break;
+    case SCR_LEX_BRACKET:
+        fprintf(stream, "[Bracket: %s]",
+            getBracketString(lex->intValue));
+        break;
+    case SCR_LEX_COLON:
+        fprintf(stream, "[Colon]");
+        break;
+    case SCR_LEX_SEMICOLON:
+        fprintf(stream, "[Semicolon]");
+        break;
+    case SCR_LEX_COMMA:
+        fprintf(stream, "[Comma]");
+        break;
+    case SCR_LEX_NUMBER:
+        fprintf(stream, "[Number: %d]", lex->intValue);
+        break;
+    case SCR_LEX_STRING:
+        fprintf(stream, "[String: %s]", lex->strValue);
+        break;
+    case SCR_LEX_EOF:
+        fprintf(stream, "[EOF]");
+        break;
+    case SCR_LEX_ERROR:
+        fprintf(stream, "[Error: %s]", lex->strValue);
+        break;
+    }
+
+    fprintf(stream, " %d:%d\n", lex->line, lex->pos);
+}
+#endif /* DAEMON */
+
 ScriptLexeme *ScriptLexer::stStart()
 {
     if (isSpaceSymbol(c))
@@ -149,10 +255,11 @@ ScriptLexeme* ScriptLexer::stIdentifier()
         tmpBuffer += c;
         return 0;
     } else {
+        char *str = tmpBuffer.getCharPtr();
         tmpBuffer.clear();
         notTakeNextChar = 1;
         state = ST_START;
-        return new ScriptLexeme(lexType);
+        return new ScriptLexeme(lexType, str);
     }
 }
 
@@ -176,15 +283,15 @@ ScriptLexeme* ScriptLexer::stOneSymLex()
     case '>':
     case '!':
         state = ST_START;
-        /* TODO: save lexeme subtype (e.g. symbol) */
-        return new ScriptLexeme(SCR_LEX_OPERATION);
+        return new ScriptLexeme(SCR_LEX_OPERATION,
+            getOperationType(c));
     case '(':
     case ')':
     case '[':
     case ']':
         state = ST_START;
-        /* TODO: save lexeme subtype (e.g. symbol) */
-        return new ScriptLexeme(SCR_LEX_BRACKET);
+        return new ScriptLexeme(SCR_LEX_BRACKET,
+            getBracketType(c));
     case ':':
         state = ST_START;
         return new ScriptLexeme(SCR_LEX_COLON);
@@ -220,8 +327,8 @@ ScriptLexeme* ScriptLexer::stTwoSymLex()
     if (isTwoSymLexSymbol(c) && tmpBuffer.isEqual(c)) {
         tmpBuffer.clear();
         state = ST_START;
-        /* TODO: save lexeme subtype (e.g. symbol) */
-        return new ScriptLexeme(SCR_LEX_OPERATION);
+        return new ScriptLexeme(SCR_LEX_OPERATION,
+            getOperationType(c));
     } else {
         notTakeNextChar = 1;
         tmpBuffer = String("Lexer can not make two-symbol "
@@ -237,21 +344,25 @@ ScriptLexeme* ScriptLexer::stNumber()
         tmpBuffer += c;
         return 0;
     } else {
+        char *str = tmpBuffer.getCharPtr();
+        /* We absolutelly sure that tmpBuffer
+         * is correct number. */
+        int number = atoi(str);
+        delete[] str;
         tmpBuffer.clear();
         notTakeNextChar = 1;
         state = ST_START;
-        /* TODO: save number */
-        return new ScriptLexeme(SCR_LEX_NUMBER);
+        return new ScriptLexeme(SCR_LEX_NUMBER, number);
     }
 }
 
 ScriptLexeme* ScriptLexer::stString()
 {
     if (c == '\"') {
+        char *str = tmpBuffer.getCharPtr();
         tmpBuffer.clear();
         state = ST_START;
-        /* TODO: save string */
-        return new ScriptLexeme(SCR_LEX_STRING);
+        return new ScriptLexeme(SCR_LEX_STRING, str);
     } else if (c == EOF) {
         notTakeNextChar = 1;
         tmpBuffer = "Not terminated string: EOF";
@@ -278,10 +389,10 @@ ScriptLexeme* ScriptLexer::stEOF()
 
 ScriptLexeme* ScriptLexer::stError()
 {
-    notTakeNextChar = 1;
-    /* TODO: save error message */
+    char *str = tmpBuffer.getCharPtr();
     tmpBuffer.clear();
-    return new ScriptLexeme(SCR_LEX_ERROR);
+    notTakeNextChar = 1;
+    return new ScriptLexeme(SCR_LEX_ERROR, str);
 }
 
 ScriptLexeme* ScriptLexer::invokeStateHandler(LexerState state)

@@ -22,49 +22,7 @@ int printLexemes(ScriptLexer& lexer)
         if (lex == 0)
             return 1;
 
-        switch (lex->type) {
-        case SCR_LEX_LABEL:
-            printf("[Label]");
-            break;
-        case SCR_LEX_VARIABLE:
-            printf("[Variable]");
-            break;
-        case SCR_LEX_FUNCTION:
-            printf("[Function]");
-            break;
-        case SCR_LEX_OPERATOR:
-            printf("[Operator]");
-            break;
-        case SCR_LEX_OPERATION:
-            printf("[Operation]");
-            break;
-        case SCR_LEX_BRACKET:
-            printf("[Bracket]");
-            break;
-        case SCR_LEX_COLON:
-            printf("[Colon]");
-            break;
-        case SCR_LEX_SEMICOLON:
-            printf("[Semicolon]");
-            break;
-        case SCR_LEX_COMMA:
-            printf("[Comma]");
-            break;
-        case SCR_LEX_NUMBER:
-            printf("[Number]");
-            break;
-        case SCR_LEX_STRING:
-            printf("[String]");
-            break;
-        case SCR_LEX_EOF:
-            printf("[EOF]");
-            break;
-        case SCR_LEX_ERROR:
-            printf("[Error]");
-            break;
-        }
-
-        printf(" %d:%d\n", lex->line, lex->pos);
+        lexer.print(stdout, lex);
 
         if (lex->type == SCR_LEX_EOF ||
             lex->type == SCR_LEX_ERROR)

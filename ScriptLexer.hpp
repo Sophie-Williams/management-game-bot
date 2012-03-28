@@ -2,8 +2,34 @@
 #define SCRIPT_LEXER_SENTRY
 
 #include <stdlib.h>
+#ifndef DAEMON
+#include <stdio.h>
+#endif
 #include "String/String.hpp"
 #include "CharQueue.hpp"
+
+enum Operations {
+    OP_MULTIPLICATION,
+    OP_DIVISION,
+    OP_REMAINDER_DIVISION,
+    OP_PLUS,
+    OP_MINUS,
+    OP_LESS,
+    OP_MORE,
+    OP_EQUALITY,
+    OP_AND,
+    OP_OR,
+    OP_NOT,
+    OP_UNKNOWN
+};
+
+enum Brackets {
+    BRACKET_PARENTTHESIS_OPEN,
+    BRACKET_PARENTTHESIS_CLOSE,
+    BRACKET_SQUARE_OPEN,
+    BRACKET_SQUARE_CLOSE,
+    BRACKET_UNKNOWN
+};
 
 enum ScriptLexemeType {
     SCR_LEX_LABEL,
@@ -15,6 +41,7 @@ enum ScriptLexemeType {
     /* internal function */
     /* ?[a-zA-Z_][a-zA-Z0-9_]* */
     SCR_LEX_OPERATOR,
+    /* operation or "then" */
     /* [a-zA-Z_][a-zA-Z0-9_]* */
     SCR_LEX_OPERATION,
     /* *, /, %, +, -, <, >, ==, &&, ||, ! */
@@ -30,14 +57,31 @@ enum ScriptLexemeType {
 
 struct ScriptLexeme {
     ScriptLexemeType type;
-    /* TODO: value */
+    int intValue;
+    char *strValue;
     int line;
     int pos;
 
     ScriptLexeme(ScriptLexemeType aType)
-        : type(aType)
+        : type(aType), intValue(0), strValue(0)
         /* line and pos is undefined */
             {}
+
+    ScriptLexeme(ScriptLexemeType aType, int aIntValue)
+        : type(aType), intValue(aIntValue), strValue(0)
+        /* line and pos is undefined */
+            {}
+
+    ScriptLexeme(ScriptLexemeType aType, char* aStrValue)
+        : type(aType), intValue(0), strValue(aStrValue)
+        /* line and pos is undefined */
+            {}
+
+    ~ScriptLexeme()
+    {
+        if (strValue)
+            delete[] strValue;
+    }
 };
 
 #ifndef INTERNAL_ERROR
@@ -48,6 +92,12 @@ class ScriptLexer {
     static char spaceSymbols[];
     static char oneSymLexSymbols[];
     static char twoSymLexSymbols[];
+
+    static char operationSymbols[];
+    static char bracketSymbols[];
+
+    static const char* operationStrings[];
+    static const char* bracketStrings[];
 
     enum LexerState {
         ST_START,
@@ -82,6 +132,11 @@ class ScriptLexer {
     int isTwoSymLexSymbol(int c);
     int isDigit(int c);
 
+    Operations getOperationType(int c);
+    Brackets getBracketType(int c);
+    const char *getOperationString(unsigned int idx);
+    const char *getBracketString(unsigned int idx);
+
     ScriptLexeme* stStart();
     ScriptLexeme* stIdentifierFirst();
     ScriptLexeme* stIdentifier();
@@ -99,6 +154,9 @@ public:
     void putNewData(char *buffer, int size);
     void putEOF();
     ScriptLexeme* getLex();
+#ifndef DAEMON
+    void print(FILE *stream, const ScriptLexeme *lex);
+#endif
 };
 
 #endif /* SCRIPT_LEXER_SENTRY */
