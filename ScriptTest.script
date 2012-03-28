@@ -1,0 +1,10 @@
+@begin:
+    print "Step number " ?turn ;
+    buy 2 ?raw_price ;
+    sell ?production(?my_id) ?production_price ;
+    set $toprod 2;
+    if ?raw(?my_id) < $toprod then
+        set $toprod ?raw(?my_id) ;
+    make $tomake ;
+    turn ;
+    goto @begin ;

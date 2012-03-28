@@ -1,2 +1,30 @@
+==== Script language ====
+* labels:    @[a-zA-Z0-9_]+
+* variables: $[a-zA-Z0-9_]+
+* arrays:    $[a-zA-Z0-9_]+(\[expression\])?
+
+* operators:
+  1. set variable expression;
+  2. goto label;
+  3. if expression then operator;
+  4. game actions:
+  4.1. buy amount, cost
+  4.2. sell amount, cost
+  4.3. make amount
+  4.4. build amount
+  4.5. turn
+  5. print "any symbols"
+
+* internal functions:
+  0. TODO
+
+* operations (by priority):
+  1. arithmetic:
+  1.1  *, /, %
+  1.2  +, - (also monadic munus)
+  2. compare: <, >, = (returns 0 or 1)
+  3. logic: &&, ||, ! (0 is false, any other is true)
+  4. change priority by (, ).
+
 ==== Notes ====
 Used String from https://github.com/Totktonada/cpp .

@@ -17,7 +17,7 @@ void ServerMsgLexer::die(int line)
 {
 #ifndef DAEMON
     fprintf(stderr,
-        "Sorry, I'm bad lexer. See to %d line.", line);
+        "Sorry, I'm bad lexer. See %s:%d\n", __FILE__, line);
 #endif
     exit(INTERNAL_ERROR);
 }
