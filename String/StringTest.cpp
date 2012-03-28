@@ -50,5 +50,19 @@ int main()
         ex.print(stderr);
     }
 
+    try {
+        s1 = 'a';
+        s1.printf(stdout, ".%s.\n");           // .a.
+        printf(".%d.\n", s1.isEqual('a'));     // .1.
+        printf(".%d.\n", s1.isEqual('b'));     // .0.
+        s1 = "abc";
+        s1.printf(stdout, ".%s.\n");           // .abc.
+        printf(".%d.\n", s1.isEqual('a'));     // .0.
+        printf(".%d.\n", s1.isEqual('b'));     // .0.
+    }
+    catch(IndexOutOfBoundException ex) {
+        ex.print(stderr);
+    }
+
     return 0;
 }

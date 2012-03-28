@@ -106,6 +106,34 @@ String& String::operator+=(char c)
     return *this;
 }
 
+String& String::operator=(const String &s)
+{
+    length = s.length;
+    delete[] p;
+    p = new char[length];
+    memcpy(p, s.p, length + 1); /* with '\0' */
+    return *this;
+}
+
+String& String::operator=(const char *ap)
+{
+    length = strlen(ap);
+    delete[] p;
+    p = new char[length];
+    memcpy(p, ap, length + 1); /* with '\0' */
+    return *this;
+}
+
+String& String::operator=(char c)
+{
+    length = 1;
+    delete[] p;
+    p = new char[2];
+    *p = c;
+    *(p + 1) = '\0';
+    return *this;
+}
+
 char& String::operator[](int index)
     throw (IndexOutOfBoundException)
 {
@@ -127,6 +155,14 @@ int String::isEqual(const char *ap) const
         return 0;
 
     return STR_EQUAL(p, ap);
+}
+
+int String::isEqual(char c) const
+{
+    if (length != 1)
+        return 0;
+
+    return *p == c;
 }
 
 int String::startsWith(const char *ap) const

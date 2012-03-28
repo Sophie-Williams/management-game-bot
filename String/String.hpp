@@ -38,14 +38,14 @@ public:
     String& operator+=(const String &s);
     String& operator+=(const char *ap);
     String& operator+=(char c);
-    String& operator=(const String &s); /* TODO */
-    String& operator=(const char *ap); /* TODO */
-    String& operator=(char c); /* TODO */
+    String& operator=(const String &s);
+    String& operator=(const char *ap);
+    String& operator=(char c);
     char& operator[](int index)
         throw (IndexOutOfBoundException);
     int getLength() const;
     int isEqual(const char *ap) const;
-    int isEqual(char c) const; /* TODO */
+    int isEqual(char c) const;
     int startsWith(const char *ap) const;
     int isEqual(const String &s) const;
     int startsWith(const String &s) const;

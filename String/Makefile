@@ -1,8 +1,8 @@
 HEADERS = IndexOutOfBoundException.hpp String.hpp
-SRCMODULES = String.cpp string-test.cpp
+SRCMODULES = String.cpp StringTest.cpp
 PRECOMP = $(HEADERS:.hpp=.hpp.gch)
 OBJMODULES = $(SRCMODULES:.cpp=.o)
-EXEC_FILE = string-test
+EXEC_FILE = StringTest
 
 DEFINE =
 CFLAGS = -g -Wall -Wextra -ansi -pedantic $(DEFINE)
