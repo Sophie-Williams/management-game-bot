@@ -51,6 +51,7 @@ public:
     int startsWith(const String &s) const;
     void clear();
     void printf(FILE *stream, const char *format) const;
+    char *getCharPtr();
 };
 
 #endif // STRING_HPP_SENTRY

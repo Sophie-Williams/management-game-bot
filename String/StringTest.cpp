@@ -6,6 +6,7 @@ int main()
     String s1 = String();
     String s2 = String("abc");
     String s3 = "def";
+    char *ptr;
 
     try {
         printf(".%d.\n", s2.isEqual(s2));      // .1.
@@ -33,6 +34,9 @@ int main()
         s2.printf(stdout, ".%s.\n");           // .abcdefjkl.
         s2 += 'p';
         s2.printf(stdout, ".%s.\n");           // .abcdefjklp.
+        ptr = s2.getCharPtr();
+        printf(".%s.\n", ptr);                 // .abcdefjklp.
+        delete[] ptr;
         printf(".%d.\n", s2.getLength());      // .10.
         s2.clear();
         printf(".%d.\n", s2.getLength());          // .0.
