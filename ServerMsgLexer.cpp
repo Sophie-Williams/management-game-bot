@@ -210,9 +210,9 @@ ServerMsgLexer::ServerMsgLexer()
         /* c is undefined */
             {}
 
-void ServerMsgLexer::putNewData(char *newBuffer, int size)
+void ServerMsgLexer::putNewData(char *buffer, int size)
 {
-    queue.putNewData(newBuffer, size);
+    queue.putNewData(buffer, size);
 }
 
 /* If new data necessary, returned 0.

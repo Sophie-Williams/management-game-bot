@@ -65,7 +65,7 @@ class ServerMsgLexer {
 
 public:
     ServerMsgLexer();
-    void putNewData(char *newBuffer, int size);
+    void putNewData(char *buffer, int size);
     ServerMsg* getMsg();
 };
 

@@ -88,7 +88,7 @@ class ScriptLexer {
     ScriptLexeme* invokeStateHandler(LexerState state);
 public:
     ScriptLexer();
-    void putNewData(char *newBuffer, int size);
+    void putNewData(char *buffer, int size);
     void putEOF();
     ScriptLexeme* getLex();
 };

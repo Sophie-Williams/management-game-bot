@@ -301,6 +301,16 @@ ScriptLexer::ScriptLexer()
     /* c is undefined */
         {}
 
+void ScriptLexer::putNewData(char *buffer, int size)
+{
+    queue.putNewData(buffer, size);
+}
+
+void ScriptLexer::putEOF()
+{
+    queue.putEOF();
+}
+
 ScriptLexeme* ScriptLexer::getLex()
 {
     ScriptLexeme *lex = NULL;
