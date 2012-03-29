@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 #include <ctype.h>
-#include "String/String.hpp"
+#include "String.hpp"
 #include "CharQueue.hpp"
 
 enum TypeOfServerMsg {

@@ -5,7 +5,7 @@
 #ifndef DAEMON
 #include <stdio.h>
 #endif
-#include "String/String.hpp"
+#include "String.hpp"
 #include "CharQueue.hpp"
 
 enum Operations {

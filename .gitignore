@@ -4,3 +4,5 @@
 *.hpp.gch
 ServerMsgLexerTest
 ScriptLexerTest
+StringTest
+deps.mk
