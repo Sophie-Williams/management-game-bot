@@ -89,12 +89,12 @@ struct ScriptLexeme {
 #endif
 
 class ScriptLexer {
-    static char spaceSymbols[];
-    static char oneSymLexSymbols[];
-    static char twoSymLexSymbols[];
+    static const char spaceSymbols[];
+    static const char oneSymLexSymbols[];
+    static const char twoSymLexSymbols[];
 
-    static char operationSymbols[];
-    static char bracketSymbols[];
+    static const char operationSymbols[];
+    static const char bracketSymbols[];
 
     static const char* operationStrings[];
     static const char* bracketStrings[];

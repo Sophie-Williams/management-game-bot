@@ -1,12 +1,12 @@
 #include "ScriptLexer.hpp"
 
-char ScriptLexer::spaceSymbols[] = " \t\n"; /* and EOF */
-char ScriptLexer::oneSymLexSymbols[] = "*/%+-<>!()[]:;,";
-char ScriptLexer::twoSymLexSymbols[] = "=&|"; /* ==, &&, || */
+const char ScriptLexer::spaceSymbols[] = " \t\n"; /* and EOF */
+const char ScriptLexer::oneSymLexSymbols[] = "*/%+-<>!()[]:;,";
+const char ScriptLexer::twoSymLexSymbols[] = "=&|"; /* ==, &&, || */
 
 /* For find operation */
-char ScriptLexer::operationSymbols[] = "*/%+-<>=&|!";
-char ScriptLexer::bracketSymbols[] = "()[]";
+const char ScriptLexer::operationSymbols[] = "*/%+-<>=&|!";
+const char ScriptLexer::bracketSymbols[] = "()[]";
 
 /* For print operation */
 const char* ScriptLexer::operationStrings[] = {
@@ -41,7 +41,7 @@ void ScriptLexer::updateLinePos(int& line, int& pos)
 
 int ScriptLexer::isSpaceSymbol(int c)
 {
-    char *p = spaceSymbols;
+    const char *p = spaceSymbols;
 
     while (*p != '\0') {
         if (*p == c)
@@ -70,7 +70,7 @@ int ScriptLexer::isIdentifierSymbol(int c)
 
 int ScriptLexer::isOneSymLexSymbol(int c)
 {
-    char *p = oneSymLexSymbols;
+    const char *p = oneSymLexSymbols;
 
     while (*p != '\0') {
         if (*p == c)
@@ -83,7 +83,7 @@ int ScriptLexer::isOneSymLexSymbol(int c)
 
 int ScriptLexer::isTwoSymLexSymbol(int c)
 {
-    char *p = twoSymLexSymbols;
+    const char *p = twoSymLexSymbols;
 
     while (*p != '\0') {
         if (*p == c)
