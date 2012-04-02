@@ -22,11 +22,16 @@ StringTest: String.o
 	$(CXX) $(CXXFLAGS) $^ $@.cpp -o $@
 
 ifneq (clean, $(MAKECMDGOALS))
+ifneq (clang_analyze_clean, $(MAKECMDGOALS))
 -include deps.mk
+endif
 endif
 
 deps.mk: $(SRCMODULES) $(HEADERS)
 	$(CXX) -MM $^ > $@
 
 clean:
-	rm -f *.hpp.gch *.o $(TEST_EXEC_FILES) deps.mk *.core core
+	rm -f *.o $(TEST_EXEC_FILES) deps.mk *.core core
+
+clang_analyze_clean:
+	rm -f *.hpp.gch *.plist

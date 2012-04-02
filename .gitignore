@@ -1,8 +1,9 @@
 .*.swp
 .vim
 *.o
-*.hpp.gch
 ServerMsgLexerTest
 ScriptLexerTest
 StringTest
 deps.mk
+*.hpp.gch
+*.plist
