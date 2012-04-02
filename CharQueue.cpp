@@ -1,7 +1,8 @@
 #include "CharQueue.hpp"
 
 CharQueue::CharQueue()
-        : readPointer(0),
+        : ptr(0),
+        readPointer(0),
         readAvailable(0),
         onEOF(0) {}
 

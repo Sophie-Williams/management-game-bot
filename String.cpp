@@ -108,6 +108,9 @@ String& String::operator+=(char c)
 
 String& String::operator=(const String &s)
 {
+    if (&s == this)
+        return *this;
+
     length = s.length;
     delete[] p;
     p = new char[length];

@@ -43,14 +43,14 @@ int main()
         (s2+'a'+'b'+'c').printf(stdout, ".%s.\n"); // .abc.
         s2[55] = 'x';                              // IndexOutOfBoundException: req 55; max: 8
     }
-    catch(IndexOutOfBoundException ex) {
+    catch(IndexOutOfBoundException& ex) {
         ex.print(stderr);
     }
 
     try {
         s2[-3] = 'y';                          // IndexOutOfBoundException: req -3; max: 8
     }
-    catch(IndexOutOfBoundException ex) {
+    catch(IndexOutOfBoundException& ex) {
         ex.print(stderr);
     }
 
@@ -64,7 +64,7 @@ int main()
         printf(".%d.\n", s1.isEqual('a'));     // .0.
         printf(".%d.\n", s1.isEqual('b'));     // .0.
     }
-    catch(IndexOutOfBoundException ex) {
+    catch(IndexOutOfBoundException& ex) {
         ex.print(stderr);
     }
 
