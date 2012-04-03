@@ -1,0 +1,15 @@
+1. В ScriptLexer/ServerMsgLexer заместо die() кидаем
+(Script|ServerMsg)LexerFailedException. Там, где ловим, делаем следующее:
+----
+ex.print();
+printf("Program paused (syscall pause()) for attaching debugger.\n"
+       "Attach GNU Debugger:      `gdb %s %d`\n."
+       "Make coredump file:       <Ctrl+/>.\n"
+       "Simply terminate program: <Ctrl+C>.\n",
+    argv[0], getpid());
+----
+
+2. В CharQueue: добавление в конец очереди даже если что-то уже есть. Подумать
+как при таком подходе отдавать в нужный момент EOF.
+
+3. int -> bool.
