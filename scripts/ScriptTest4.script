@@ -1,0 +1,5 @@
+// TODO
+player_pointer my_player;
+player_pointer players_list[];
+set my_player, ?get_my_player();
+set players_list, get_players_list();
