@@ -32,4 +32,6 @@ int main(int argc, char** argv)
     catch(Exception& ex) {
         printf("%s", ex.toString());
     }
+
+    return 0;
 }
