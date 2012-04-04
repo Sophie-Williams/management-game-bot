@@ -4,6 +4,7 @@
 ServerMsgLexerTest
 ScriptLexerTest
 StringTest
+SocketTest
 deps.mk
 *.hpp.gch
 *.plist
