@@ -199,7 +199,7 @@ void String::printf(FILE *stream, const char *format) const
     fprintf(stream, format, p);
 }
 
-char* String::getCharPtr()
+const char* String::getCharPtr()
 {
     char *newPtr = new char[length + 1];
     memcpy(newPtr, p, length + 1); /* with '\0' */

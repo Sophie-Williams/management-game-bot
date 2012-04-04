@@ -255,7 +255,7 @@ ScriptLexeme* ScriptLexer::stIdentifier()
         tmpBuffer += c;
         return 0;
     } else {
-        char *str = tmpBuffer.getCharPtr();
+        const char *str = tmpBuffer.getCharPtr();
         tmpBuffer.clear();
         notTakeNextChar = 1;
         state = ST_START;
@@ -344,7 +344,7 @@ ScriptLexeme* ScriptLexer::stNumber()
         tmpBuffer += c;
         return 0;
     } else {
-        char *str = tmpBuffer.getCharPtr();
+        const char *str = tmpBuffer.getCharPtr();
         /* We absolutelly sure that tmpBuffer
          * is correct number. */
         int number = atoi(str);
@@ -359,7 +359,7 @@ ScriptLexeme* ScriptLexer::stNumber()
 ScriptLexeme* ScriptLexer::stString()
 {
     if (c == '\"') {
-        char *str = tmpBuffer.getCharPtr();
+        const char *str = tmpBuffer.getCharPtr();
         tmpBuffer.clear();
         state = ST_START;
         return new ScriptLexeme(SCR_LEX_STRING, str);
@@ -389,7 +389,7 @@ ScriptLexeme* ScriptLexer::stEOF()
 
 ScriptLexeme* ScriptLexer::stError()
 {
-    char *str = tmpBuffer.getCharPtr();
+    const char *str = tmpBuffer.getCharPtr();
     tmpBuffer.clear();
     notTakeNextChar = 1;
     return new ScriptLexeme(SCR_LEX_ERROR, str);

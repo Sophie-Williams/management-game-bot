@@ -6,7 +6,7 @@ int main()
     String s1 = String();
     String s2 = String("abc");
     String s3 = "def";
-    char *ptr;
+    const char *ptr;
 
     try {
         printf(".%d.\n", s2.isEqual(s2));      // .1.

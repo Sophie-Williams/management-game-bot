@@ -58,7 +58,7 @@ enum ScriptLexemeType {
 struct ScriptLexeme {
     ScriptLexemeType type;
     int intValue;
-    char *strValue;
+    const char *strValue;
     int line;
     int pos;
 
@@ -72,7 +72,7 @@ struct ScriptLexeme {
         /* line and pos is undefined */
             {}
 
-    ScriptLexeme(ScriptLexemeType aType, char* aStrValue)
+    ScriptLexeme(ScriptLexemeType aType, const char* aStrValue)
         : type(aType), intValue(0), strValue(aStrValue)
         /* line and pos is undefined */
             {}
