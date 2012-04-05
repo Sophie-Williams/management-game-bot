@@ -38,6 +38,9 @@ void ServerMsg::print(FILE *stream)
         fprintf(stream, "MSG_JOIN_RESPONCE: %s\n",
             ok ? "ok" : "fail");
         break;
+    case MSG_MONTH_COMPLETED:
+        fprintf(stream, "MSG_MONTH_COMPLETED\n");
+        break;
     case MSG_ROUNDS_ASYNC:
         fprintf(stream, "MSG_ROUNDS_ASYNC: %s\n",
             ok ? "round started" : "unknown");
@@ -60,6 +63,7 @@ const char* ServerMsgLexer::typeOfServerMsgStr[] = {
     "[Sell]",
     "[Turn]",
     "[Join]",
+    "[Month completed]",
     "[Rounds]",
     "",
     ""
@@ -121,6 +125,7 @@ ServerMsg* ServerMsgLexer::stHeadStart()
         case MSG_SELL_RESPONCE:
         case MSG_TURN_RESPONCE:
         case MSG_JOIN_RESPONCE:
+        case MSG_MONTH_COMPLETED:
             timestampSkipped = 0;
             state = ST_OK_FAIL_RESPONCE;
             requestNextChar = 1;
@@ -231,6 +236,9 @@ ServerMsg* ServerMsgLexer::stOkFailResponce()
         msg->ok = tmpBuffer.isEqual("Okay! "
             "Your request to participating in next game round\n");
         break;
+    case MSG_MONTH_COMPLETED:
+        msg->ok = 1;
+        break;
     case MSG_ROUNDS_ASYNC:
     case MSG_UNKNOWN:
     case MSG_LEXER_ERROR:
@@ -266,6 +274,7 @@ ServerMsg* ServerMsgLexer::stAsyncMsg()
     case MSG_SELL_RESPONCE:
     case MSG_TURN_RESPONCE:
     case MSG_JOIN_RESPONCE:
+    case MSG_MONTH_COMPLETED:
         /* Not possible. */
         die(__LINE__);
     case MSG_ROUNDS_ASYNC:
@@ -284,13 +293,15 @@ ServerMsg* ServerMsgLexer::stAsyncMsg()
     return msg;
 }
 
+/* Supports "status --market" and "status [username]". */
 ServerMsg* ServerMsgLexer::stStatusResponce()
 {
     tmpBuffer += c;
 
-    if (tmpBuffer.isEqual("You are not player.\n") ||
+    if (c == '\n' && (
+        tmpBuffer.isEqual("You are not player.\n") ||
         tmpBuffer.isEqual("Client with same username not found,"
-            "try \"status --players\".\n"))
+            "try \"status --players\".\n")))
     {
         tmpBuffer.clear();
         ServerMsg *msg = new ServerMsg;
@@ -302,7 +313,10 @@ ServerMsg* ServerMsgLexer::stStatusResponce()
         requestNextChar = 1;
         state = ST_START;
         return msg;
-    } else if (tmpBuffer.isEqual("--- Building factories ---\n")) {
+    } else if ((c == '\n' && tmpBuffer.isEqual(
+        "--- Building factories ---\n")) ||
+        (c == ':' && tmpBuffer.isEqual("Next level:")))
+    {
         tmpBuffer.clear();
         ServerMsg *msg = new ServerMsg;
         msg->type = MSG_STATUS_RESPONCE;
