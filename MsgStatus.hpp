@@ -42,7 +42,7 @@ public:
 
         for (int i = 0; i < (size - 1); ++i)
             fprintf(stream, "%d ", values[i]);
-        fprintf(stream, "%d\n", values[size]);
+        fprintf(stream, "%d\n", values[size - 1]);
     }
 #endif /* DAEMON */
 
@@ -77,7 +77,6 @@ public:
     /* status [username] */
     int getPlayerFactories()
         { return values[3]; }
-
 };
 
 #endif /* MSG_STATUS_HPP_SENTRY */

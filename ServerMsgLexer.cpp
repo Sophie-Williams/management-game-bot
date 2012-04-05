@@ -7,7 +7,8 @@ void ServerMsg::print(FILE *stream)
     case MSG_STATUS_RESPONCE:
         fprintf(stream, "MSG_STATUS_RESPONCE: %s\n"
             "    ", ok ? "ok" : "fail");
-        status->printValues(stream);
+        if (ok)
+            status->printValues(stream);
         break;
     case MSG_NICK_RESPONCE:
         fprintf(stream, "MSG_NICK_RESPONCE: %s\n",
