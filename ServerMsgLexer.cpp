@@ -5,8 +5,9 @@ void ServerMsg::print(FILE *stream)
 {
     switch (type) {
     case MSG_STATUS_RESPONCE:
-        fprintf(stream, "MSG_STATUS_RESPONCE: %s\n",
-            ok ? "ok" : "fail");
+        fprintf(stream, "MSG_STATUS_RESPONCE: %s\n"
+            "    ", ok ? "ok" : "fail");
+        status->printValues(stream);
         break;
     case MSG_NICK_RESPONCE:
         fprintf(stream, "MSG_NICK_RESPONCE: %s\n",
@@ -327,7 +328,10 @@ ServerMsg* ServerMsgLexer::stStatusResponce()
 
 ServerMsg* ServerMsgLexer::stStatusReadValue()
 {
-    if (isdigit(c)) {
+    if (isdigit(c) && tmpValue == -1) {
+        tmpValue = (c - '0');
+        requestNextChar = 1;
+    } else if (isdigit(c) && tmpValue != -1) {
         tmpValue = tmpValue * 10 + (c - '0');
         requestNextChar = 1;
     } else if (tmpValue == -1) {
