@@ -100,7 +100,7 @@ void Socket::disconnect()
 bool Socket::read(char *buf, size_t count, int* readed)
     throw (SocketIOException)
 {
-    ssize_t readValue = ::read(fd, buf, count);
+    ssize_t readValue = ::read(fd, buf, sizeof(char) * count);
     /* TODO: necessary static_cast<void*>(buf) ? */
 
     if (SocketIOException::isReadError(readValue)) {
@@ -117,7 +117,7 @@ bool Socket::read(char *buf, size_t count, int* readed)
 void Socket::write(const char *buf, size_t count)
     throw (SocketIOException)
 {
-    ssize_t writeValue = ::write(fd, buf, count);
+    ssize_t writeValue = ::write(fd, buf, sizeof(char) * count);
     /* TODO: necessary static_cast<void*>(buf) ? */
 
     if (SocketIOException::isWriteError(writeValue)) {
