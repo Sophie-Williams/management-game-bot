@@ -5,6 +5,7 @@ ServerMsgLexerTest
 ScriptLexerTest
 StringTest
 SocketTest
+BaldBot
 deps.mk
 *.hpp.gch
 *.plist
