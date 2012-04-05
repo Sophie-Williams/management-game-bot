@@ -19,17 +19,56 @@ enum TypeOfServerMsg {
     MSG_LEXER_ERROR
 };
 
-struct MsgStatusResponce {
+#if 0
+struct PlayerInfo {
     int money;
     int raws;
     int productions;
     int factories;
 };
 
+struct MarketInfo {
+    int raw;
+    int raw_min_price;
+    int prod;
+    int prod_max_price;
+}
+#endif
+
+class MsgStatus {
+    int *values;
+    int size;
+
+public:
+    MsgStatus()
+        : values(0),
+        size(0) {}
+
+    void add(int number)
+    {
+        int *newValues = new int[size + 1];
+        if (values)
+            memcpy(newValues, values,
+                size * sizeof(int));
+        newValues[size] = number;
+        ++size;
+    }
+
+    int get(int index) const
+    {
+        return values[index];
+    }
+
+    int getSize() const
+    {
+        return size;
+    }
+};
+
 struct ServerMsg {
     TypeOfServerMsg type;
     int okResponce;
-    MsgStatusResponce* responce;
+    MsgStatus* status;
 
     void print();
 };
@@ -48,10 +87,8 @@ class ServerMsgLexer {
         ST_SKIP_TO_NEXT_HEAD,
         ST_OK_FAIL_RESPONCE,
         ST_STATUS_RESPONCE,
-        ST_STATUS_MONEY,
-        ST_STATUS_RAWS,
-        ST_STATUS_PRODUCTIONS,
-        ST_STATUS_FACTORIES,
+        ST_STATUS_READ_VALUE,
+        ST_STATUS_SKIP_TO_NEWLINE,
         ST_ERROR
     };
 
@@ -65,10 +102,8 @@ class ServerMsgLexer {
     int c;
 
     /* Temporally values */
-    int money;
-    int raws;
-    int productions;
-    int factories;
+    int tmpValue;
+    MsgStatus* tmpStatus;
 
     void die(int line);
     TypeOfServerMsg getMsgType(const String &str) const;
@@ -78,10 +113,8 @@ class ServerMsgLexer {
     ServerMsg* stSkipToNextHead();
     ServerMsg* stOkFailResponce();
     ServerMsg* stStatusResponce();
-    ServerMsg* stStatusMoney();
-    ServerMsg* stStatusRaws();
-    ServerMsg* stStatusProductions();
-    ServerMsg* stStatusFactories();
+    ServerMsg* stStatusReadValue();
+    ServerMsg* stStatusSkipToNewline();
     ServerMsg* stError();
 
 public:

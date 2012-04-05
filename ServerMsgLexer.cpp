@@ -4,11 +4,8 @@ void ServerMsg::print()
 {
     switch (type) {
     case MSG_STATUS_RESPONCE:
-        printf("MSG_STATUS_RESPONCE\n");
-        printf("    Money:       %d\n", responce->money);
-        printf("    Raws:        %d\n", responce->raws);
-        printf("    Productions: %d\n", responce->productions);
-        printf("    Factorues  : %d\n", responce->factories);
+        printf("MSG_STATUS_RESPONCE: %s\n",
+            okResponce ? "ok" : "fail");
         break;
     case MSG_NICK_RESPONCE:
         printf("MSG_NICK_RESPONCE: %s\n",
@@ -194,7 +191,7 @@ ServerMsg* ServerMsgLexer::stOkFailResponce()
     ServerMsg *msg = new ServerMsg;
     msg->type = msgType;
     /* msg->okResponce is undefined. */
-    msg->responce = 0;
+    msg->status = 0;
 
     switch (msgType) {
     case MSG_STATUS_RESPONCE:
@@ -233,91 +230,70 @@ ServerMsg* ServerMsgLexer::stOkFailResponce()
 
 ServerMsg* ServerMsgLexer::stStatusResponce()
 {
-    requestNextChar = 1;
+    tmpBuffer += c;
 
-    if (c == '\n')
+    if (tmpBuffer.isEqual("You are not player.\n") ||
+        tmpBuffer.isEqual("Client with same username not found,"
+            "try \"status --players\".\n"))
+    {
         tmpBuffer.clear();
-    else
-        tmpBuffer += c;
-
-    if (c == ':' && tmpBuffer.isEqual("Money:")) {
-        tmpBuffer.clear();
-        money = 0;
-        state = ST_STATUS_MONEY;
-    }
-
-    return 0;
-}
-
-ServerMsg* ServerMsgLexer::stStatusMoney()
-{
-    if (c == '\n') {
-        raws = 0;
-        state = ST_STATUS_RAWS;
-        requestNextChar = 1;
-    } else if (isdigit(c)) {
-        money = money * 10 + (c - '0');
-        requestNextChar = 1;
-    } else {
-        requestNextChar = 1;
-    }
-
-    return 0;
-}
-
-ServerMsg* ServerMsgLexer::stStatusRaws()
-{
-    if (c == '\n') {
-        productions = 0;
-        state = ST_STATUS_PRODUCTIONS;
-        requestNextChar = 1;
-    } else if (isdigit(c)) {
-        raws = raws * 10 + (c - '0');
-        requestNextChar = 1;
-    } else {
-        requestNextChar = 1;
-    }
-
-    return 0;
-}
-
-ServerMsg* ServerMsgLexer::stStatusProductions()
-{
-    if (c == '\n') {
-        factories = 0;
-        state = ST_STATUS_FACTORIES;
-        requestNextChar = 1;
-    } else if (isdigit(c)) {
-        productions = productions * 10 + (c - '0');
-        requestNextChar = 1;
-    } else {
-        requestNextChar = 1;
-    }
-
-    return 0;
-}
-
-ServerMsg* ServerMsgLexer::stStatusFactories()
-{
-    if (c == '\n') {
         ServerMsg *msg = new ServerMsg;
         msg->type = MSG_STATUS_RESPONCE;
-        msg->okResponce = 1;
-        msg->responce = new MsgStatusResponce;
-        msg->responce->money = money;
-        msg->responce->raws = raws;
-        msg->responce->productions = productions;
-        msg->responce->factories = factories;
+        msg->okResponce = 0;
+        /* msg->status is undefined */
+        tmpValue = -1;
+        tmpStatus = 0;
         requestNextChar = 1;
         state = ST_START;
         return msg;
-    } else if (isdigit(c)) {
-        factories = factories * 10 + (c - '0');
+    } else if (tmpBuffer.isEqual("--- Building factories ---\n")) {
+        tmpBuffer.clear();
+        ServerMsg *msg = new ServerMsg;
+        msg->type = MSG_STATUS_RESPONCE;
+        msg->okResponce = 1;
+        msg->status = tmpStatus;
+        tmpValue = -1;
+        tmpStatus = 0;
         requestNextChar = 1;
-    } else {
-        requestNextChar = 1;
+        state = ST_START;
+        return msg;
+    } else if (c == ':') {
+        tmpBuffer.clear();
+        tmpValue = -1;
+        if (tmpStatus == 0)
+            tmpStatus = new MsgStatus();
+        state = ST_STATUS_READ_VALUE;
+    } else if (c == '\n') {
+        tmpBuffer.clear();
     }
 
+    requestNextChar = 1;
+    return 0;
+}
+
+ServerMsg* ServerMsgLexer::stStatusReadValue()
+{
+    if (isdigit(c)) {
+        tmpValue = tmpValue * 10 + (c - '0');
+        requestNextChar = 1;
+    } else if (tmpValue == -1) {
+        requestNextChar = 1;
+    } else {
+        state = ST_STATUS_SKIP_TO_NEWLINE;
+        tmpStatus->add(tmpValue);
+    }
+
+    return 0;
+}
+
+
+ServerMsg* ServerMsgLexer::stStatusSkipToNewline()
+{
+    if (c == '\n') {
+        state = ST_STATUS_RESPONCE;
+    }
+
+    requestNextChar = 1;
     return 0;
 }
 
@@ -325,7 +301,7 @@ ServerMsg* ServerMsgLexer::stError()
 {
     ServerMsg *msg = new ServerMsg;
     msg->type = MSG_LEXER_ERROR;
-    /* okResponce and responce is undefined */
+    /* okResponce and status is undefined */
     state = ST_START;
     return msg;
 }
@@ -336,8 +312,10 @@ ServerMsgLexer::ServerMsgLexer()
         tmpBuffer(),
         /* msgType is undefined */
         requestNextChar(1),
-        queue()
+        queue(),
         /* c is undefined */
+        tmpValue(-1),
+        tmpStatus(0)
             {}
 
 void ServerMsgLexer::putNewData(char *buffer, int size)
@@ -381,17 +359,11 @@ ServerMsg *ServerMsgLexer::getMsg()
         case ST_STATUS_RESPONCE:
             msg = stStatusResponce();
             break;
-        case ST_STATUS_MONEY:
-            msg = stStatusMoney();
+        case ST_STATUS_READ_VALUE:
+            msg = stStatusReadValue();
             break;
-        case ST_STATUS_RAWS:
-            msg = stStatusRaws();
-            break;
-        case ST_STATUS_PRODUCTIONS:
-            msg = stStatusProductions();
-            break;
-        case ST_STATUS_FACTORIES:
-            msg = stStatusFactories();
+        case ST_STATUS_SKIP_TO_NEWLINE:
+            msg = stStatusSkipToNewline();
             break;
         case ST_ERROR:
             msg = stError();
