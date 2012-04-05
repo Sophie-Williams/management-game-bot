@@ -3,10 +3,11 @@
 #include "ServerMsgLexer.hpp"
 
 #define MSG(str) (str), sizeof(str)
-#define BUFFER_SIZE 4
+
+static const int bufferSize = 4096;
 
 struct BotState {
-   char buffer[BUFFER_SIZE];
+   char buffer[bufferSize];
    ServerMsgLexer lexer;
    Socket socket;
    int readed;
@@ -15,7 +16,7 @@ struct BotState {
        : socket(host, port), readed(0) {}
 };
 
-ServerMsg* expectMsg(BotState& state, TypeOfServerMsg type)
+ServerMsg* expectMsg(BotState& state, TypeOfServerMsg type, bool skipIfNotOk)
 {
     ServerMsg *msg = 0;
 
@@ -23,13 +24,23 @@ ServerMsg* expectMsg(BotState& state, TypeOfServerMsg type)
         msg = state.lexer.getMsg();
 
         while (msg == 0) {
-            state.socket.read(state.buffer, BUFFER_SIZE * sizeof(char*), &(state.readed));
-            state.lexer.putNewData(state.buffer, state.readed);
+            bool notEOF = state.socket.read(state.buffer,
+                bufferSize * sizeof(char), &(state.readed));
+            if (notEOF) {
+                state.lexer.putNewData(state.buffer, state.readed);
+            } else {
+//                state.lexer.putEOF();
+                printf("Got EOF, exiting...");
+                exit(0);
+            }
+
             msg = state.lexer.getMsg();
         }
-    } while (msg->type != type);
 
-    if (msg->okResponce)
+        msg->print(stdout);
+    } while ((skipIfNotOk && !msg->ok) || (msg->type != type));
+
+    if (msg->ok)
         return msg;
 
     throw 1; /* TODO */
@@ -63,7 +74,8 @@ int main(int argc, char** argv)
         ServerMsg *msg;
         state.socket.connect();
         state.socket.write(MSG("join\r\n"));
-        msg = expectMsg(state, MSG_JOIN_RESPONCE);
+        msg = expectMsg(state, MSG_JOIN_RESPONCE, false);
+        msg = expectMsg(state, MSG_ROUNDS_ASYNC, true);
         state.socket.disconnect();
 //        lexer.putEOF();
     } catch(Exception& ex) {

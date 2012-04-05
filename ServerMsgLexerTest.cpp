@@ -15,7 +15,7 @@ void printMessages(ServerMsgLexer& lexer)
         if (msg == 0)
             return;
 
-        msg->print();
+        msg->print(stdout);
 
         if (msg->type == MSG_LEXER_ERROR)
             exit(INTERNAL_ERROR);

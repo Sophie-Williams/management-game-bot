@@ -15,6 +15,7 @@ enum TypeOfServerMsg {
     MSG_SELL_RESPONCE,
     MSG_TURN_RESPONCE,
     MSG_JOIN_RESPONCE,
+    MSG_ROUNDS_ASYNC,
     MSG_UNKNOWN,
     MSG_LEXER_ERROR
 };
@@ -31,10 +32,13 @@ public:
     void add(int number)
     {
         int *newValues = new int[size + 1];
-        if (values)
+        if (values) {
             memcpy(newValues, values,
                 size * sizeof(int));
+            delete[] values;
+        }
         newValues[size] = number;
+        values = newValues;
         ++size;
     }
 
@@ -79,10 +83,12 @@ public:
 
 struct ServerMsg {
     TypeOfServerMsg type;
-    int okResponce;
+    int ok;
     MsgStatus* status;
 
-    void print();
+#ifndef DAEMON
+    void print(FILE *stream);
+#endif
 };
 
 #ifndef INTERNAL_ERROR
@@ -101,6 +107,7 @@ class ServerMsgLexer {
         ST_STATUS_RESPONCE,
         ST_STATUS_READ_VALUE,
         ST_STATUS_SKIP_TO_NEWLINE,
+        ST_ASYNC_MSG,
         ST_ERROR
     };
 
@@ -108,7 +115,6 @@ class ServerMsgLexer {
     int timestampSkipped;
     String tmpBuffer;
     TypeOfServerMsg msgType;
-    /* TODO: int async; */
     int requestNextChar;
     CharQueue queue;
     int c;
@@ -124,6 +130,7 @@ class ServerMsgLexer {
     ServerMsg* stHeadSkipTimestamp();
     ServerMsg* stSkipToNextHead();
     ServerMsg* stOkFailResponce();
+    ServerMsg* stAsyncMsg();
     ServerMsg* stStatusResponce();
     ServerMsg* stStatusReadValue();
     ServerMsg* stStatusSkipToNewline();

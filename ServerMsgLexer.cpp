@@ -1,48 +1,53 @@
 #include "ServerMsgLexer.hpp"
 
-void ServerMsg::print()
+#ifndef DAEMON
+void ServerMsg::print(FILE *stream)
 {
     switch (type) {
     case MSG_STATUS_RESPONCE:
-        printf("MSG_STATUS_RESPONCE: %s\n",
-            okResponce ? "ok" : "fail");
+        fprintf(stream, "MSG_STATUS_RESPONCE: %s\n",
+            ok ? "ok" : "fail");
         break;
     case MSG_NICK_RESPONCE:
-        printf("MSG_NICK_RESPONCE: %s\n",
-            okResponce ? "ok" : "fail");
+        fprintf(stream, "MSG_NICK_RESPONCE: %s\n",
+            ok ? "ok" : "fail");
         break;
     case MSG_BUILD_RESPONCE:
-        printf("MSG_BUILD_RESPONCE: %s\n",
-            okResponce ? "ok" : "fail");
+        fprintf(stream, "MSG_BUILD_RESPONCE: %s\n",
+            ok ? "ok" : "fail");
         break;
     case MSG_MAKE_RESPONCE:
-        printf("MSG_MAKE_RESPONCE: %s\n",
-            okResponce ? "ok" : "fail");
+        fprintf(stream, "MSG_MAKE_RESPONCE: %s\n",
+            ok ? "ok" : "fail");
         break;
     case MSG_BUY_RESPONCE:
-        printf("MSG_BUY_RESPONCE: %s\n",
-            okResponce ? "ok" : "fail");
+        fprintf(stream, "MSG_BUY_RESPONCE: %s\n",
+            ok ? "ok" : "fail");
         break;
     case MSG_SELL_RESPONCE:
-        printf("MSG_SELL_RESPONCE: %s\n",
-            okResponce ? "ok" : "fail");
+        fprintf(stream, "MSG_SELL_RESPONCE: %s\n",
+            ok ? "ok" : "fail");
         break;
     case MSG_TURN_RESPONCE:
-        printf("MSG_TURN_RESPONCE: %s\n",
-            okResponce ? "ok" : "fail");
+        fprintf(stream, "MSG_TURN_RESPONCE: %s\n",
+            ok ? "ok" : "fail");
         break;
     case MSG_JOIN_RESPONCE:
-        printf("MSG_JOIN_RESPONCE: %s\n",
-            okResponce ? "ok" : "fail");
+        fprintf(stream, "MSG_JOIN_RESPONCE: %s\n",
+            ok ? "ok" : "fail");
+        break;
+    case MSG_ROUNDS_ASYNC:
+        fprintf(stream, "MSG_ROUNDS_ASYNC: %s\n",
+            ok ? "round started" : "unknown");
         break;
     case MSG_UNKNOWN:
-        printf("MSG_UNKNOWN\n");
+        fprintf(stream, "MSG_UNKNOWN\n");
         break;
     case MSG_LEXER_ERROR:
-        printf("MSG_LEXER_ERROR\n");
+        fprintf(stream, "MSG_LEXER_ERROR\n");
     }
 }
-
+#endif /* DAEMON */
 
 const char* ServerMsgLexer::typeOfServerMsgStr[] = {
     "[Status]",
@@ -53,6 +58,7 @@ const char* ServerMsgLexer::typeOfServerMsgStr[] = {
     "[Sell]",
     "[Turn]",
     "[Join]",
+    "[Rounds]",
     "",
     ""
 };
@@ -86,8 +92,7 @@ ServerMsg* ServerMsgLexer::stStart()
     } else if (c == '[') {
         state = ST_HEAD_START;
     } else if (c == '<') {
-        timestampSkipped = 0;
-        state = ST_SKIP_TO_NEXT_HEAD;
+        state = ST_HEAD_START;
     } else {
         timestampSkipped = 0;
         state = ST_SKIP_TO_NEXT_HEAD;
@@ -118,6 +123,11 @@ ServerMsg* ServerMsgLexer::stHeadStart()
             state = ST_OK_FAIL_RESPONCE;
             requestNextChar = 1;
             break;
+        case MSG_ROUNDS_ASYNC:
+            timestampSkipped = 0;
+            state = ST_ASYNC_MSG;
+            requestNextChar = 1;
+            break;
         case MSG_UNKNOWN:
             timestampSkipped = 0;
             state = ST_SKIP_TO_NEXT_HEAD;
@@ -144,7 +154,9 @@ ServerMsg* ServerMsgLexer::stHeadStart()
 
 ServerMsg* ServerMsgLexer::stHeadSkipTimestamp()
 {
-    if (isdigit(c) || (c == ':') || (c == ']') || (c == ' ')) {
+    if (isdigit(c) || (c == ':') ||
+        (c == ']') || (c == '>') || (c == ' '))
+    {
         /* Skip */
         requestNextChar = 1;
     } else {
@@ -157,7 +169,9 @@ ServerMsg* ServerMsgLexer::stHeadSkipTimestamp()
 
 ServerMsg* ServerMsgLexer::stSkipToNextHead()
 {
-    if (c == '[' && tmpBuffer.isEqual("\n")) {
+    if ((c == '[' || c == '<') &&
+        tmpBuffer.isEqual("\n"))
+    {
         tmpBuffer.clear();
         state = ST_START;
         return 0;
@@ -187,10 +201,9 @@ ServerMsg* ServerMsgLexer::stOkFailResponce()
         return 0;
     }
 
-    state = ST_START;
     ServerMsg *msg = new ServerMsg;
     msg->type = msgType;
-    /* msg->okResponce is undefined. */
+    /* msg->ok is undefined. */
     msg->status = 0;
 
     switch (msgType) {
@@ -198,23 +211,64 @@ ServerMsg* ServerMsgLexer::stOkFailResponce()
         /* Not possible. */
         die(__LINE__);
     case MSG_NICK_RESPONCE:
-        msg->okResponce = tmpBuffer.startsWith("Your username: ");
+        msg->ok = tmpBuffer.startsWith("Your username: ");
         break;
     case MSG_BUILD_RESPONCE:
     case MSG_MAKE_RESPONCE:
     case MSG_BUY_RESPONCE:
     case MSG_SELL_RESPONCE:
-        msg->okResponce = tmpBuffer.isEqual(msg_request_flushed)
+        msg->ok = tmpBuffer.isEqual(msg_request_flushed)
             || tmpBuffer.isEqual(msg_request_stored)
             || tmpBuffer.isEqual(msg_request_replaced);
         break;
     case MSG_TURN_RESPONCE:
-        msg->okResponce =
+        msg->ok =
             tmpBuffer.isEqual("This month completed.\n");
         break;
     case MSG_JOIN_RESPONCE:
-        msg->okResponce = tmpBuffer.isEqual("Okay! "
+        msg->ok = tmpBuffer.isEqual("Okay! "
             "Your request to participating in next game round\n");
+        break;
+    case MSG_ROUNDS_ASYNC:
+    case MSG_UNKNOWN:
+    case MSG_LEXER_ERROR:
+        /* Not possible. */
+        die(__LINE__);
+    }
+
+    tmpBuffer.clear();
+    requestNextChar = 1;
+    state = ST_START;
+    return msg;
+}
+
+ServerMsg* ServerMsgLexer::stAsyncMsg()
+{
+    tmpBuffer += c;
+    if (c != '\n') {
+        requestNextChar = 1;
+        return 0;
+    }
+
+    ServerMsg *msg = new ServerMsg;
+    msg->type = msgType;
+    /* msg->ok is undefined. */
+    msg->status = 0;
+
+    switch (msgType) {
+    case MSG_STATUS_RESPONCE:
+    case MSG_NICK_RESPONCE:
+    case MSG_BUILD_RESPONCE:
+    case MSG_MAKE_RESPONCE:
+    case MSG_BUY_RESPONCE:
+    case MSG_SELL_RESPONCE:
+    case MSG_TURN_RESPONCE:
+    case MSG_JOIN_RESPONCE:
+        /* Not possible. */
+        die(__LINE__);
+    case MSG_ROUNDS_ASYNC:
+        msg->ok = tmpBuffer.isEqual("Game ready! "
+            "You are player of this game round.\n");
         break;
     case MSG_UNKNOWN:
     case MSG_LEXER_ERROR:
@@ -239,7 +293,7 @@ ServerMsg* ServerMsgLexer::stStatusResponce()
         tmpBuffer.clear();
         ServerMsg *msg = new ServerMsg;
         msg->type = MSG_STATUS_RESPONCE;
-        msg->okResponce = 0;
+        msg->ok = 0;
         /* msg->status is undefined */
         tmpValue = -1;
         tmpStatus = 0;
@@ -250,7 +304,7 @@ ServerMsg* ServerMsgLexer::stStatusResponce()
         tmpBuffer.clear();
         ServerMsg *msg = new ServerMsg;
         msg->type = MSG_STATUS_RESPONCE;
-        msg->okResponce = 1;
+        msg->ok = 1;
         msg->status = tmpStatus;
         tmpValue = -1;
         tmpStatus = 0;
@@ -301,7 +355,7 @@ ServerMsg* ServerMsgLexer::stError()
 {
     ServerMsg *msg = new ServerMsg;
     msg->type = MSG_LEXER_ERROR;
-    /* okResponce and status is undefined */
+    /* ok and status is undefined */
     state = ST_START;
     return msg;
 }
@@ -355,6 +409,9 @@ ServerMsg *ServerMsgLexer::getMsg()
             break;
         case ST_OK_FAIL_RESPONCE:
             msg = stOkFailResponce();
+            break;
+        case ST_ASYNC_MSG:
+            msg = stAsyncMsg();
             break;
         case ST_STATUS_RESPONCE:
             msg = stStatusResponce();
