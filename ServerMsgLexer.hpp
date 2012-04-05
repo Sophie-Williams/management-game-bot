@@ -19,22 +19,6 @@ enum TypeOfServerMsg {
     MSG_LEXER_ERROR
 };
 
-#if 0
-struct PlayerInfo {
-    int money;
-    int raws;
-    int productions;
-    int factories;
-};
-
-struct MarketInfo {
-    int raw;
-    int raw_min_price;
-    int prod;
-    int prod_max_price;
-}
-#endif
-
 class MsgStatus {
     int *values;
     int size;
@@ -54,15 +38,43 @@ public:
         ++size;
     }
 
-    int get(int index) const
-    {
-        return values[index];
-    }
-
+#if 0
     int getSize() const
-    {
-        return size;
-    }
+        { return size; }
+#endif
+
+    /* status --market */
+    int getMarketRaws()
+        { return values[2]; }
+
+    /* status --market */
+    int getMarketRawMinPrice()
+        { return values[3]; }
+
+    /* status --market */
+    int getMarketProductions()
+        { return values[4]; }
+
+    /* status --market */
+    int getMarketProdMaxPrice()
+        { return values[5]; }
+
+    /* status [username] */
+    int getPlayerMoney()
+        { return values[0]; }
+
+    /* status [username] */
+    int getPlayerRaws()
+        { return values[1]; }
+
+    /* status [username] */
+    int getPlayerProductions()
+        { return values[2]; }
+
+    /* status [username] */
+    int getPlayerFactories()
+        { return values[3]; }
+
 };
 
 struct ServerMsg {
