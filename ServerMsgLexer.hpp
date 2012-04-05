@@ -19,12 +19,19 @@ enum TypeOfServerMsg {
     MSG_LEXER_ERROR
 };
 
-class MsgStatusResponce {};
+struct MsgStatusResponce {
+    int money;
+    int raws;
+    int productions;
+    int factories;
+};
 
 struct ServerMsg {
     TypeOfServerMsg type;
     int okResponce;
     MsgStatusResponce* responce;
+
+    void print();
 };
 
 #ifndef INTERNAL_ERROR
@@ -41,6 +48,10 @@ class ServerMsgLexer {
         ST_SKIP_TO_NEXT_HEAD,
         ST_OK_FAIL_RESPONCE,
         ST_STATUS_RESPONCE,
+        ST_STATUS_MONEY,
+        ST_STATUS_RAWS,
+        ST_STATUS_PRODUCTIONS,
+        ST_STATUS_FACTORIES,
         ST_ERROR
     };
 
@@ -53,6 +64,12 @@ class ServerMsgLexer {
     CharQueue queue;
     int c;
 
+    /* Temporally values */
+    int money;
+    int raws;
+    int productions;
+    int factories;
+
     void die(int line);
     TypeOfServerMsg getMsgType(const String &str) const;
     ServerMsg* stStart();
@@ -61,6 +78,10 @@ class ServerMsgLexer {
     ServerMsg* stSkipToNextHead();
     ServerMsg* stOkFailResponce();
     ServerMsg* stStatusResponce();
+    ServerMsg* stStatusMoney();
+    ServerMsg* stStatusRaws();
+    ServerMsg* stStatusProductions();
+    ServerMsg* stStatusFactories();
     ServerMsg* stError();
 
 public:

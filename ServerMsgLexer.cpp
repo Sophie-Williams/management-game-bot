@@ -1,5 +1,52 @@
 #include "ServerMsgLexer.hpp"
 
+void ServerMsg::print()
+{
+    switch (type) {
+    case MSG_STATUS_RESPONCE:
+        printf("MSG_STATUS_RESPONCE\n");
+        printf("    Money:       %d\n", responce->money);
+        printf("    Raws:        %d\n", responce->raws);
+        printf("    Productions: %d\n", responce->productions);
+        printf("    Factorues  : %d\n", responce->factories);
+        break;
+    case MSG_NICK_RESPONCE:
+        printf("MSG_NICK_RESPONCE: %s\n",
+            okResponce ? "ok" : "fail");
+        break;
+    case MSG_BUILD_RESPONCE:
+        printf("MSG_BUILD_RESPONCE: %s\n",
+            okResponce ? "ok" : "fail");
+        break;
+    case MSG_MAKE_RESPONCE:
+        printf("MSG_MAKE_RESPONCE: %s\n",
+            okResponce ? "ok" : "fail");
+        break;
+    case MSG_BUY_RESPONCE:
+        printf("MSG_BUY_RESPONCE: %s\n",
+            okResponce ? "ok" : "fail");
+        break;
+    case MSG_SELL_RESPONCE:
+        printf("MSG_SELL_RESPONCE: %s\n",
+            okResponce ? "ok" : "fail");
+        break;
+    case MSG_TURN_RESPONCE:
+        printf("MSG_TURN_RESPONCE: %s\n",
+            okResponce ? "ok" : "fail");
+        break;
+    case MSG_JOIN_RESPONCE:
+        printf("MSG_JOIN_RESPONCE: %s\n",
+            okResponce ? "ok" : "fail");
+        break;
+    case MSG_UNKNOWN:
+        printf("MSG_UNKNOWN\n");
+        break;
+    case MSG_LEXER_ERROR:
+        printf("MSG_LEXER_ERROR\n");
+    }
+}
+
+
 const char* ServerMsgLexer::typeOfServerMsgStr[] = {
     "[Status]",
     "[Nick]",
@@ -186,8 +233,91 @@ ServerMsg* ServerMsgLexer::stOkFailResponce()
 
 ServerMsg* ServerMsgLexer::stStatusResponce()
 {
-    /* TODO */
-    die(__LINE__);
+    requestNextChar = 1;
+
+    if (c == '\n')
+        tmpBuffer.clear();
+    else
+        tmpBuffer += c;
+
+    if (c == ':' && tmpBuffer.isEqual("Money:")) {
+        tmpBuffer.clear();
+        money = 0;
+        state = ST_STATUS_MONEY;
+    }
+
+    return 0;
+}
+
+ServerMsg* ServerMsgLexer::stStatusMoney()
+{
+    if (c == '\n') {
+        raws = 0;
+        state = ST_STATUS_RAWS;
+        requestNextChar = 1;
+    } else if (isdigit(c)) {
+        money = money * 10 + (c - '0');
+        requestNextChar = 1;
+    } else {
+        requestNextChar = 1;
+    }
+
+    return 0;
+}
+
+ServerMsg* ServerMsgLexer::stStatusRaws()
+{
+    if (c == '\n') {
+        productions = 0;
+        state = ST_STATUS_PRODUCTIONS;
+        requestNextChar = 1;
+    } else if (isdigit(c)) {
+        raws = raws * 10 + (c - '0');
+        requestNextChar = 1;
+    } else {
+        requestNextChar = 1;
+    }
+
+    return 0;
+}
+
+ServerMsg* ServerMsgLexer::stStatusProductions()
+{
+    if (c == '\n') {
+        factories = 0;
+        state = ST_STATUS_FACTORIES;
+        requestNextChar = 1;
+    } else if (isdigit(c)) {
+        productions = productions * 10 + (c - '0');
+        requestNextChar = 1;
+    } else {
+        requestNextChar = 1;
+    }
+
+    return 0;
+}
+
+ServerMsg* ServerMsgLexer::stStatusFactories()
+{
+    if (c == '\n') {
+        ServerMsg *msg = new ServerMsg;
+        msg->type = MSG_STATUS_RESPONCE;
+        msg->okResponce = 1;
+        msg->responce = new MsgStatusResponce;
+        msg->responce->money = money;
+        msg->responce->raws = raws;
+        msg->responce->productions = productions;
+        msg->responce->factories = factories;
+        requestNextChar = 1;
+        state = ST_START;
+        return msg;
+    } else if (isdigit(c)) {
+        factories = factories * 10 + (c - '0');
+        requestNextChar = 1;
+    } else {
+        requestNextChar = 1;
+    }
+
     return 0;
 }
 
@@ -250,6 +380,18 @@ ServerMsg *ServerMsgLexer::getMsg()
             break;
         case ST_STATUS_RESPONCE:
             msg = stStatusResponce();
+            break;
+        case ST_STATUS_MONEY:
+            msg = stStatusMoney();
+            break;
+        case ST_STATUS_RAWS:
+            msg = stStatusRaws();
+            break;
+        case ST_STATUS_PRODUCTIONS:
+            msg = stStatusProductions();
+            break;
+        case ST_STATUS_FACTORIES:
+            msg = stStatusFactories();
             break;
         case ST_ERROR:
             msg = stError();
