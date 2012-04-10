@@ -1,0 +1,60 @@
+// $ dot -Tsvg ScriptLexer.dot -o ScriptLexer.svg
+digraph ScriptLexer {
+    node[color=white, fontcolor=white]
+    edge[color=white]
+    0->1->2->3->4->5->6->7->8->9
+
+    node[color=black, fontcolor=black, fontsize=12];
+    edge[color=black, fontcolor=blue, fontsize=10];
+
+    ST_START;
+    ST_IDENTIFIER_FIRST;
+    ST_IDENTIFIER;
+    ST_ONE_SYM_LEX;
+    ST_TWO_SYM_LEX_FIRST;
+    ST_TWO_SYM_LEX;
+    ST_NUMBER;
+    ST_STRING;
+    ST_EOF;
+    ST_ERROR;
+
+    { rank=same; 0; ST_START; }
+    { rank=same; 1; ST_IDENTIFIER_FIRST; }
+    { rank=same; 2; ST_IDENTIFIER; }
+    { rank=same; 3; ST_ONE_SYM_LEX; }
+    { rank=same; 4; ST_TWO_SYM_LEX_FIRST; }
+    { rank=same; 5; ST_TWO_SYM_LEX; }
+    { rank=same; 6; ST_NUMBER; }
+    { rank=same; 7; ST_STRING; }
+    { rank=same; 8; ST_EOF; }
+    { rank=same; 9; ST_ERROR; }
+
+// TODO: labels:
+// 1. wcr ::= without char request
+
+    ST_START -> ST_START [label="' ', '\\t', '\\n'"];
+    ST_START -> ST_IDENTIFIER_FIRST [label="'@', '$', '?'"];
+    ST_START -> ST_IDENTIFIER_FIRST [label="[a-zA-Z_] wcr"];
+    ST_IDENTIFIER_FIRST -> ST_IDENTIFIER [label="[a-zA-Z_]"];
+    ST_IDENTIFIER_FIRST -> ST_ERROR [label="any other; wcr"];
+    ST_IDENTIFIER -> ST_IDENTIFIER [label="[a-zA-Z0-9_]"];
+    ST_IDENTIFIER -> ST_START [label="any other; wcr"];
+    ST_START -> ST_ONE_SYM_LEX [label="*/%+=<>=!()[]:;, wcr"];
+    ST_ONE_SYM_LEX -> ST_START [label="any"];
+    ST_START -> ST_TWO_SYM_LEX_FIRST [label="'|', '&' wcr"];
+    ST_TWO_SYM_LEX_FIRST -> ST_TWO_SYM_LEX [label="proper '|' or '&'"];
+    ST_TWO_SYM_LEX -> ST_START [label="any"];
+    ST_TWO_SYM_LEX -> ST_ERROR [label="any other; wcr"];
+    ST_START -> ST_NUMBER [label="[0-9]"];
+    ST_NUMBER -> ST_NUMBER [label="[0-9]"];
+    ST_NUMBER -> ST_START [label="any other"];
+    ST_START -> ST_STRING [label="\""];
+    ST_STRING -> ST_STRING [label="any other"];
+    ST_STRING -> ST_START [label="\""];
+    ST_STRING -> ST_ERROR [label="EOF"];
+    ST_START -> ST_EOF [label="EOF; wcr"];
+    ST_EOF -> ST_EOF [label="EOF; wcr; return lex;"];
+    ST_EOF -> ST_ERROR [label="any other; wcr"];
+    ST_ERROR -> ST_ERROR [label="any; wcr; return lex;"];
+// TODO: return lex; (before ST_START)
+}
