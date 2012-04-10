@@ -6,25 +6,94 @@
 * internal functions:
   0. TODO
 
-* operators:
+* internal operators:
   1. set variable expression;
   2. goto label;
-  3. if expression then operator;
-  4. game actions:
-  4.1. buy amount, cost
-  4.2. sell amount, cost
-  4.3. make amount
-  4.4. build amount
-  4.5. turn
-  5. print "any symbols"
+  3. if (expression) operator [else operator]
+  4. while (expression) operator
+  4. print "any symbols", expr1, expr2, "any symbols";
+
+* game operators:
+  1. buy amount, cost
+  2. sell amount, cost
+  3. make amount
+  4. build amount
+  5. turn
 
 * operations (by priority):
-  1. arithmetic:
-  1.1  *, /, %
-  1.2  +, - (also monadic munus)
-  2. compare: <, >, == (returns 0 or 1)
-  3. logic: &&, ||, ! (0 is false, any other is true)
-  4. change priority by (, ).
+  1. monadic: '+', '-', '!';
+  2. arithmetic: '*', '/', '%';
+  3. arithmetic: '+', '-';
+  4. compare: '<', '>', '==';
+  5. logic: '&&'
+  5. logic: '||'
 
-==== Notes ====
-Used String from https://github.com/Totktonada/cpp .
+* More about operations:
+  1. change priority by '(', ')';
+  2. compare and logic operations
+     '<', '>', '==', '&&', '||', '!'
+     return 0 for false and 1 for true;
+  3. logic operations '&&', '||', '!'
+     mean 0 as false and any other as true;
+
+==== Grammar for parser ====
+Notes:
+* First branch is more priority then second, second then third...
+* Words in UPPER case is nonterminal symbols of grammar.
+* Words in lower case in 'quotes' is keywords of language.
+* Words in lower case without quotes is user-defined entity
+  (label or variable names, numeric or string constants).
+* Word nothing mean that new lexeme not readed and, therefore,
+  must not checked.
+* Figure brackets (e.g. {words}) similar to (words)* in PCRE.
+  This mean that words must be repeated zero or more time.
+* NONTERM(bool_value) mean that proper function invoked with
+  different boolean arguments from different right expression
+  (after "->").
+
+PROGRAM -> LABEL_OPERATOR {LABEL_OPERATOR} 'eof'
+LABEL_OPERATOR -> LABEL(false) ':' OPERATOR
+OPERATOR -> '{' {LABEL_OPERATOR} '}' | SINGLE_OPERATOR ';'
+
+SINGLE_OPERATOR -> 'set' VARIABLE(false) EXPR |
+                   'goto' LABEL(true) |
+                   'if' '(' EXPR ')' OPERATOR ELSE_SUFFIX |
+                   'while' '(' EXPR ')' OPERATOR
+                   'print' '(' PRINT_ARGS_LIST ')' |
+                   'buy' ARGS_LIST_2 |
+                   'sell' ARGS_LIST_2 |
+                   'make' ARGS_LIST_1 |
+                   'build' ARGS_LIST_1 |
+                   'turn' ARGS_LIST_0
+
+ARGS_LIST_0 -> '(' ')'
+ARGS_LIST_1 -> '(' EXPR ')'
+ARGS_LIST_2 -> '(' EXPR ',' EXPR ')'
+
+ELSE_SUFFIX -> 'else' OPERATOR | nothing
+PRINT_ARGS_LIST -> PRINT_ARG {',' PRINT_ARG}
+PRINT_ARG -> string | EXPR
+
+EXPR_O -> VARIABLE(true) | number | '(' EXPR ')'
+EXPR_1 -> MONADIC_OP EXPR_0 | EXPR_0
+EXPR_2 -> EXPR_1 ARITHMETIC_OP_1 EXPR_1 | EXPR_1
+EXPR_3 -> EXPR_2 ARITHMETIC_OP_2 EXPR_2 | EXPR_2
+EXPR_4 -> EXPR_3 COMPARE_OP EXPR_3 | EXPR_3
+EXPR_5 -> EXPR_4 LOGIC_OP_1 EXPR_4 | EXPR_4
+EXPR -> EXPR_5 LOGIC_OP_2 EXPR_5 | EXPR_5
+
+VARIABLE(def) -> variable ARRAY_SUFFIX(def)
+ARRAY_SUFFIX(def) -> '[' EXPR ']' | nothing
+LABEL(def) -> label
+// Argument def mean "must be defined". If def is true then
+// undefined variable or label here would be touched error.
+// Otherwise (def is false) variable would be defined (if
+// already not); label would be (re)defined.
+//TODO: (eng grammar) будет определена
+
+MONADIC_OP -> '+' | '-' | '!'
+ARITHMETIC_OP_1 -> '*' | '/' | '%'
+ARITHMETIC_OP_2 -> '+' | '-'
+COMPARE_OP -> '<' | '>' | '=='
+LOGIC_OP_1 -> '&&'
+LOGIC_OP_2 -> '||'
