@@ -40,8 +40,8 @@ enum ScriptLexemeType {
     SCR_LEX_FUNCTION,
     /* internal function */
     /* ?[a-zA-Z_][a-zA-Z0-9_]* */
-    SCR_LEX_OPERATOR,
-    /* operation or "then" */
+    SCR_LEX_KEYWORD,
+    /* keyword */
     /* [a-zA-Z_][a-zA-Z0-9_]* */
     SCR_LEX_OPERATION,
     /* *, /, %, +, -, <, >, ==, &&, ||, ! */

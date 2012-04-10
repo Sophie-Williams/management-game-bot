@@ -154,8 +154,8 @@ void ScriptLexer::print(FILE *stream, const ScriptLexeme *lex)
     case SCR_LEX_FUNCTION:
         fprintf(stream, "[Function: %s]", lex->strValue);
         break;
-    case SCR_LEX_OPERATOR:
-        fprintf(stream, "[Operator: %s]", lex->strValue);
+    case SCR_LEX_KEYWORD:
+        fprintf(stream, "[Keyword: %s]", lex->strValue);
         break;
     case SCR_LEX_OPERATION:
         fprintf(stream, "[Operation: %s]",
@@ -208,7 +208,7 @@ ScriptLexeme *ScriptLexer::stStart()
         state = ST_IDENTIFIER_FIRST;
     } else if (isFirstIdentifierSymbol(c)) {
         notTakeNextChar = 1;
-        lexType = SCR_LEX_OPERATOR;
+        lexType = SCR_LEX_KEYWORD;
         state = ST_IDENTIFIER_FIRST;
     } else if (isOneSymLexSymbol(c)) {
         notTakeNextChar = 1;
