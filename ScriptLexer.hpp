@@ -28,6 +28,8 @@ enum Brackets {
     BRACKET_PARENTTHESIS_CLOSE,
     BRACKET_SQUARE_OPEN,
     BRACKET_SQUARE_CLOSE,
+    BRACKET_FIGURE_OPEN,
+    BRACKET_FIGURE_CLOSE,
     BRACKET_UNKNOWN
 };
 
@@ -45,7 +47,7 @@ enum ScriptLexemeType {
     /* [a-zA-Z_][a-zA-Z0-9_]* */
     SCR_LEX_OPERATION,
     /* *, /, %, +, -, <, >, ==, &&, ||, ! */
-    SCR_LEX_BRACKET,   /* (, ), [, ] */
+    SCR_LEX_BRACKET,   /* (, ), [, ], {, } */
     SCR_LEX_COLON,     /* : */
     SCR_LEX_SEMICOLON, /* ; */
     SCR_LEX_COMMA,     /* , */

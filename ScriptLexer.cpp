@@ -1,12 +1,12 @@
 #include "ScriptLexer.hpp"
 
 const char ScriptLexer::spaceSymbols[] = " \t\n"; /* and EOF */
-const char ScriptLexer::oneSymLexSymbols[] = "*/%+-<>!()[]:;,";
+const char ScriptLexer::oneSymLexSymbols[] = "*/%+-<>!()[]{}:;,";
 const char ScriptLexer::twoSymLexSymbols[] = "=&|"; /* ==, &&, || */
 
 /* For find operation */
 const char ScriptLexer::operationSymbols[] = "*/%+-<>=&|!";
-const char ScriptLexer::bracketSymbols[] = "()[]";
+const char ScriptLexer::bracketSymbols[] = "()[]{}";
 
 /* For print operation */
 const char* ScriptLexer::operationStrings[] = {
@@ -14,7 +14,7 @@ const char* ScriptLexer::operationStrings[] = {
     "==", "&&", "|", "!", ""
 };
 const char* ScriptLexer::bracketStrings[] = {
-    "(", ")", "[", "]", ""
+    "(", ")", "[", "]", "{", "}", ""
 };
 
 void ScriptLexer::die(int line)
@@ -289,6 +289,8 @@ ScriptLexeme* ScriptLexer::stOneSymLex()
     case ')':
     case '[':
     case ']':
+    case '{':
+    case '}':
         state = ST_START;
         return new ScriptLexeme(SCR_LEX_BRACKET,
             getBracketType(c));
