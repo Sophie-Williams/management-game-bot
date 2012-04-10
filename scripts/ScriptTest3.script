@@ -1,2 +1,2 @@
 @:
-    print "Step number " ?turn;
+    print("Step number ", ?turn);

@@ -1,1 +1,1 @@
-if !(1 && 1) then print "Ok";
+if (!(1 && 1)) print ("Ok");
