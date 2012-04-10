@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 
+/* TODO: extends Exception */
 class IndexOutOfBoundException {
     int reqIndex;
     int maxIndex;
