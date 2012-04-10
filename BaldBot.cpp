@@ -38,7 +38,7 @@ ServerMsg* expectMsg(BotState& state, TypeOfServerMsg type, bool skipFailed)
             msg = state.lexer.getMsg();
         }
 
-        msg->print(stdout);
+//        msg->print(stdout);
     } while ((skipFailed && !msg->ok) || (msg->type != type));
 
     if (msg->ok)
@@ -95,6 +95,8 @@ int main(int argc, char** argv)
             int playerRaws = msg->status->getPlayerRaws();
             int playerProductions = msg->status->getPlayerProductions();
             int playerFactories = msg->status->getPlayerFactories();
+
+            printf("Money: %d\n", playerMoney);
 
             int count = MIN(marketRaws, playerFactories);
             int cost = marketRawMinPrice;
