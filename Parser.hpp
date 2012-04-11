@@ -5,6 +5,7 @@
 
 #include "ScriptLexer.hpp"
 #include "ParserException.hpp"
+#include "ParserTables.hpp"
 
 #define READ_ERROR(readValue) ((readValue) == -1)
 #define READ_EOF(readValue) ((readValue) == 0)
@@ -13,12 +14,14 @@
 #define PARSER_BUFFER_SIZE 4096
 #endif
 
+// TODO: more EOF checks?
 
 class Parser {
     int readFD;
     char buffer[PARSER_BUFFER_SIZE];
     ScriptLexer lexer;
     ScriptLexeme *currentLex;
+    ParserTables tables;
 
     int getLine();
     int getPos();
@@ -58,7 +61,7 @@ class Parser {
 
 public:
     Parser(int aReadFD);
-    void Parse();
+    void parse();
 };
 
 #endif /* PARSER_HPP_SENTRY */

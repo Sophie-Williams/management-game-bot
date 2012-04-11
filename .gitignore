@@ -6,6 +6,7 @@ ScriptLexerTest
 StringTest
 SocketTest
 BaldBot
+ParserTest
 deps.mk
 *.hpp.gch
 *.plist

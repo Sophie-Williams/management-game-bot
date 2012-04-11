@@ -61,12 +61,12 @@ Notes:
 PROGRAM -> LABEL_OPERATOR {LABEL_OPERATOR} 'eof'
 LABEL_OPERATOR -> LABEL_PREFIX OPERATOR
 OPERATOR -> '{' LABEL_OPERATOR {LABEL_OPERATOR} '}' |
+            'if' ARGS_LIST_1 OPERATOR ELSE_SUFFIX |
+            'while' ARGS_LIST_1 OPERATOR |
             SINGLE_OPERATOR ';'
 
 SINGLE_OPERATOR -> 'set' VARIABLE(false) EXPR |
                    'goto' label |
-                   'if' '(' EXPR ')' OPERATOR ELSE_SUFFIX |
-                   'while' '(' EXPR ')' OPERATOR
                    'print' '(' PRINT_ARGS_LIST ')' |
                    'buy' ARGS_LIST_2 |
                    'sell' ARGS_LIST_2 |
@@ -83,7 +83,9 @@ ARGS_LIST_2 -> '(' EXPR ',' EXPR ')'
 PRINT_ARGS_LIST -> PRINT_ARG {',' PRINT_ARG}
 PRINT_ARG -> string | EXPR
 
-EXPR_O -> number | '(' EXPR ')' | VARIABLE(true)
+// branch depend on certain internal function.
+EXPR_0 -> number | '(' EXPR ')' | function ARGS_LIST_0 |
+          function ARGS_LIST_1 | VARIABLE(true)
 EXPR_1 -> _MONADIC_OP_ EXPR_0 | EXPR_0
 EXPR_2 -> EXPR_1 _ARITHMETIC_OP_1_ EXPR_1 | EXPR_1
 EXPR_3 -> EXPR_2 _ARITHMETIC_OP_2_ EXPR_2 | EXPR_2

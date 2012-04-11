@@ -31,6 +31,18 @@ void Parser::getNextLex()
         currentLex = lexer.getLex();
     }
 
+    if (currentLex->type == SCR_LEX_KEYWORD) {
+        currentLex->intValue =
+            tables.getKeywordType(currentLex->strValue);
+        if (currentLex->intValue == SCR_KEYWORD_UNKNOWN) {
+            // TODO: throw
+        }
+    }
+
+#if !defined(DAEMON) && defined(PARSER_DEBUG)
+    lexer.print(stderr, currentLex);
+#endif
+
     // TODO: throw if SCR_LEX_ERROR
 }
 
@@ -95,7 +107,7 @@ void Parser::Program()
 {
     do {
         LabelOperator();
-    } while (tryLex(SCR_LEX_EOF));
+    } while (! tryLex(SCR_LEX_EOF));
 }
 
 void Parser::LabelOperator()
@@ -107,30 +119,101 @@ void Parser::LabelOperator()
 void Parser::Operator()
 {
     if (tryLex(SCR_LEX_BRACKET, BRACKET_FIGURE_OPEN)) {
+        getNextLex(); // skip '{'
         do {
             LabelOperator();
-            if (! tryLex(SCR_LEX_EOF)) {
+            if (tryLex(SCR_LEX_EOF)) {
                 throw ParserException("Expected '}' lexeme"
-                    " or LABEL_OPERATOR, got EOF.\n",
+                    " or LABEL_OPERATOR, got EOF.",
                     getLine(), getPos(),
                     __FILE__, __LINE__);
             }
         } while (! tryLex(SCR_LEX_BRACKET, BRACKET_FIGURE_CLOSE));
+        getNextLex(); // skip '}'
+    } else if (tryLex(SCR_LEX_KEYWORD, SCR_KEYWORD_IF)) {
+        getNextLex(); // skip 'if'
+        ArgsList_1();
+        Operator();
+        ElseSuffix();
+    } else if (tryLex(SCR_LEX_KEYWORD, SCR_KEYWORD_WHILE)) {
+        getNextLex(); // skip 'while'
+        ArgsList_1();
+        Operator();
     } else {
         SingleOperator();
         if (! tryLex(SCR_LEX_SEMICOLON)) {
                 throw ParserException("Expected ';' lexeme"
-                    " after SINGLE_OPERATOR.\n",
+                    " after SINGLE_OPERATOR.",
                     getLine(), getPos(),
                     __FILE__, __LINE__);
         }
+        getNextLex(); // skip ';'
     }
-    getNextLex(); // skip '}' or ';'
 }
 
 void Parser::SingleOperator()
 {
-    /* TODO */
+    if (! tryLex(SCR_LEX_KEYWORD) ||
+        tryLex(SCR_LEX_KEYWORD, SCR_KEYWORD_ELSE))
+    {
+        throw ParserException("Expected operator name.",
+            getLine(), getPos(),
+            __FILE__, __LINE__);
+    }
+
+    ScriptLangKeywords keyword =
+        static_cast<ScriptLangKeywords>(currentLex->intValue);
+    getNextLex(); // skip operator name
+
+    switch (keyword) {
+    case SCR_KEYWORD_SET:
+        Variable(false);
+        Expr();
+        break;
+    case SCR_KEYWORD_GOTO:
+        if (! tryLex(SCR_LEX_LABEL)) {
+            throw ParserException("Expected label.",
+                getLine(), getPos(),
+                __FILE__, __LINE__);
+        }
+        getNextLex(); // skip 'label'
+    case SCR_KEYWORD_IF:
+    case SCR_KEYWORD_ELSE:
+    case SCR_KEYWORD_WHILE:
+        /* Not possible */
+        break;
+    case SCR_KEYWORD_PRINT:
+        if (! tryLex(SCR_LEX_BRACKET, BRACKET_PARENTHESIS_OPEN)) {
+            throw ParserException("Expected '(' lexeme"
+                " after print operator name.",
+                getLine(), getPos(),
+                __FILE__, __LINE__);
+        }
+        getNextLex(); // skip '('
+        PrintArgsList();
+        if (! tryLex(SCR_LEX_BRACKET, BRACKET_PARENTHESIS_CLOSE)) {
+            throw ParserException("Expected ')' lexeme"
+                " after arguments of print operator.",
+                getLine(), getPos(),
+                __FILE__, __LINE__);
+        }
+        getNextLex(); // skip ')'
+        break;
+    case SCR_KEYWORD_BUY:
+    case SCR_KEYWORD_SELL:
+        ArgsList_2();
+        break;
+    case SCR_KEYWORD_MAKE:
+    case SCR_KEYWORD_BUILD:
+        ArgsList_1();
+        break;
+    case SCR_KEYWORD_TURN:
+        ArgsList_0();
+        break;
+    case SCR_KEYWORD_UNKNOWN:
+        /* Not possible */
+        break;
+    }
 }
 
 void Parser::ElseSuffix()
@@ -146,14 +229,14 @@ void Parser::ArgsList_0()
 {
     if (! tryLex(SCR_LEX_BRACKET, BRACKET_PARENTHESIS_OPEN)) {
         throw ParserException("Expected '(' lexeme"
-            " after operator with no arguments.\n",
+            " after operator or function with no arguments.",
             getLine(), getPos(),
             __FILE__, __LINE__);
     }
     getNextLex(); // skip '('
-    if (! tryLex(SCR_LEX_BRACKET, BRACKET_PARENTHESIS_OPEN)) {
+    if (! tryLex(SCR_LEX_BRACKET, BRACKET_PARENTHESIS_CLOSE)) {
         throw ParserException("Expected ')' lexeme"
-            ", this operator has no arguments.\n",
+            ", this operator or function has no arguments.",
             getLine(), getPos(),
             __FILE__, __LINE__);
     }
@@ -164,15 +247,15 @@ void Parser::ArgsList_1()
 {
     if (! tryLex(SCR_LEX_BRACKET, BRACKET_PARENTHESIS_OPEN)) {
         throw ParserException("Expected '(' lexeme"
-            " after operator with one argument.\n",
+            " after operator or function with one argument.",
             getLine(), getPos(),
             __FILE__, __LINE__);
     }
     getNextLex(); // skip '('
     Expr();
-    if (! tryLex(SCR_LEX_BRACKET, BRACKET_PARENTHESIS_OPEN)) {
+    if (! tryLex(SCR_LEX_BRACKET, BRACKET_PARENTHESIS_CLOSE)) {
         throw ParserException("Expected ')' lexeme"
-            ", this operator has one argument.\n",
+            ", this operator or function has one argument.",
             getLine(), getPos(),
             __FILE__, __LINE__);
     }
@@ -183,24 +266,24 @@ void Parser::ArgsList_2()
 {
     if (! tryLex(SCR_LEX_BRACKET, BRACKET_PARENTHESIS_OPEN)) {
         throw ParserException("Expected '(' lexeme"
-            " after operator with two arguments.\n",
+            " after operator with two arguments.",
             getLine(), getPos(),
             __FILE__, __LINE__);
     }
     getNextLex(); // skip '('
     Expr();
-    if (! tryLex(SCR_LEX_COLON)) {
+    if (! tryLex(SCR_LEX_COMMA)) {
         throw ParserException("Expected ',' lexeme"
             " after first argument of operator"
-            " with two arguments.\n",
+            " with two arguments.",
             getLine(), getPos(),
             __FILE__, __LINE__);
     }
     getNextLex(); // skip ','
     Expr();
-    if (! tryLex(SCR_LEX_BRACKET, BRACKET_PARENTHESIS_OPEN)) {
+    if (! tryLex(SCR_LEX_BRACKET, BRACKET_PARENTHESIS_CLOSE)) {
         throw ParserException("Expected ')' lexeme"
-            ", this operator has two arguments.\n",
+            ", this operator has two arguments.",
             getLine(), getPos(),
             __FILE__, __LINE__);
     }
@@ -211,7 +294,7 @@ void Parser::PrintArgsList()
 {
     PrintArg();
 
-    while (tryLex(SCR_LEX_COLON)) {
+    while (tryLex(SCR_LEX_COMMA)) {
         getNextLex(); // skip ','
         PrintArg();
     }
@@ -235,11 +318,22 @@ void Parser::Expr_0()
         Expr();
         if (! tryLex(SCR_LEX_BRACKET, BRACKET_PARENTHESIS_CLOSE)) {
             throw ParserException("Expected ')' lexeme"
-                ", unbalanced parenthesis.\n",
+                ", unbalanced parenthesis.",
                 getLine(), getPos(),
                 __FILE__, __LINE__);
         }
         getNextLex(); // skip ')'
+    } else if (tryLex(SCR_LEX_FUNCTION)) {
+        // TODO: ArgsList_0 or ArgsList_1 via tables
+        if (STR_EQUAL("production", currentLex->strValue) ||
+            STR_EQUAL("raw", currentLex->strValue))
+        {
+            getNextLex(); // skip function name
+            ArgsList_1();
+        } else {
+            getNextLex(); // skip function name
+            ArgsList_0();
+        }
     } else {
         // true argument mean that variable must be defined
         Variable(true);
@@ -310,7 +404,7 @@ void Parser::Expr()
 void Parser::Variable(bool def)
 {
     if (! tryLex(SCR_LEX_VARIABLE)) {
-        throw ParserException("Expected variable.\n",
+        throw ParserException("Expected variable.",
             getLine(), getPos(),
             __FILE__, __LINE__);
     }
@@ -329,7 +423,7 @@ void Parser::ArraySuffix(bool def)
     Expr();
     if (! tryLex(SCR_LEX_BRACKET, BRACKET_SQUARE_CLOSE)) {
         throw ParserException("Expected ']' lexeme"
-            ", unbalanced square brackets.\n",
+            ", unbalanced square brackets.",
             getLine(), getPos(),
             __FILE__, __LINE__);
     }
@@ -342,9 +436,9 @@ void Parser::LabelPrefix()
         return; /* Do nothing */
 
     getNextLex(); // skip 'label'
-    if (! tryLex(SCR_LEX_SEMICOLON)) {
+    if (! tryLex(SCR_LEX_COLON)) {
         throw ParserException("Expected ':' lexeme"
-            " after label (re)definition.\n",
+            " after label (re)definition.",
             getLine(), getPos(),
             __FILE__, __LINE__);
     }
@@ -354,10 +448,12 @@ void Parser::LabelPrefix()
 Parser::Parser(int aReadFD)
     : readFD(aReadFD),
     lexer(),
-    currentLex(0)
+    currentLex(0),
+    tables()
         {}
 
-void Parser::Parse()
+void Parser::parse()
 {
+    getNextLex(); // get first lexeme
     Program();
 }

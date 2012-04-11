@@ -29,11 +29,11 @@ public:
         String msg("ParserExpection(\"");
 
         msg += description;
-        msg += "\"): ";
+        msg += "\"); ";
         msg += getFile();
 
         char *numbers = 0;
-        asprintf(&numbers, ":%d; in script: %d:%d\n",
+        asprintf(&numbers, ":%d; Script: %d:%d\n",
             getLine(), scriptLine, scriptPos);
 
         msg += numbers;
