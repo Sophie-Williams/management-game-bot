@@ -50,13 +50,21 @@ Notes:
 * NONTERM(bool_value) mean that proper function invoked with
   different boolean arguments from different right expression
   (after "->").
+* Argument def mean "must be defined". If def is true then
+  undefined variable here would be touched error. Otherwise
+  (def is false) variable would be defined (if already not).
+//TODO: (eng grammar) будет определена
+* Underline words in _UPPERCASE_ is set of some lexemes and
+  using for more comfortable reading. It is not a nonterminal
+  symbol.
 
 PROGRAM -> LABEL_OPERATOR {LABEL_OPERATOR} 'eof'
-LABEL_OPERATOR -> LABEL(false) ':' OPERATOR
-OPERATOR -> '{' {LABEL_OPERATOR} '}' | SINGLE_OPERATOR ';'
+LABEL_OPERATOR -> LABEL_PREFIX OPERATOR
+OPERATOR -> '{' LABEL_OPERATOR {LABEL_OPERATOR} '}' |
+            SINGLE_OPERATOR ';'
 
 SINGLE_OPERATOR -> 'set' VARIABLE(false) EXPR |
-                   'goto' LABEL(true) |
+                   'goto' label |
                    'if' '(' EXPR ')' OPERATOR ELSE_SUFFIX |
                    'while' '(' EXPR ')' OPERATOR
                    'print' '(' PRINT_ARGS_LIST ')' |
@@ -66,34 +74,32 @@ SINGLE_OPERATOR -> 'set' VARIABLE(false) EXPR |
                    'build' ARGS_LIST_1 |
                    'turn' ARGS_LIST_0
 
+ELSE_SUFFIX -> 'else' OPERATOR | nothing
+
 ARGS_LIST_0 -> '(' ')'
 ARGS_LIST_1 -> '(' EXPR ')'
 ARGS_LIST_2 -> '(' EXPR ',' EXPR ')'
 
-ELSE_SUFFIX -> 'else' OPERATOR | nothing
 PRINT_ARGS_LIST -> PRINT_ARG {',' PRINT_ARG}
 PRINT_ARG -> string | EXPR
 
-EXPR_O -> VARIABLE(true) | number | '(' EXPR ')'
-EXPR_1 -> MONADIC_OP EXPR_0 | EXPR_0
-EXPR_2 -> EXPR_1 ARITHMETIC_OP_1 EXPR_1 | EXPR_1
-EXPR_3 -> EXPR_2 ARITHMETIC_OP_2 EXPR_2 | EXPR_2
-EXPR_4 -> EXPR_3 COMPARE_OP EXPR_3 | EXPR_3
-EXPR_5 -> EXPR_4 LOGIC_OP_1 EXPR_4 | EXPR_4
-EXPR -> EXPR_5 LOGIC_OP_2 EXPR_5 | EXPR_5
+EXPR_O -> number | '(' EXPR ')' | VARIABLE(true)
+EXPR_1 -> _MONADIC_OP_ EXPR_0 | EXPR_0
+EXPR_2 -> EXPR_1 _ARITHMETIC_OP_1_ EXPR_1 | EXPR_1
+EXPR_3 -> EXPR_2 _ARITHMETIC_OP_2_ EXPR_2 | EXPR_2
+EXPR_4 -> EXPR_3 _COMPARE_OP_ EXPR_3 | EXPR_3
+EXPR_5 -> EXPR_4 _LOGIC_OP_1_ EXPR_4 | EXPR_4
+EXPR -> EXPR_5 _LOGIC_OP_2_ EXPR_5 | EXPR_5
 
 VARIABLE(def) -> variable ARRAY_SUFFIX(def)
 ARRAY_SUFFIX(def) -> '[' EXPR ']' | nothing
-LABEL(def) -> label
-// Argument def mean "must be defined". If def is true then
-// undefined variable or label here would be touched error.
-// Otherwise (def is false) variable would be defined (if
-// already not); label would be (re)defined.
-//TODO: (eng grammar) будет определена
 
-MONADIC_OP -> '+' | '-' | '!'
-ARITHMETIC_OP_1 -> '*' | '/' | '%'
-ARITHMETIC_OP_2 -> '+' | '-'
-COMPARE_OP -> '<' | '>' | '=='
-LOGIC_OP_1 -> '&&'
-LOGIC_OP_2 -> '||'
+// (re)define label
+LABEL_PREFIX -> label ':' | nothing
+
+_MONADIC_OP_ -> '+' | '-' | '!'
+_ARITHMETIC_OP_1_ -> '*' | '/' | '%'
+_ARITHMETIC_OP_2_ -> '+' | '-'
+_COMPARE_OP_ -> '<' | '>' | '=='
+_LOGIC_OP_1_ -> '&&'
+_LOGIC_OP_2_ -> '||'
