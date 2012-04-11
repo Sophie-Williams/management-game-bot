@@ -1,4 +1,4 @@
-SRCMODULES = CharQueue.cpp ScriptLexer.cpp ServerMsgLexer.cpp String.cpp Socket.cpp
+SRCMODULES = CharQueue.cpp ScriptLexer.cpp ServerMsgLexer.cpp String.cpp Socket.cpp Parser.cpp
 TEST_SRC_FILES = ScriptLexerTest.cpp ServerMsgLexerTest.cpp StringTest.cpp SocketTest.cpp BaldBot.cpp
 OBJMODULES = $(SRCMODULES:.cpp=.o)
 HEADERS = $(SRCMODULES:.cpp=.hpp)
