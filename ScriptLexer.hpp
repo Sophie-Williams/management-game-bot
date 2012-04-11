@@ -79,6 +79,12 @@ struct ScriptLexeme {
         /* line and pos is undefined */
             {}
 
+    ScriptLexeme(ScriptLexemeType aType, int aIntValue,
+        const char* aStrValue)
+        : type(aType), intValue(aIntValue), strValue(aStrValue)
+        /* line and pos is undefined */
+            {}
+
     ~ScriptLexeme()
     {
         if (strValue)

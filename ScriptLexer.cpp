@@ -184,7 +184,13 @@ void ScriptLexer::print(FILE *stream, const ScriptLexeme *lex)
         fprintf(stream, "[EOF]");
         break;
     case SCR_LEX_ERROR:
-        fprintf(stream, "[Error: %s]", lex->strValue);
+        if (lex->intValue == EOF) {
+            fprintf(stream, "[Error: %s: 'EOF']",
+                lex->strValue);
+        } else {
+            fprintf(stream, "[Error: %s: '%c']",
+                lex->strValue, lex->intValue);
+        }
         break;
     }
 
@@ -226,8 +232,7 @@ ScriptLexeme *ScriptLexer::stStart()
         state = ST_EOF;
     } else {
         notTakeNextChar = 1;
-        tmpBuffer = String("Unrecognized symbol: \'")
-            + c + "\'";
+        tmpBuffer = "Unrecognized symbol";
         state = ST_ERROR;
     }
 
@@ -241,8 +246,7 @@ ScriptLexeme* ScriptLexer::stIdentifierFirst()
         state = ST_IDENTIFIER;
     } else {
         notTakeNextChar = 1;
-        tmpBuffer = String("Bad first identifier symbol: \'")
-            + c + "\'";
+        tmpBuffer = "Bad first identifier symbol";
         state = ST_ERROR;
     }
 
@@ -333,8 +337,7 @@ ScriptLexeme* ScriptLexer::stTwoSymLex()
             getOperationType(c));
     } else {
         notTakeNextChar = 1;
-        tmpBuffer = String("Lexer can not make two-symbol "
-            "lexeme, bad symbol: \'") + c + "\'";
+        tmpBuffer = "Lexer can not make two-symbol lexeme";
         state = ST_ERROR;
         return 0;
     }
@@ -367,7 +370,7 @@ ScriptLexeme* ScriptLexer::stString()
         return new ScriptLexeme(SCR_LEX_STRING, str);
     } else if (c == EOF) {
         notTakeNextChar = 1;
-        tmpBuffer = "Not terminated string: EOF";
+        tmpBuffer = "Not terminated string";
         state = ST_ERROR;
         return 0;
     } else {
@@ -383,7 +386,7 @@ ScriptLexeme* ScriptLexer::stEOF()
     if (c == EOF) {
         return new ScriptLexeme(SCR_LEX_EOF);
     } else {
-        tmpBuffer = String("Symbol after EOF: \'") + c + "\'";
+        tmpBuffer = "Symbol after EOF";
         state = ST_ERROR;
         return 0;
     }
@@ -394,7 +397,7 @@ ScriptLexeme* ScriptLexer::stError()
     const char *str = tmpBuffer.getCharPtr();
     tmpBuffer.clear();
     notTakeNextChar = 1;
-    return new ScriptLexeme(SCR_LEX_ERROR, str);
+    return new ScriptLexeme(SCR_LEX_ERROR, c, str);
 }
 
 ScriptLexeme* ScriptLexer::invokeStateHandler(LexerState state)
