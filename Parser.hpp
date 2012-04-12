@@ -3,6 +3,7 @@
 
 #include <unistd.h>
 
+#include "String.hpp"
 #include "ScriptLexer.hpp"
 #include "ParserException.hpp"
 #include "ParserTables.hpp"
@@ -13,8 +14,6 @@
 #ifndef PARSER_BUFFER_SIZE
 #define PARSER_BUFFER_SIZE 4096
 #endif
-
-// TODO: more EOF checks?
 
 class Parser {
     int readFD;

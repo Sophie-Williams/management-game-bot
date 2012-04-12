@@ -20,8 +20,10 @@ void Parser::getNextLex()
         readValue = read(readFD, &buffer, sizeof(buffer));
 
         if (READ_ERROR(readValue)) {
-            perror("read"); // TODO: throw
-            break;
+            // TODO: IOException?
+            throw ParserException("Read error.",
+                getLine(), getPos(),
+                __FILE__, __LINE__);
         } else if (READ_EOF(readValue)) {
             lexer.putEOF();
         } else {
@@ -35,7 +37,9 @@ void Parser::getNextLex()
         currentLex->intValue =
             tables.getKeywordType(currentLex->strValue);
         if (currentLex->intValue == SCR_KEYWORD_UNKNOWN) {
-            // TODO: throw
+            throw ParserException("Unknown keyword.",
+                getLine(), getPos(),
+                __FILE__, __LINE__);
         }
     }
 
@@ -43,6 +47,16 @@ void Parser::getNextLex()
     lexer.print(stderr, currentLex);
 #endif
 
+    if (currentLex->type == SCR_LEX_ERROR) {
+        String str = "Error in lexer. ";
+        str += currentLex->strValue;
+        str += " Symbol: '";
+        str += static_cast<char>(currentLex->intValue);
+        str += "'.";
+        throw ParserException(str.getCharPtr(),
+            getLine(), getPos(),
+            __FILE__, __LINE__);
+    }
     // TODO: throw if SCR_LEX_ERROR
 }
 
@@ -122,12 +136,6 @@ void Parser::Operator()
         getNextLex(); // skip '{'
         do {
             LabelOperator();
-            if (tryLex(SCR_LEX_EOF)) {
-                throw ParserException("Expected '}' lexeme"
-                    " or LABEL_OPERATOR, got EOF.",
-                    getLine(), getPos(),
-                    __FILE__, __LINE__);
-            }
         } while (! tryLex(SCR_LEX_BRACKET, BRACKET_FIGURE_CLOSE));
         getNextLex(); // skip '}'
     } else if (tryLex(SCR_LEX_KEYWORD, SCR_KEYWORD_IF)) {
