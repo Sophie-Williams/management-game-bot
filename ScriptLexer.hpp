@@ -8,6 +8,8 @@
 #include "String.hpp"
 #include "CharQueue.hpp"
 
+// TODO: 65a must not '65' 'a'
+
 enum Operations {
     OP_MULTIPLICATION,
     OP_DIVISION,

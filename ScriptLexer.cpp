@@ -123,7 +123,7 @@ Brackets ScriptLexer::getBracketType(int c)
     return BRACKET_UNKNOWN;
 }
 
-const char *ScriptLexer::getOperationString(unsigned int idx)
+const char* ScriptLexer::getOperationString(unsigned int idx)
 {
     if (idx > sizeof(operationStrings) / sizeof(char*)) {
         return operationStrings[OP_UNKNOWN];
@@ -132,7 +132,7 @@ const char *ScriptLexer::getOperationString(unsigned int idx)
     }
 }
 
-const char *ScriptLexer::getBracketString(unsigned int idx)
+const char* ScriptLexer::getBracketString(unsigned int idx)
 {
     if (idx > sizeof(bracketStrings) / sizeof(char*)) {
         return bracketStrings[OP_UNKNOWN];
@@ -232,7 +232,7 @@ ScriptLexeme *ScriptLexer::stStart()
         state = ST_EOF;
     } else {
         notTakeNextChar = 1;
-        tmpBuffer = "Unrecognized symbol";
+        tmpBuffer = "Unrecognized symbol.";
         state = ST_ERROR;
     }
 
@@ -246,7 +246,7 @@ ScriptLexeme* ScriptLexer::stIdentifierFirst()
         state = ST_IDENTIFIER;
     } else {
         notTakeNextChar = 1;
-        tmpBuffer = "Bad first identifier symbol";
+        tmpBuffer = "Bad first identifier symbol.";
         state = ST_ERROR;
     }
 
@@ -337,7 +337,7 @@ ScriptLexeme* ScriptLexer::stTwoSymLex()
             getOperationType(c));
     } else {
         notTakeNextChar = 1;
-        tmpBuffer = "Lexer can not make two-symbol lexeme";
+        tmpBuffer = "Lexer can not make two-symbol lexeme.";
         state = ST_ERROR;
         return 0;
     }
@@ -370,7 +370,7 @@ ScriptLexeme* ScriptLexer::stString()
         return new ScriptLexeme(SCR_LEX_STRING, str);
     } else if (c == EOF) {
         notTakeNextChar = 1;
-        tmpBuffer = "Not terminated string";
+        tmpBuffer = "Not terminated string.";
         state = ST_ERROR;
         return 0;
     } else {
@@ -386,7 +386,7 @@ ScriptLexeme* ScriptLexer::stEOF()
     if (c == EOF) {
         return new ScriptLexeme(SCR_LEX_EOF);
     } else {
-        tmpBuffer = "Symbol after EOF";
+        tmpBuffer = "Symbol after EOF.";
         state = ST_ERROR;
         return 0;
     }
