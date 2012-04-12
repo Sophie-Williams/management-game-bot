@@ -1,0 +1,9 @@
+while (($st == 5)) {
+    while ($st < 65) {
+@3:        set    $st[5] 65;
+        buy ($st, $st[5]);
+        turn ();
+    }
+    if (1) { set $x $st[5]; }
+}
+
