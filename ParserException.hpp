@@ -32,7 +32,10 @@ public:
         String str = "Error in lexer. ";
         str += errorLex->strValue;
         str += " Symbol: '";
-        str += static_cast<char>(errorLex->intValue);
+        if (errorLex->intValue == EOF)
+            str += "EOF";
+        else
+            str += static_cast<char>(errorLex->intValue);
         str += "'.";
         description = str.getCharPtr();
     }
