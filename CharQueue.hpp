@@ -2,6 +2,7 @@
 #define CHAR_QUEUE_HPP_SENTRY
 
 #include <stdio.h>
+#include "CharQueueException.hpp"
 
 class CharQueue {
     char *ptr;
@@ -12,12 +13,12 @@ class CharQueue {
 public:
     CharQueue();
     void putNewData(char *buffer, int size)
-        throw (int);
+        throw (CharQueueException);
     void putEOF()
-        throw (int);
+        throw (CharQueueException);
     int hasNextChar();
     int getNextChar()
-        throw (int);
+        throw (CharQueueException);
 };
 
 #endif /* CHAR_QUEUE_HPP_SENTRY */

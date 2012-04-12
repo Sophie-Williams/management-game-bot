@@ -7,20 +7,24 @@ CharQueue::CharQueue()
         onEOF(0) {}
 
 void CharQueue::putNewData(char *buffer, int size)
-    throw (int)
+    throw (CharQueueException)
 {
-    if (onEOF || readAvailable > 0)
-        throw 1; /* TODO */
+    if (onEOF || readAvailable > 0) {
+        throw CharQueueException("Cannot put new data.",
+            __FILE__, __LINE__);
+    }
 
     readPointer = ptr = buffer;
     readAvailable = size;
 }
 
 void CharQueue::putEOF()
-    throw (int)
+    throw (CharQueueException)
 {
-    if (onEOF || readAvailable > 0)
-        throw 1; /* TODO */
+    if (onEOF || readAvailable > 0) {
+        throw CharQueueException("Cannot put EOF.",
+            __FILE__, __LINE__);
+    }
 
     onEOF = 1;
 }
@@ -31,12 +35,14 @@ int CharQueue::hasNextChar()
 }
 
 int CharQueue::getNextChar()
-    throw (int)
+    throw (CharQueueException)
 {
     int c;
 
-    if (!onEOF && readAvailable <= 0)
-        throw 2; /* TODO */
+    if (!onEOF && readAvailable <= 0) {
+        throw CharQueueException("Cannot get next symbol.",
+            __FILE__, __LINE__);
+    }
 
     if (onEOF) {
         onEOF = 0;

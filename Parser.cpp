@@ -19,15 +19,22 @@ void Parser::getNextLex()
     while (currentLex == 0) {
         readValue = read(readFD, &buffer, sizeof(buffer));
 
-        if (READ_ERROR(readValue)) {
-            // TODO: IOException?
-            throw ParserException("Read error.",
-                getLine(), getPos(),
-                __FILE__, __LINE__);
-        } else if (READ_EOF(readValue)) {
-            lexer.putEOF();
-        } else {
-            lexer.putNewData(buffer, readValue);
+        try {
+            if (READ_ERROR(readValue)) {
+                // TODO: IOException?
+                throw ParserException("Read error.",
+                    getLine(), getPos(),
+                    __FILE__, __LINE__);
+            } else if (READ_EOF(readValue)) {
+                lexer.putEOF();
+            } else {
+                lexer.putNewData(buffer, readValue);
+            }
+        } catch(CharQueueException& ex) {
+            throw ParserException(ex,
+                0, 0, __FILE__, __LINE__);
+            /* TODO: getLine() and getPos() for previous lexeme
+               or print "undefined:undefined". */
         }
 
         currentLex = lexer.getLex();
@@ -48,16 +55,10 @@ void Parser::getNextLex()
 #endif
 
     if (currentLex->type == SCR_LEX_ERROR) {
-        String str = "Error in lexer. ";
-        str += currentLex->strValue;
-        str += " Symbol: '";
-        str += static_cast<char>(currentLex->intValue);
-        str += "'.";
-        throw ParserException(str.getCharPtr(),
+        throw ParserException(currentLex,
             getLine(), getPos(),
             __FILE__, __LINE__);
     }
-    // TODO: throw if SCR_LEX_ERROR
 }
 
 bool Parser::tryLex(ScriptLexemeType type)

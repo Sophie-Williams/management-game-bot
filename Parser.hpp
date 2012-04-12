@@ -7,6 +7,7 @@
 #include "ScriptLexer.hpp"
 #include "ParserException.hpp"
 #include "ParserTables.hpp"
+#include "CharQueueException.hpp"
 
 #define READ_ERROR(readValue) ((readValue) == -1)
 #define READ_EOF(readValue) ((readValue) == 0)

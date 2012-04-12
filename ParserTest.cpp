@@ -28,8 +28,6 @@ int main(int argc, char** argv)
         parser.parse();
     } catch(Exception& ex) {
         printf("%s", ex.toString());
-    } catch(int ex) {
-        printf("Exception: %d\n", ex);
     }
 
     if (CLOSE_ERROR(close(fd))) {

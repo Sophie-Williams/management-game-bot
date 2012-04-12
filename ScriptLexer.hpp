@@ -141,6 +141,7 @@ class ScriptLexer {
     int isOneSymLexSymbol(int c);
     int isTwoSymLexSymbol(int c);
     int isDigit(int c);
+//TODO:    int isDelimeter(int c);
 
     Operations getOperationType(int c);
     Brackets getBracketType(int c);

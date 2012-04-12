@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include "ScriptLexer.hpp"
+#include "Exception.hpp"
 
 #define OPEN_ERROR(openValue) ((openValue) == -1)
 #define READ_ERROR(readValue) ((readValue) == -1)
@@ -67,10 +68,9 @@ int main(int argc, char **argv)
             if (!printLexemes(lexer))
                 break;
         } while (1);
-    }
-    catch(int ex)
+    } catch(Exception& ex)
     {
-        printf("Exception: %d\n", ex);
+        printf("Exception: %s\n", ex.toString());
     }
 
     return 0;

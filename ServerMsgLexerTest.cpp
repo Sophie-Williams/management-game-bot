@@ -1,6 +1,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include "ServerMsgLexer.hpp"
+#include "Exception.hpp"
 
 #define READ_ERROR(readValue) ((readValue) == -1)
 #define READ_EOF(readValue) ((readValue) == 0)
@@ -42,10 +43,8 @@ int main()
                 printMessages(lexer);
             }
         } while (1);
-    }
-    catch(int ex)
-    {
-        printf("Exception: %d\n", ex);
+    } catch(Exception& ex) {
+        printf("Exception: %s\n", ex.toString());
     }
 
     return 0;

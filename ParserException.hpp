@@ -3,6 +3,8 @@
 
 #include "Exception.hpp"
 #include "String.hpp"
+#include "ScriptLexer.hpp"
+#include "CharQueueException.hpp"
 
 class ParserException : public Exception {
     int scriptLine;
@@ -18,6 +20,32 @@ public:
         scriptPos(aScriptPos),
         description(aDescription)
             {}
+
+    ParserException(const ScriptLexeme* errorLex,
+        int aScriptLine, int aScriptPos,
+        const char* aFile, int aLine)
+        : Exception(aFile, aLine),
+        scriptLine(aScriptLine),
+        scriptPos(aScriptPos)
+    {
+        /* errorLex->type == SCR_LEX_ERROR */
+        String str = "Error in lexer. ";
+        str += errorLex->strValue;
+        str += " Symbol: '";
+        str += static_cast<char>(errorLex->intValue);
+        str += "'.";
+        description = str.getCharPtr();
+    }
+
+    ParserException(const CharQueueException& ex,
+        int aScriptLine, int aScriptPos,
+        const char* aFile, int aLine)
+        : Exception(aFile, aLine),
+        scriptLine(aScriptLine),
+        scriptPos(aScriptPos)
+    {
+        description = ex.toString();
+    }
 
     const char* getDescription() const
     {
