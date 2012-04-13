@@ -10,3 +10,6 @@ ParserTest
 deps.mk
 *.hpp.gch
 *.plist
+ScriptLexer-graph.svg
+ScriptLexer-graph.ps
+ScriptLexer-graph.pdf
