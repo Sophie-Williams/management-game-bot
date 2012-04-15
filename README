@@ -43,7 +43,7 @@ Notes:
 * Words in lower case in 'quotes' is keywords of language.
 * Words in lower case without quotes is user-defined entity
   (label or variable names, numeric or string constants).
-* Word nothing mean that new lexeme not readed and, therefore,
+* Word "nothing" mean that new lexeme not readed and, therefore,
   must not checked.
 * Figure brackets (e.g. {words}) similar to (words)* in PCRE.
   This mean that words must be repeated zero or more time.

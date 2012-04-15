@@ -31,8 +31,7 @@ void Parser::getNextLex()
                 lexer.putNewData(buffer, readValue);
             }
         } catch(CharQueueException& ex) {
-            throw ParserException(ex,
-                0, 0, __FILE__, __LINE__);
+            throw ParserException(ex, 0, 0, __FILE__, __LINE__);
             /* TODO: getLine() and getPos() for previous lexeme
                or print "undefined:undefined". */
         }
