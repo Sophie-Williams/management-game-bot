@@ -8,8 +8,6 @@
 #include "String.hpp"
 #include "CharQueue.hpp"
 
-// TODO: 65a must not '65' 'a'
-
 enum Operations {
     OP_MULTIPLICATION,
     OP_DIVISION,
@@ -118,6 +116,7 @@ class ScriptLexer {
         ST_TWO_SYM_LEX,
         ST_NUMBER,
         ST_STRING,
+        ST_EXPECT_DELIMITER,
         ST_EOF,
         ST_ERROR
     };
@@ -141,7 +140,7 @@ class ScriptLexer {
     int isOneSymLexSymbol(int c);
     int isTwoSymLexSymbol(int c);
     int isDigit(int c);
-//TODO:    int isDelimeter(int c);
+    int isDelimiter(int c);
 
     Operations getOperationType(int c);
     Brackets getBracketType(int c);
@@ -156,6 +155,7 @@ class ScriptLexer {
     ScriptLexeme* stTwoSymLex();
     ScriptLexeme* stNumber();
     ScriptLexeme* stString();
+    ScriptLexeme* stExpectDelimiter();
     ScriptLexeme* stEOF();
     ScriptLexeme* stError();
 

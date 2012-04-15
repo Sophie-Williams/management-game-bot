@@ -1,6 +1,6 @@
 #include "ScriptLexer.hpp"
 
-const char ScriptLexer::spaceSymbols[] = " \t\n"; /* and EOF */
+const char ScriptLexer::spaceSymbols[] = " \t\n";
 const char ScriptLexer::oneSymLexSymbols[] = "*/%+-<>!()[]{}:;,";
 const char ScriptLexer::twoSymLexSymbols[] = "=&|"; /* ==, &&, || */
 
@@ -97,6 +97,14 @@ int ScriptLexer::isTwoSymLexSymbol(int c)
 int ScriptLexer::isDigit(int c)
 {
     return (c >= '0') && (c <= '9');
+}
+
+int ScriptLexer::isDelimiter(int c)
+{
+    return (c == EOF) ||
+        isSpaceSymbol(c) ||
+        isOneSymLexSymbol(c) ||
+        isTwoSymLexSymbol(c);
 }
 
 Operations ScriptLexer::getOperationType(int c)
@@ -262,7 +270,7 @@ ScriptLexeme* ScriptLexer::stIdentifier()
         const char *str = tmpBuffer.getCharPtr();
         tmpBuffer.clear();
         notTakeNextChar = 1;
-        state = ST_START;
+        state = ST_EXPECT_DELIMITER;
         return new ScriptLexeme(lexType, str);
     }
 }
@@ -356,7 +364,7 @@ ScriptLexeme* ScriptLexer::stNumber()
         delete[] str;
         tmpBuffer.clear();
         notTakeNextChar = 1;
-        state = ST_START;
+        state = ST_EXPECT_DELIMITER;
         return new ScriptLexeme(SCR_LEX_NUMBER, number);
     }
 }
@@ -366,7 +374,7 @@ ScriptLexeme* ScriptLexer::stString()
     if (c == '\"') {
         const char *str = tmpBuffer.getCharPtr();
         tmpBuffer.clear();
-        state = ST_START;
+        state = ST_EXPECT_DELIMITER;
         return new ScriptLexeme(SCR_LEX_STRING, str);
     } else if (c == EOF) {
         notTakeNextChar = 1;
@@ -377,6 +385,19 @@ ScriptLexeme* ScriptLexer::stString()
         tmpBuffer += c;
         return 0;
     }
+}
+
+ScriptLexeme* ScriptLexer::stExpectDelimiter()
+{
+    if (isDelimiter(c)) {
+        notTakeNextChar = 1;
+        state = ST_START;
+    } else {
+        notTakeNextChar = 1;
+        state = ST_ERROR;
+    }
+
+    return 0;
 }
 
 ScriptLexeme* ScriptLexer::stEOF()
@@ -419,6 +440,8 @@ ScriptLexeme* ScriptLexer::invokeStateHandler(LexerState state)
         return stNumber();
     case ST_STRING:
         return stString();
+    case ST_EXPECT_DELIMITER:
+        return stExpectDelimiter();
     case ST_EOF:
         return stEOF();
     case ST_ERROR:
@@ -481,6 +504,7 @@ ScriptLexeme* ScriptLexer::getLex()
 
     /* Additional check */
     if (state != ST_START &&
+        state != ST_EXPECT_DELIMITER &&
         state != ST_EOF &&
         state != ST_ERROR)
     {
