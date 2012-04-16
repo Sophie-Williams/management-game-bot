@@ -1,4 +1,4 @@
-while (($st == 5)) {
+while (-5+4+3) {
     while ($st < 65) {
 @3:        set    $st[5] 65;
         buy ($st, $st[5]);

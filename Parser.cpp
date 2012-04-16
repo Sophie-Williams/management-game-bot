@@ -350,7 +350,7 @@ void Parser::Expr_0()
 
 void Parser::Expr_1()
 {
-    if (isLexMonadicOp()) {
+    while (isLexMonadicOp()) {
         getNextLex();
     }
 
@@ -361,7 +361,7 @@ void Parser::Expr_2()
 {
     Expr_1();
 
-    if (isLexArithmeticOp_1()) {
+    while (isLexArithmeticOp_1()) {
         getNextLex();
         Expr_1();
     }
@@ -371,7 +371,7 @@ void Parser::Expr_3()
 {
     Expr_2();
 
-    if (isLexArithmeticOp_2()) {
+    while (isLexArithmeticOp_2()) {
         getNextLex();
         Expr_2();
     }
@@ -381,7 +381,7 @@ void Parser::Expr_4()
 {
     Expr_3();
 
-    if (isLexCompareOp()) {
+    while (isLexCompareOp()) {
         getNextLex();
         Expr_3();
     }
@@ -391,7 +391,7 @@ void Parser::Expr_5()
 {
     Expr_4();
 
-    if (isLexLogicOp_1()) {
+    while (isLexLogicOp_1()) {
         getNextLex();
         Expr_4();
     }
@@ -401,7 +401,7 @@ void Parser::Expr()
 {
     Expr_5();
 
-    if (isLexLogicOp_2()) {
+    while (isLexLogicOp_2()) {
         getNextLex();
         Expr_5();
     }
