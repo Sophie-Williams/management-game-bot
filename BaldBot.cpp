@@ -5,10 +5,10 @@
 #define MSG(str) (str), (sizeof(str) - 1)
 #define MIN(n1, n2) (((n1) <= (n2)) ? (n1) : (n2))
 
-static const int bufferSize = 4096;
+#define BUFFER_SIZE 4096
 
 struct BotState {
-   char buffer[bufferSize];
+   char buffer[BUFFER_SIZE];
    ServerMsgLexer lexer;
    Socket socket;
    int readed;
@@ -26,7 +26,7 @@ ServerMsg* expectMsg(BotState& state, TypeOfServerMsg type, bool skipFailed)
 
         while (msg == 0) {
             bool notEOF = state.socket.read(state.buffer,
-                bufferSize * sizeof(char), &(state.readed));
+                BUFFER_SIZE * sizeof(char), &(state.readed));
             if (notEOF) {
                 state.lexer.putNewData(state.buffer, state.readed);
             } else {
