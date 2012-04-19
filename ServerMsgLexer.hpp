@@ -18,6 +18,7 @@ enum TypeOfServerMsg {
     MSG_JOIN_RESPONCE,
     MSG_MONTH_COMPLETED,
     MSG_ROUNDS_ASYNC,
+    MSG_WINNERS_ASYNC,
     MSG_UNKNOWN,
     MSG_LEXER_ERROR
 };
@@ -25,6 +26,7 @@ enum TypeOfServerMsg {
 struct ServerMsg {
     TypeOfServerMsg type;
     int ok;
+    char *str;
     MsgStatus* status;
 
 #ifndef DAEMON

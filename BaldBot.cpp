@@ -1,11 +1,71 @@
 #include <stdio.h>
 #include "Socket.hpp"
 #include "ServerMsgLexer.hpp"
+#include "Exception.hpp"
 
 #define MSG(str) (str), (sizeof(str) - 1)
 #define MIN(n1, n2) (((n1) <= (n2)) ? (n1) : (n2))
 
 #define BUFFER_SIZE 4096
+
+class BaldBotException : public Exception {
+    const char* description;
+    const char* winners;
+
+public:
+    BaldBotException(const char* aDescription,
+        const char* aWinners,
+        const char* aFile, int aLine)
+        : Exception(aFile, aLine),
+        description(aDescription),
+        winners(aWinners)
+    {}
+
+    BaldBotException(const char* aDescription,
+        const char* aFile, int aLine)
+        : Exception(aFile, aLine),
+        description(aDescription),
+        winners(0)
+    {}
+
+    const char* getDescription() const
+    {
+        return description;
+    }
+
+    bool isWinnersException() const
+    {
+        return (winners != 0);
+    }
+
+    const char* getWinners() const
+    {
+        return winners;
+    }
+
+    const char* toString() const
+    {
+        String msg("BaldBotExpection(\"");
+
+        msg += description;
+        msg += "\"); ";
+        msg += getFile();
+
+        char* lineStr = 0;
+        asprintf(&lineStr, ":%d", getLine());
+
+        msg += lineStr;
+
+        if (winners != 0) {
+            msg += "; ";
+            msg += winners;
+        }
+
+        msg += "\n";
+
+        return msg.getCharPtr();
+    }
+};
 
 struct BotState {
    char buffer[BUFFER_SIZE];
@@ -31,20 +91,25 @@ ServerMsg* expectMsg(BotState& state, TypeOfServerMsg type, bool skipFailed)
                 state.lexer.putNewData(state.buffer, state.readed);
             } else {
 //                state.lexer.putEOF();
-                printf("Got EOF, exiting...");
-                throw 2;
+                throw BaldBotException("Got EOF.",
+                    __FILE__, __LINE__);
             }
 
             msg = state.lexer.getMsg();
         }
 
 //        msg->print(stdout);
+        if (msg->type == MSG_WINNERS_ASYNC) {
+            throw BaldBotException("Winners", msg->str,
+                __FILE__, __LINE__);
+        }
     } while ((skipFailed && !msg->ok) || (msg->type != type));
 
     if (msg->ok)
         return msg;
 
-    throw 1; /* TODO */
+    throw BaldBotException("Fail message with expected type.",
+        __FILE__, __LINE__);
 }
 
 int main(int argc, char** argv)
@@ -74,6 +139,10 @@ int main(int argc, char** argv)
         BotState state(argv[1], argv[2]);
         ServerMsg *msg;
         state.socket.connect();
+
+        state.socket.write(MSG("nick\r\n"));
+        msg = expectMsg(state, MSG_NICK_RESPONCE, false);
+        printf("%s", msg->str);
 
         state.socket.write(MSG("join\r\n"));
         msg = expectMsg(state, MSG_JOIN_RESPONCE, false);
@@ -135,10 +204,17 @@ int main(int argc, char** argv)
 
         state.socket.disconnect();
 //        lexer.putEOF();
+    } catch(BaldBotException& ex) {
+        if (ex.isWinnersException()) {
+            printf("%s", ex.getWinners());
+            return 0;
+        } else {
+            printf("%s", ex.toString());
+            return 1;
+        }
     } catch(Exception& ex) {
         printf("%s", ex.toString());
-    } catch(int ex) {
-        printf("Exception: %d\n", ex);
+        return 1;
     }
 
     return 0;

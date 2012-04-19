@@ -11,8 +11,8 @@ void ServerMsg::print(FILE *stream)
             status->printValues(stream);
         break;
     case MSG_NICK_RESPONCE:
-        fprintf(stream, "MSG_NICK_RESPONCE: %s\n",
-            ok ? "ok" : "fail");
+        fprintf(stream, "MSG_NICK_RESPONCE: %s; %s\n",
+            ok ? "ok" : "fail", str);
         break;
     case MSG_BUILD_RESPONCE:
         fprintf(stream, "MSG_BUILD_RESPONCE: %s\n",
@@ -45,6 +45,9 @@ void ServerMsg::print(FILE *stream)
         fprintf(stream, "MSG_ROUNDS_ASYNC: %s\n",
             ok ? "round started" : "unknown");
         break;
+    case MSG_WINNERS_ASYNC:
+        fprintf(stream, "MSG_WINNERS_ASYNC: %s\n", str);
+        break;
     case MSG_UNKNOWN:
         fprintf(stream, "MSG_UNKNOWN\n");
         break;
@@ -65,6 +68,7 @@ const char* ServerMsgLexer::typeOfServerMsgStr[] = {
     "[Join]",
     "[Month completed]",
     "[Rounds]",
+    "[Winner(s)]",
     "",
     ""
 };
@@ -131,6 +135,7 @@ ServerMsg* ServerMsgLexer::stHeadStart()
             requestNextChar = 1;
             break;
         case MSG_ROUNDS_ASYNC:
+        case MSG_WINNERS_ASYNC:
             timestampSkipped = 0;
             state = ST_ASYNC_MSG;
             requestNextChar = 1;
@@ -211,7 +216,11 @@ ServerMsg* ServerMsgLexer::stOkFailResponce()
     ServerMsg *msg = new ServerMsg;
     msg->type = msgType;
     /* msg->ok is undefined. */
+    /* msg->str is undefined. */
     msg->status = 0;
+
+    int size = tmpBuffer.getLength() + 1; /* with '\0' */
+    const char* str = tmpBuffer.getCharPtr();
 
     switch (msgType) {
     case MSG_STATUS_RESPONCE:
@@ -219,6 +228,8 @@ ServerMsg* ServerMsgLexer::stOkFailResponce()
         die(__LINE__);
     case MSG_NICK_RESPONCE:
         msg->ok = tmpBuffer.startsWith("Your username: ");
+        msg->str = new char[size];
+        memcpy(msg->str, str, size);
         break;
     case MSG_BUILD_RESPONCE:
     case MSG_MAKE_RESPONCE:
@@ -240,6 +251,7 @@ ServerMsg* ServerMsgLexer::stOkFailResponce()
         msg->ok = 1;
         break;
     case MSG_ROUNDS_ASYNC:
+    case MSG_WINNERS_ASYNC:
     case MSG_UNKNOWN:
     case MSG_LEXER_ERROR:
         /* Not possible. */
@@ -263,7 +275,11 @@ ServerMsg* ServerMsgLexer::stAsyncMsg()
     ServerMsg *msg = new ServerMsg;
     msg->type = msgType;
     /* msg->ok is undefined. */
+    /* msg->str is undefined. */
     msg->status = 0;
+
+    int size = tmpBuffer.getLength() + 1; /* with '\0' */
+    const char* str = tmpBuffer.getCharPtr();
 
     switch (msgType) {
     case MSG_STATUS_RESPONCE:
@@ -280,6 +296,11 @@ ServerMsg* ServerMsgLexer::stAsyncMsg()
     case MSG_ROUNDS_ASYNC:
         msg->ok = tmpBuffer.isEqual("Game ready! "
             "You are player of this game round.\n");
+        break;
+    case MSG_WINNERS_ASYNC:
+        msg->ok = 1;
+        msg->str = new char[size];
+        memcpy(msg->str, str, size);
         break;
     case MSG_UNKNOWN:
     case MSG_LEXER_ERROR:
@@ -307,6 +328,7 @@ ServerMsg* ServerMsgLexer::stStatusResponce()
         ServerMsg *msg = new ServerMsg;
         msg->type = MSG_STATUS_RESPONCE;
         msg->ok = 0;
+        /* msg->str is undefined */
         /* msg->status is undefined */
         tmpValue = -1;
         tmpStatus = 0;
@@ -321,6 +343,7 @@ ServerMsg* ServerMsgLexer::stStatusResponce()
         ServerMsg *msg = new ServerMsg;
         msg->type = MSG_STATUS_RESPONCE;
         msg->ok = 1;
+        /* msg->str is undefined */
         msg->status = tmpStatus;
         tmpValue = -1;
         tmpStatus = 0;
@@ -374,7 +397,7 @@ ServerMsg* ServerMsgLexer::stError()
 {
     ServerMsg *msg = new ServerMsg;
     msg->type = MSG_LEXER_ERROR;
-    /* ok and status is undefined */
+    /* ok, str and status is undefined */
     state = ST_START;
     return msg;
 }
