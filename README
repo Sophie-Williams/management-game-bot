@@ -96,7 +96,7 @@ EXPR -> EXPR_5 {_LOGIC_OP_2_ EXPR_5}
 VARIABLE(def) -> variable ARRAY_SUFFIX(def)
 ARRAY_SUFFIX(def) -> '[' EXPR ']' | nothing
 
-// (re)define label
+// define label
 LABEL_PREFIX -> label ':' | nothing
 
 _MONADIC_OP_ -> '+' | '-' | '!'
