@@ -8,6 +8,7 @@
 #include "ParserException.hpp"
 #include "ParserTables.hpp"
 #include "CharQueueException.hpp"
+#include "PolizElem.hpp"
 
 #define READ_ERROR(readValue) ((readValue) == -1)
 #define READ_EOF(readValue) ((readValue) == 0)
@@ -21,22 +22,28 @@ class Parser {
     char buffer[PARSER_BUFFER_SIZE];
     ScriptLexer lexer;
     ScriptLexeme *currentLex;
+    PolizElemStack poliz;
     ParserTables tables;
 
-    int getLine();
-    int getPos();
+    int getLine() const;
+    int getPos() const;
 
     void getNextLex();
-    bool tryLex(ScriptLexemeType type);
+    bool tryLex(ScriptLexemeType type) const;
     bool tryLex(ScriptLexemeType type,
-        int aIntValue);
+        int aIntValue) const;
 
-    bool isLexMonadicOp();
-    bool isLexArithmeticOp_1();
-    bool isLexArithmeticOp_2();
-    bool isLexCompareOp();
-    bool isLexLogicOp_1();
-    bool isLexLogicOp_2();
+    bool isLexMonadicOp() const;
+    bool isLexArithmeticOp_1() const;
+    bool isLexArithmeticOp_2() const;
+    bool isLexCompareOp() const;
+    bool isLexLogicOp_1() const;
+    bool isLexLogicOp_2() const;
+
+    PolizOpInt1Type getPolizOpInt1Type(int op)
+        const;
+    PolizOpInt2Type getPolizOpInt2Type(int op)
+        const;
 
     void Program();
     void LabelOperator();

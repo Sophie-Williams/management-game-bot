@@ -40,7 +40,7 @@ public:
         description = str.getCharPtr();
     }
 
-    ParserException(const CharQueueException& ex,
+    ParserException(const Exception& ex,
         int aScriptLine, int aScriptPos,
         const char* aFile, int aLine)
         : Exception(aFile, aLine),

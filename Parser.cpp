@@ -1,11 +1,11 @@
 #include "Parser.hpp"
 
-inline int Parser::getLine()
+inline int Parser::getLine() const
 {
     return currentLex->line;
 }
 
-inline int Parser::getPos()
+inline int Parser::getPos() const
 {
     return currentLex->pos;
 }
@@ -40,10 +40,11 @@ void Parser::getNextLex()
     }
 
     if (currentLex->type == SCR_LEX_KEYWORD) {
-        currentLex->intValue =
-            tables.getKeywordType(currentLex->strValue);
-        if (currentLex->intValue == SCR_KEYWORD_UNKNOWN) {
-            throw ParserException("Unknown keyword.",
+        try {
+            currentLex->intValue =
+                tables.getKeywordType(currentLex->strValue);
+        } catch(TableItemNotFoundException& ex) {
+            throw ParserException(ex,
                 getLine(), getPos(),
                 __FILE__, __LINE__);
         }
@@ -60,19 +61,19 @@ void Parser::getNextLex()
     }
 }
 
-bool Parser::tryLex(ScriptLexemeType type)
+bool Parser::tryLex(ScriptLexemeType type) const
 {
     return (currentLex->type == type);
 }
 
-bool Parser::tryLex(ScriptLexemeType type, int aIntValue)
+bool Parser::tryLex(ScriptLexemeType type, int aIntValue) const
 {
     return (currentLex->type == type) &&
         (currentLex->intValue == aIntValue);
 }
 
 /* '+', '-', '!' */
-bool Parser::isLexMonadicOp()
+bool Parser::isLexMonadicOp() const
 {
     return tryLex(SCR_LEX_OPERATION, OP_PLUS) ||
         tryLex(SCR_LEX_OPERATION, OP_MINUS) ||
@@ -80,7 +81,7 @@ bool Parser::isLexMonadicOp()
 }
 
 /* '*', '/', '%' */
-bool Parser::isLexArithmeticOp_1()
+bool Parser::isLexArithmeticOp_1() const
 {
     return tryLex(SCR_LEX_OPERATION, OP_MULTIPLICATION) ||
         tryLex(SCR_LEX_OPERATION, OP_DIVISION) ||
@@ -88,14 +89,14 @@ bool Parser::isLexArithmeticOp_1()
 }
 
 /* '+', '-' */
-bool Parser::isLexArithmeticOp_2()
+bool Parser::isLexArithmeticOp_2() const
 {
     return tryLex(SCR_LEX_OPERATION, OP_PLUS) ||
         tryLex(SCR_LEX_OPERATION, OP_MINUS);
 }
 
 /* '<', '>', '==' */
-bool Parser::isLexCompareOp()
+bool Parser::isLexCompareOp() const
 {
     return tryLex(SCR_LEX_OPERATION, OP_LESS) ||
         tryLex(SCR_LEX_OPERATION, OP_MORE) ||
@@ -103,15 +104,63 @@ bool Parser::isLexCompareOp()
 }
 
 /* '&&' */
-bool Parser::isLexLogicOp_1()
+bool Parser::isLexLogicOp_1() const
 {
     return tryLex(SCR_LEX_OPERATION, OP_AND);
 }
 
 /* '||' */
-bool Parser::isLexLogicOp_2()
+bool Parser::isLexLogicOp_2() const
 {
     return tryLex(SCR_LEX_OPERATION, OP_OR);
+}
+
+PolizOpInt1Type Parser::getPolizOpInt1Type(int op) const
+{
+    switch (op) {
+    case OP_PLUS:
+        return POLIZ_OP_MONADIC_PLUS;
+    case OP_MINUS:
+        return POLIZ_OP_MONADIC_MINUS;
+    case OP_NOT:
+        return POLIZ_OP_LOGIC_NOT;
+    }
+
+    throw ParserException("Cannot get monadic int"
+        "operation type; internal error.\n",
+        getLine(), getPos(),
+        __FILE__, __LINE__);
+}
+
+PolizOpInt2Type Parser::getPolizOpInt2Type(int op) const
+{
+    switch (op) {
+    case OP_MULTIPLICATION:
+        return POLIZ_OP_MULTIPLICATION;
+    case OP_DIVISION:
+        return POLIZ_OP_DIVISION;
+    case OP_REMAINDER_DIVISION:
+        return POLIZ_OP_REMAINDER_DIVISION;
+    case OP_PLUS:
+        return POLIZ_OP_PLUS;
+    case OP_MINUS:
+        return POLIZ_OP_MINUS;
+    case OP_LESS:
+        return POLIZ_OP_LESS;
+    case OP_MORE:
+        return POLIZ_OP_MORE;
+    case OP_EQUALITY:
+        return POLIZ_OP_EQUALITY;
+    case OP_AND:
+        return POLIZ_OP_LOGIC_AND;
+    case OP_OR:
+        return POLIZ_OP_LOGIC_OR;
+    }
+
+    throw ParserException("Cannot get two-arguments int"
+        "operation type; internal error.\n",
+        getLine(), getPos(),
+        __FILE__, __LINE__);
 }
 
 // TODO: maybe :%s/getNextLex/skipLex/gc
@@ -177,6 +226,7 @@ void Parser::SingleOperator()
     case SCR_KEYWORD_SET:
         Variable(false);
         Expr();
+        poliz.push(new PolizOpSet());
         break;
     case SCR_KEYWORD_GOTO:
         if (! tryLex(SCR_LEX_LABEL)) {
@@ -206,6 +256,7 @@ void Parser::SingleOperator()
                 __FILE__, __LINE__);
         }
         getNextLex(); // skip ')'
+        poliz.push(new PolizOpPrint());
         break;
     case SCR_KEYWORD_BUY:
     case SCR_KEYWORD_SELL:
@@ -217,9 +268,6 @@ void Parser::SingleOperator()
         break;
     case SCR_KEYWORD_TURN:
         ArgsList_0();
-        break;
-    case SCR_KEYWORD_UNKNOWN:
-        /* Not possible */
         break;
     }
 }
@@ -301,16 +349,25 @@ void Parser::ArgsList_2()
 void Parser::PrintArgsList()
 {
     PrintArg();
+    int i = 1;
 
     while (tryLex(SCR_LEX_COMMA)) {
         getNextLex(); // skip ','
         PrintArg();
+        ++i;
     }
+
+    poliz.push(new PolizInt(i));
 }
 
 void Parser::PrintArg()
 {
+//    PolizElemStack constStack;
+
     if (tryLex(SCR_LEX_STRING)) {
+        // TODO: use tables and PolizString(key)
+        poliz.push(new PolizString(
+            const_cast<char*>(currentLex->strValue)));
         getNextLex(); // skip 'string'
     } else {
         Expr();
@@ -320,6 +377,7 @@ void Parser::PrintArg()
 void Parser::Expr_0()
 {
     if (tryLex(SCR_LEX_NUMBER)) {
+        poliz.push(new PolizInt(currentLex->intValue));
         getNextLex(); // skip 'number'
     } else if (tryLex(SCR_LEX_BRACKET, BRACKET_PARENTHESIS_OPEN)) {
         getNextLex(); // skip '('
@@ -350,60 +408,88 @@ void Parser::Expr_0()
 
 void Parser::Expr_1()
 {
+    PolizElemStack opStack;
+
     while (isLexMonadicOp()) {
+        opStack.push(new PolizOpInt1(getPolizOpInt1Type(
+            currentLex->intValue)));
         getNextLex();
     }
 
     Expr_0();
+
+    while (!opStack.isEmpty()) {
+        poliz.push(opStack.pop());
+    }
 }
 
 void Parser::Expr_2()
 {
+    int op;
+
     Expr_1();
 
     while (isLexArithmeticOp_1()) {
+        op = currentLex->intValue;
         getNextLex();
         Expr_1();
+        poliz.push(new PolizOpInt2(getPolizOpInt2Type(op)));
     }
 }
 
 void Parser::Expr_3()
 {
+    int op;
+
     Expr_2();
 
     while (isLexArithmeticOp_2()) {
+        op = currentLex->intValue;
         getNextLex();
         Expr_2();
+        poliz.push(new PolizOpInt2(getPolizOpInt2Type(op)));
     }
 }
 
 void Parser::Expr_4()
 {
+    int op;
+
     Expr_3();
 
     while (isLexCompareOp()) {
+        op = currentLex->intValue;
         getNextLex();
         Expr_3();
+        poliz.push(new PolizOpInt2(getPolizOpInt2Type(op)));
     }
 }
 
 void Parser::Expr_5()
 {
+    int op;
+
     Expr_4();
 
     while (isLexLogicOp_1()) {
+        op = currentLex->intValue;
         getNextLex();
         Expr_4();
+        poliz.push(new PolizOpInt2(getPolizOpInt2Type(op)));
     }
 }
 
 void Parser::Expr()
 {
+    int op;
+
     Expr_5();
 
     while (isLexLogicOp_2()) {
+        op = currentLex->intValue;
         getNextLex();
         Expr_5();
+        poliz.push(new PolizOpInt2(getPolizOpInt2Type(op)));
     }
 }
 
@@ -416,6 +502,23 @@ void Parser::Variable(bool def)
             getLine(), getPos(),
             __FILE__, __LINE__);
     }
+
+    int variableKey = -1;
+
+    try {
+        variableKey = tables.getVariableKey(currentLex->strValue, def);
+    } catch(TableItemNotFoundException& ex) {
+        throw ParserException(ex,
+            getLine(), getPos(),
+            __FILE__, __LINE__);
+    }
+
+    if (def) {
+        poliz.push(new PolizOpVariableValue(variableKey));
+    } else {
+        poliz.push(new PolizVariable(variableKey));
+    }
+
     getNextLex(); // skip 'variable'
     ArraySuffix(def);
 }
@@ -457,6 +560,7 @@ Parser::Parser(int aReadFD)
     : readFD(aReadFD),
     lexer(),
     currentLex(0),
+    poliz(),
     tables()
         {}
 
@@ -464,4 +568,17 @@ void Parser::parse()
 {
     getNextLex(); // get first lexeme
     Program();
+fprintf(stderr, "evaluate {\n");
+    PolizElemStack constStack;
+    PolizItem* curCmd = poliz.getFirst();
+    while (curCmd != 0) {
+        curCmd->elem->evaluate(constStack, curCmd, tables);
+    }
+    if (!constStack.isEmpty()) {
+        throw ParserException("Not empty stack"
+            " after script interpretation.",
+            getLine(), getPos(),
+            __FILE__, __LINE__);
+    }
+fprintf(stderr, "}\n");
 }

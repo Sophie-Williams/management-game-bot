@@ -1,4 +1,4 @@
-SRCMODULES = CharQueue.cpp ScriptLexer.cpp ServerMsgLexer.cpp String.cpp Socket.cpp ParserTables.cpp Parser.cpp
+SRCMODULES = CharQueue.cpp ScriptLexer.cpp ServerMsgLexer.cpp String.cpp Socket.cpp DynamicTable.cpp ParserTables.cpp PolizElem.cpp Parser.cpp
 TEST_SRC_FILES = ScriptLexerTest.cpp ServerMsgLexerTest.cpp StringTest.cpp SocketTest.cpp BaldBot.cpp ParserTest.cpp
 OBJMODULES = $(SRCMODULES:.cpp=.o)
 HEADERS = $(SRCMODULES:.cpp=.hpp)
@@ -27,7 +27,7 @@ SocketTest: String.o Socket.o
 BaldBot: CharQueue.o ServerMsgLexer.o String.o Socket.o
 	$(CXX) $(CXXFLAGS) $^ $@.cpp -o $@
 
-ParserTest: CharQueue.o ScriptLexer.o String.o ParserTables.o Parser.o
+ParserTest: CharQueue.o ScriptLexer.o String.o DynamicTable.o ParserTables.o PolizElem.o Parser.o
 	$(CXX) $(CXXFLAGS) $^ $@.cpp -o $@
 
 ifneq (clean, $(MAKECMDGOALS))
