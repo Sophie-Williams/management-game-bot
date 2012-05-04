@@ -3,13 +3,13 @@
 
 #include "Exception.hpp"
 
-class TableItemNotFoundException : public Exception {
+class TableAccessException : public Exception {
     const char* description;
     int intKey;
     const char* strKey;
 
 public:
-    TableItemNotFoundException(const char* aDescription,
+    TableAccessException(const char* aDescription,
         int aIntKey,
         const char* aFile, int aLine)
         : Exception(aFile, aLine),
@@ -18,7 +18,7 @@ public:
         strKey(0)
     {}
 
-    TableItemNotFoundException(const char* aDescription,
+    TableAccessException(const char* aDescription,
         const char* aStrKey,
         const char* aFile, int aLine)
         : Exception(aFile, aLine),
@@ -45,7 +45,7 @@ public:
 
     const char* toString() const
     {
-        String msg("TableItemNotFoundException(\"");
+        String msg("TableAccessException(\"");
 
         msg += description;
         msg += "\"); ";

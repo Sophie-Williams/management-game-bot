@@ -104,10 +104,6 @@ PolizElem* PolizOpVariableValue::evaluateOp(PolizElemStack&,
 PolizElem* PolizOpSet::evaluateOp(PolizElemStack& stack,
     ParserTables& tables) const
 {
-    // TODO: set $b $b
-    // Идеи:
-    // 1. добавить в таблицу поле инициализировано_ли.
-    // 2. PolizOpVariableDefine : public PolizOp
     int value = PolizInt::popValue(stack);
     int key = PolizVariable::popValue(stack);
 

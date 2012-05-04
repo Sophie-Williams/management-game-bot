@@ -7,6 +7,7 @@
 #include "ScriptLexer.hpp"
 #include "ParserException.hpp"
 #include "ParserTables.hpp"
+#include "TableAccessException.hpp"
 #include "CharQueueException.hpp"
 #include "PolizElem.hpp"
 

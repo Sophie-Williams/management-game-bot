@@ -43,7 +43,7 @@ void Parser::getNextLex()
         try {
             currentLex->intValue =
                 tables.getKeywordType(currentLex->strValue);
-        } catch(TableItemNotFoundException& ex) {
+        } catch(TableAccessException& ex) {
             throw ParserException(ex,
                 getLine(), getPos(),
                 __FILE__, __LINE__);
@@ -493,7 +493,7 @@ void Parser::Expr()
     }
 }
 
-/* Argument mean: "must be defined".
+/* Argument def mean: "must be defined".
  * See README for more information. */
 void Parser::Variable(bool def)
 {
@@ -507,7 +507,7 @@ void Parser::Variable(bool def)
 
     try {
         variableKey = tables.getVariableKey(currentLex->strValue, def);
-    } catch(TableItemNotFoundException& ex) {
+    } catch(TableAccessException& ex) {
         throw ParserException(ex,
             getLine(), getPos(),
             __FILE__, __LINE__);

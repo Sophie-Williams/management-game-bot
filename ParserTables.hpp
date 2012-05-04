@@ -1,13 +1,12 @@
 #ifndef PARSER_TABLES_HPP_SENTRY
 #define PARSER_TABLES_HPP_SENTRY
 
+class ParserTables;
+
 #include "String.hpp"
 #include "DynamicTable.hpp"
-
-class ParserTables;
 #include "PolizElem.hpp"
-
-#include "TableItemNotFoundException.hpp"
+#include "TableAccessException.hpp"
 
 #define DEFAULT_VARIABLE_VALUE 0
 
@@ -28,6 +27,7 @@ enum ScriptLangKeywords {
 class StringConstElem : public NamedElem {
 };
 
+#if 0
 template <class T>
 class ValueElemGeneric : public NamedElem {
     T value;
@@ -54,6 +54,35 @@ public:
 typedef ValueElemGeneric<int> VariableElem;
 class PolizElem;
 typedef ValueElemGeneric<PolizElem*> LabelElem;
+#endif
+
+class VariableElem : public NamedElem {
+    bool defined;
+    int value;
+
+public:
+    VariableElem(char* aName)
+        : NamedElem(aName),
+        defined(false),
+        value(DEFAULT_VARIABLE_VALUE)
+    {}
+
+    bool isDefined()
+    {
+        return defined;
+    }
+
+    void setValue(int aValue)
+    {
+        defined = true;
+        value = aValue;
+    }
+
+    int getValue()
+    {
+        return value;
+    }
+};
 
 class ParserTables {
     static const char* keywordStrings[];
@@ -67,7 +96,7 @@ public:
     ScriptLangKeywords getKeywordType(
         const char* str) const;
 
-    // Argument mean: "must be defined".
+    // Argument def mean: "must be defined".
     // Make variable entry, if not found.
     int getVariableKey(const char* name, bool def);
 
