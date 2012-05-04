@@ -25,19 +25,6 @@ PolizElemList::PolizElemList()
     last(0)
 {}
 
-#if 0
-PolizElemList::PolizElemList(PolizElemList& list)
-    : PolizElemList()
-{
-    PolizElem* cur = list.getFirst();
-
-    while (cur != 0) {
-        push(cur);
-        cur = cur->next;
-    }
-}
-#endif
-
 void PolizElemList::push(PolizElem* elem)
 {
     // TODO: remove
@@ -89,28 +76,6 @@ bool PolizElemList::isEmpty() const
     return (first == 0);
 }
 
-#if 0
-void PolizElemList::push(PolizElemList* list)
-{
-    PolizElem* cur = list.getFirst();
-
-    if (cur == 0)
-        return;
-
-    if (first == 0) {
-        last = first = cur;
-        cur = cur->next;
-    }
-
-    while (cur != 0) {
-        last = last->next = cur;
-        cur = cur->next;
-    }
-
-    delete list;
-}
-#endif
-
 void PolizElemList::evaluate(PolizElemList& stack,
     ParserTables& tables) const
 {
@@ -125,13 +90,6 @@ void PolizElemList::evaluate(PolizElemList& stack,
 
     fprintf(stderr, "}\n"); // TODO: remove
 }
-
-#if 0
-PolizElemIterator& PolizElemList::getIterator()
-{
-    return new PolizElemIterator(first);
-}
-#endif
 
 void PolizConst::evaluate(PolizElemList& stack,
     PolizItem*&, ParserTables&) const

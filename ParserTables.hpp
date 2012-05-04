@@ -55,51 +55,6 @@ typedef NamedElem StringConstElem;
 typedef ValueElemGeneric<int> VariableElem;
 typedef ValueElemGeneric<PolizElem*> LabelElem;
 
-#if 0
-class VariableElem : public NamedElem {
-    bool defined;
-    int value;
-
-public:
-    VariableElem(char* aName)
-        : NamedElem(aName),
-        defined(false),
-        value(DEFAULT_VARIABLE_VALUE)
-    {}
-
-    bool isDefined()
-    {
-        return defined;
-    }
-
-    void setValue(int aValue)
-    {
-        defined = true;
-        value = aValue;
-    }
-
-    int getValue()
-    {
-        return value;
-    }
-};
-
-class LabelElem : public NamedElem {
-    PolizItem* value;
-
-public:
-    LabelElem(char* aName, PolizElem* aValue)
-        : NamedElem(aName),
-        value(aValue)
-    {}
-
-    PolizItem* getValue()
-    {
-        return value;
-    }
-};
-#endif
-
 class ParserTables {
     static const char* keywordStrings[];
     DynamicTable strings;

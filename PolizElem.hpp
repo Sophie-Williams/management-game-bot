@@ -12,30 +12,6 @@ struct PolizItem {
     PolizItem* next;
 };
 
-#if 0
-class PolizElemIterator {
-    PolizItem* cur;
-
-public:
-    PolizElemIterator(aList)
-        : cur(aList)
-    {}
-
-    void prev() {
-        cur = cur->prev;
-    }
-
-    void next() {
-        cur = cur->next;
-    }
-
-    PolizElem* get() const
-    {
-        return cur->elem;
-    }
-};
-#endif
-
 class PolizElemList {
     PolizItem* first;
     PolizItem* last;
