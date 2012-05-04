@@ -64,8 +64,13 @@ public:
         msg += getFile();
 
         char *numbers = 0;
-        asprintf(&numbers, ":%d; Script: %d:%d\n",
-            getLine(), scriptLine, scriptPos);
+
+        if (scriptLine == 0 && scriptPos == 0) {
+            asprintf(&numbers, ":%d\n", getLine());
+        } else {
+            asprintf(&numbers, ":%d; Script: %d:%d\n",
+                getLine(), scriptLine, scriptPos);
+        }
 
         msg += numbers;
 
