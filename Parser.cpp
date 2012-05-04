@@ -360,8 +360,6 @@ void Parser::PrintArgsList()
 
 void Parser::PrintArg()
 {
-//    PolizElemStack constStack;
-
     if (tryLex(SCR_LEX_STRING)) {
         // TODO: use tables and PolizString(key)
         poliz.push(new PolizString(
@@ -406,18 +404,18 @@ void Parser::Expr_0()
 
 void Parser::Expr_1()
 {
-    PolizElemStack opStack;
+    PolizElemList opList;
 
     while (isLexMonadicOp()) {
-        opStack.push(new PolizOpInt1(getPolizOpInt1Type(
+        opList.push(new PolizOpInt1(getPolizOpInt1Type(
             currentLex->intValue)));
         getNextLex();
     }
 
     Expr_0();
 
-    while (!opStack.isEmpty()) {
-        poliz.push(opStack.pop());
+    while (!opList.isEmpty()) {
+        poliz.push(opList.pop());
     }
 }
 
@@ -565,18 +563,16 @@ Parser::Parser(int aReadFD)
 void Parser::parse()
 {
     getNextLex(); // get first lexeme
+
     Program();
-fprintf(stderr, "evaluate {\n");
-    PolizElemStack constStack;
-    PolizItem* curCmd = poliz.getFirst();
-    while (curCmd != 0) {
-        curCmd->elem->evaluate(constStack, curCmd, tables);
-    }
-    if (!constStack.isEmpty()) {
+
+    PolizElemList stack; // for constants
+    poliz.evaluate(stack, tables);
+
+    if (!stack.isEmpty()) {
         throw ParserException("Not empty stack"
             " after script interpretation.",
             getLine(), getPos(),
             __FILE__, __LINE__);
     }
-fprintf(stderr, "}\n");
 }

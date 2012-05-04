@@ -36,15 +36,13 @@ public:
 };
 #endif
 
-class PolizElemStack {
+class PolizElemList {
     PolizItem* first;
     PolizItem* last;
 
 public:
-    PolizElemStack()
-        : first(0),
-        last(0)
-    {}
+    PolizElemList();
+    ~PolizElemList() {}
 
     void push(PolizElem* elem);
     PolizElem* pop();
@@ -53,13 +51,16 @@ public:
     PolizItem* getLast() const;
 
     bool isEmpty() const;
+
+    void evaluate(PolizElemList& stack,
+        ParserTables& tables) const;
 };
 
 class PolizElem {
 public:
     virtual ~PolizElem() {}
 
-    virtual void evaluate(PolizElemStack& stack,
+    virtual void evaluate(PolizElemList& stack,
         PolizItem*& curCmd,
         ParserTables& tables) const = 0;
 };
@@ -74,9 +75,8 @@ class PolizConst : public PolizElem {
 public:
     ~PolizConst() {}
 
-    void evaluate(PolizElemStack& stack,
-        PolizItem*& curCmd,
-        ParserTables&) const;
+    void evaluate(PolizElemList& stack,
+        PolizItem*&, ParserTables&) const;
 };
 
 template <class T>
@@ -100,7 +100,7 @@ public:
         return value;
     }
 
-    static T popValue(PolizElemStack& stack)
+    static T popValue(PolizElemList& stack)
     {
         PolizGenericConst<T>* tmp =
             dynamic_cast<PolizGenericConst<T>*>
@@ -137,7 +137,7 @@ public:
         return variableKey;
     }
 
-    static int popValue(PolizElemStack& stack)
+    static int popValue(PolizElemList& stack)
     {
         PolizVariable* tmp =
             dynamic_cast<PolizVariable*>
@@ -156,21 +156,20 @@ public:
 // ================================
 
 class PolizOp : public PolizElem {
-    virtual PolizElem* evaluateOp(PolizElemStack& stack,
+    virtual PolizElem* evaluateOp(PolizElemList& stack,
         ParserTables& tables) const = 0;
 
 public:
     ~PolizOp() {}
 
-    void evaluate(PolizElemStack& stack,
-        PolizItem*& curCmd,
-        ParserTables& tables) const;
+    void evaluate(PolizElemList& stack,
+        PolizItem*&, ParserTables&) const;
 };
 
 class PolizOpVariableValue : public PolizOp {
     int variableKey;
 
-    PolizElem* evaluateOp(PolizElemStack&,
+    PolizElem* evaluateOp(PolizElemList&,
         ParserTables& tables) const;
 
 public:
@@ -180,7 +179,7 @@ public:
 };
 
 class PolizOpSet : public PolizOp {
-    PolizElem* evaluateOp(PolizElemStack& stack,
+    PolizElem* evaluateOp(PolizElemList& stack,
         ParserTables& tables) const;
 
 public:
@@ -188,7 +187,7 @@ public:
 };
 
 class PolizOpPrint : public PolizOp {
-    PolizElem* evaluateOp(PolizElemStack& stack,
+    PolizElem* evaluateOp(PolizElemList& stack,
         ParserTables&) const;
 
 public:
@@ -228,7 +227,7 @@ enum PolizOpInt2Type {
 class PolizOpGame : public PolizOp {
     PolizOpGameType op;
 
-    PolizElem* evaluateOp(PolizElemStack& stack,
+    PolizElem* evaluateOp(PolizElemList& stack,
         ParserTables&) const;
 
 public:
@@ -240,7 +239,7 @@ public:
 class PolizOpInt1 : public PolizOp {
     PolizOpInt1Type op;
 
-    PolizElem* evaluateOp(PolizElemStack& stack,
+    PolizElem* evaluateOp(PolizElemList& stack,
         ParserTables&) const;
 
 public:
@@ -252,7 +251,7 @@ public:
 class PolizOpInt2 : public PolizOp {
     PolizOpInt2Type op;
 
-    PolizElem* evaluateOp(PolizElemStack& stack,
+    PolizElem* evaluateOp(PolizElemList& stack,
         ParserTables&) const;
 
 public:

@@ -74,3 +74,57 @@ void ParserTables::setVariableValue(int key, int value)
 
     elem->setValue(value);
 }
+
+int ParserTables::getLabelKey(const char* name)
+{
+    int key = labels.search(name);
+
+    if (key == -1) {
+        int nameSize = strlen(name) + 1;
+        char* nameCopy = new char[nameSize];
+        memcpy(nameCopy, name, nameSize); // with '\0'
+        key = labels.add(new LabelElem(nameCopy));
+    } else {
+        throw TableAccessException("label already defined",
+            key, __FILE__, __LINE__);
+    }
+
+    return key;
+}
+
+PolizElem* ParserTables::getLabelValue(int key)
+{
+    LabelElem* elem =
+        static_cast<LabelElem*>(labels.get(key));
+
+    if (elem == 0) {
+        throw TableAccessException("bad label key",
+            key, __FILE__, __LINE__);
+    }
+
+    if (!elem->isDefined()) {
+        throw TableAccessException("try to get value of"
+            " undefined label",
+            key, __FILE__, __LINE__);
+    }
+
+    return elem->getValue();
+}
+
+void ParserTables::setLabelValue(int key, PolizElem* value)
+{
+    LabelElem* elem =
+        static_cast<LabelElem*>(labels.get(key));
+
+    if (elem == 0) {
+        throw TableAccessException("bad label key",
+            key, __FILE__, __LINE__);
+    }
+
+    if (elem->isDefined()) {
+        throw TableAccessException("try to redefine"
+            " label", key, __FILE__, __LINE__);
+    }
+
+    elem->setValue(value);
+}

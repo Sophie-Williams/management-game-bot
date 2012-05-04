@@ -8,8 +8,6 @@ class ParserTables;
 #include "PolizElem.hpp"
 #include "TableAccessException.hpp"
 
-#define DEFAULT_VARIABLE_VALUE 0
-
 enum ScriptLangKeywords {
     SCR_KEYWORD_SET,
     SCR_KEYWORD_GOTO,
@@ -24,22 +22,26 @@ enum ScriptLangKeywords {
     SCR_KEYWORD_TURN
 };
 
-class StringConstElem : public NamedElem {
-};
-
-#if 0
 template <class T>
 class ValueElemGeneric : public NamedElem {
+    bool defined;
     T value;
 
 public:
-    ValueElemGeneric<T>(char* aName, int aValue)
+    ValueElemGeneric<T>(char* aName)
         : NamedElem(aName),
-        value(aValue)
+        defined(false),
+        value(0)
     {}
+
+    bool isDefined()
+    {
+        return defined;
+    }
 
     void setValue(T aValue)
     {
+        defined = true;
         value = aValue;
     }
 
@@ -49,13 +51,11 @@ public:
     }
 };
 
-// TODO: Maybe not extend, make this typedef?
-//typedef NamedElem StringConstElem;
+typedef NamedElem StringConstElem;
 typedef ValueElemGeneric<int> VariableElem;
-class PolizElem;
 typedef ValueElemGeneric<PolizElem*> LabelElem;
-#endif
 
+#if 0
 class VariableElem : public NamedElem {
     bool defined;
     int value;
@@ -84,6 +84,22 @@ public:
     }
 };
 
+class LabelElem : public NamedElem {
+    PolizItem* value;
+
+public:
+    LabelElem(char* aName, PolizElem* aValue)
+        : NamedElem(aName),
+        value(aValue)
+    {}
+
+    PolizItem* getValue()
+    {
+        return value;
+    }
+};
+#endif
+
 class ParserTables {
     static const char* keywordStrings[];
     DynamicTable strings;
@@ -99,10 +115,14 @@ public:
     // Argument def mean: "must be defined".
     // Make variable entry, if not found.
     int getVariableKey(const char* name, bool def);
-
     int getVariableValue(int key);
-
     void setVariableValue(int key, int value);
+
+    // throw excetion, if already defined
+    int getLabelKey(const char* name);
+    PolizElem* getLabelValue(int key);
+    void setLabelValue(int key,
+        PolizElem* value);
 };
 
 #endif /* PARSER_TABLES_HPP_SENTRY */

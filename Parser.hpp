@@ -23,7 +23,7 @@ class Parser {
     char buffer[PARSER_BUFFER_SIZE];
     ScriptLexer lexer;
     ScriptLexeme *currentLex;
-    PolizElemStack poliz;
+    PolizElemList poliz;
     ParserTables tables;
 
     int getLine() const;

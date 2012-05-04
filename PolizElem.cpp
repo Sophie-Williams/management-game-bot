@@ -1,29 +1,49 @@
 #include "PolizElem.hpp"
 
+// TODO: remove
 void printElem(PolizElem* elem)
 {
-PolizInt* tmp1 = dynamic_cast<PolizInt*>(elem);
-if (tmp1 != 0)
-    fprintf(stderr, " PolizInt: %d", tmp1->get());
-PolizOpPrint* tmp2 = dynamic_cast<PolizOpPrint*>(elem);
-if (tmp2 != 0)
-    fprintf(stderr, " PolizOpPrint");
-PolizOpVariableValue* tmp3 = dynamic_cast<PolizOpVariableValue*>(elem);
-if (tmp3 != 0)
-    fprintf(stderr, " PolizOpVariableValue");
-PolizOpSet* tmp4 = dynamic_cast<PolizOpSet*>(elem);
-if (tmp4 != 0)
-    fprintf(stderr, " PolizOpSet");
-PolizVariable* tmp5 = dynamic_cast<PolizVariable*>(elem);
-if (tmp5 != 0)
-    fprintf(stderr, " PolizVariable");
+    PolizInt* tmp1 = dynamic_cast<PolizInt*>(elem);
+    if (tmp1 != 0)
+        fprintf(stderr, " PolizInt: %d", tmp1->get());
+    PolizOpPrint* tmp2 = dynamic_cast<PolizOpPrint*>(elem);
+    if (tmp2 != 0)
+        fprintf(stderr, " PolizOpPrint");
+    PolizOpVariableValue* tmp3 = dynamic_cast<PolizOpVariableValue*>(elem);
+    if (tmp3 != 0)
+        fprintf(stderr, " PolizOpVariableValue");
+    PolizOpSet* tmp4 = dynamic_cast<PolizOpSet*>(elem);
+    if (tmp4 != 0)
+        fprintf(stderr, " PolizOpSet");
+    PolizVariable* tmp5 = dynamic_cast<PolizVariable*>(elem);
+    if (tmp5 != 0)
+        fprintf(stderr, " PolizVariable");
 }
 
-void PolizElemStack::push(PolizElem* elem)
+PolizElemList::PolizElemList()
+    : first(0),
+    last(0)
+{}
+
+#if 0
+PolizElemList::PolizElemList(PolizElemList& list)
+    : PolizElemList()
 {
-fprintf(stderr, "push;");
-printElem(elem);
-fprintf(stderr, "\n");
+    PolizElem* cur = list.getFirst();
+
+    while (cur != 0) {
+        push(cur);
+        cur = cur->next;
+    }
+}
+#endif
+
+void PolizElemList::push(PolizElem* elem)
+{
+    // TODO: remove
+    fprintf(stderr, "push;");
+    printElem(elem);
+    fprintf(stderr, "\n");
 
     PolizItem* newItem = new PolizItem;
     newItem->elem = elem;
@@ -37,9 +57,9 @@ fprintf(stderr, "\n");
     }
 }
 
-PolizElem* PolizElemStack::pop()
+PolizElem* PolizElemList::pop()
 {
-fprintf(stderr, "pop\n");
+fprintf(stderr, "pop\n"); // TODO: remove
     if (first == 0) {
         throw 3; // TODO
     }
@@ -54,54 +74,87 @@ fprintf(stderr, "pop\n");
     return res;
 }
 
-PolizItem* PolizElemStack::getFirst() const
+PolizItem* PolizElemList::getFirst() const
 {
     return first;
 }
 
-PolizItem* PolizElemStack::getLast() const
+PolizItem* PolizElemList::getLast() const
 {
     return last;
 }
 
-bool PolizElemStack::isEmpty() const
+bool PolizElemList::isEmpty() const
 {
     return (first == 0);
 }
 
 #if 0
-PolizElemIterator& PolizElemStack::getIterator()
+void PolizElemList::push(PolizElemList* list)
+{
+    PolizElem* cur = list.getFirst();
+
+    if (cur == 0)
+        return;
+
+    if (first == 0) {
+        last = first = cur;
+        cur = cur->next;
+    }
+
+    while (cur != 0) {
+        last = last->next = cur;
+        cur = cur->next;
+    }
+
+    delete list;
+}
+#endif
+
+void PolizElemList::evaluate(PolizElemList& stack,
+    ParserTables& tables) const
+{
+    PolizItem* cur = getFirst();
+
+    fprintf(stderr, "evaluate {\n"); // TODO: remove
+
+    while (cur != 0) {
+        cur->elem->evaluate(stack, cur, tables);
+        cur = cur->next;
+    }
+
+    fprintf(stderr, "}\n"); // TODO: remove
+}
+
+#if 0
+PolizElemIterator& PolizElemList::getIterator()
 {
     return new PolizElemIterator(first);
 }
 #endif
 
-void PolizConst::evaluate(PolizElemStack& stack,
-    PolizItem*& curCmd,
-    ParserTables&) const
+void PolizConst::evaluate(PolizElemList& stack,
+    PolizItem*&, ParserTables&) const
 {
     stack.push(clone());
-    curCmd = curCmd->next;
 }
 
-void PolizOp::evaluate(PolizElemStack& stack,
-    PolizItem*& curCmd,
-    ParserTables& tables) const
+void PolizOp::evaluate(PolizElemList& stack,
+    PolizItem*&, ParserTables& tables) const
 {
     PolizElem *res = evaluateOp(stack, tables);
     if (res != 0)
         stack.push(res);
-    curCmd = curCmd->next;
 }
 
-PolizElem* PolizOpVariableValue::evaluateOp(PolizElemStack&,
+PolizElem* PolizOpVariableValue::evaluateOp(PolizElemList&,
     ParserTables& tables) const
 {
     return new PolizInt(
         tables.getVariableValue(variableKey));
 }
 
-PolizElem* PolizOpSet::evaluateOp(PolizElemStack& stack,
+PolizElem* PolizOpSet::evaluateOp(PolizElemList& stack,
     ParserTables& tables) const
 {
     int value = PolizInt::popValue(stack);
@@ -111,15 +164,14 @@ PolizElem* PolizOpSet::evaluateOp(PolizElemStack& stack,
     return 0; // no push anything to stack
 }
 
-// TODO: printing from begin
-PolizElem* PolizOpPrint::evaluateOp(PolizElemStack& stack,
+PolizElem* PolizOpPrint::evaluateOp(PolizElemList& stack,
     ParserTables&) const
 {
     PolizElem* tmp;
     PolizInt* tmpInt;
     PolizString* tmpString;
     int args_count = PolizInt::popValue(stack);
-    PolizElemStack argStack;
+    PolizElemList argStack;
 
     for (int i = 0; i < args_count; ++i) {
         argStack.push(stack.pop());
@@ -149,7 +201,7 @@ PolizElem* PolizOpPrint::evaluateOp(PolizElemStack& stack,
 }
 
 
-PolizElem* PolizOpGame::evaluateOp(PolizElemStack& stack,
+PolizElem* PolizOpGame::evaluateOp(PolizElemList& stack,
     ParserTables&) const
 {
     int arg1;
@@ -179,7 +231,7 @@ PolizElem* PolizOpGame::evaluateOp(PolizElemStack& stack,
     return 0; // no push anything to stack
 }
 
-PolizElem* PolizOpInt1::evaluateOp(PolizElemStack& stack,
+PolizElem* PolizOpInt1::evaluateOp(PolizElemList& stack,
     ParserTables&) const
 {
     int arg = PolizInt::popValue(stack);
@@ -196,7 +248,7 @@ PolizElem* PolizOpInt1::evaluateOp(PolizElemStack& stack,
     return 0; // it is unreachable code
 }
 
-PolizElem* PolizOpInt2::evaluateOp(PolizElemStack& stack,
+PolizElem* PolizOpInt2::evaluateOp(PolizElemList& stack,
     ParserTables&) const
 {
     int arg2 = PolizInt::popValue(stack);
