@@ -6,6 +6,7 @@
 class PolizElem;
 
 #include "ParserTables.hpp"
+#include "PolizException.hpp"
 
 struct PolizItem {
     PolizElem* elem;
@@ -88,7 +89,9 @@ public:
             (stack.pop());
 
         if (tmp == 0) {
-            throw 10; // TODO
+            throw PolizException("Cannot"
+                " pop value of requested type",
+                __FILE__, __LINE__);
         }
 
         T value = tmp->getValue(tables);
@@ -172,41 +175,6 @@ public:
         return tables.getLabelValue(getKey());
     }
 };
-
-#if 0
-class PolizInt : public PolizConst {
-    int value;
-
-    PolizConst* clone() const {
-        return new PolizInt(value);
-    }
-
-public:
-    PolizInt(int aValue)
-        : value(aValue)
-    {}
-
-    ~PolizInt() {}
-
-    int getValue() const
-    {
-        return value;
-    }
-
-    static int popValue(PolizElemList& stack)
-    {
-        PolizInt* tmp =
-            dynamic_cast<PolizInt*>
-            (stack.pop());
-        if (tmp == 0) {
-            throw 11; // TODO
-        }
-        int value = tmp->getValue();
-        delete tmp;
-        return value;
-    }
-};
-#endif
 
 // ================================
 // No need access to stack pointer.

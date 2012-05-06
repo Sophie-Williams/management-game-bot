@@ -640,7 +640,7 @@ void Parser::parse()
 
     try {
         poliz.evaluate(stack, tables);
-    } catch(TableAccessException& ex) {
+    } catch(Exception& ex) {
         throw ParserException(ex,
             getLine(), getPos(),
             __FILE__, __LINE__);

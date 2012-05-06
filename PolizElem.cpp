@@ -22,7 +22,9 @@ void PolizElemList::push(PolizElem* elem)
 PolizElem* PolizElemList::pop()
 {
     if (first == 0) {
-        throw 3; // TODO
+        throw PolizException("Cannot"
+            " pop value from empty stack",
+            __FILE__, __LINE__);
     }
 
     PolizElem* res = last->elem;
@@ -121,7 +123,10 @@ PolizElem* PolizOpPrint::evaluateOp(PolizElemList& stack,
             continue;
         }
 
-        throw 2; // TODO
+        throw PolizException("Cannot"
+            " pop int or string value",
+            __FILE__, __LINE__);
+
     }
 
     printf("\n");

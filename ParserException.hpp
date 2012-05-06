@@ -3,8 +3,6 @@
 
 #include "Exception.hpp"
 #include "String.hpp"
-#include "ScriptLexer.hpp"
-#include "CharQueueException.hpp"
 
 class ParserException : public Exception {
     int scriptLine;
