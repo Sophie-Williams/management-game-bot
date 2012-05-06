@@ -195,8 +195,28 @@ void Parser::Operator()
         ElseSuffix(labelKey);
     } else if (tryLex(SCR_LEX_KEYWORD, SCR_KEYWORD_WHILE)) {
         getNextLex(); // skip 'while'
+        int labelKey_1 = tables.getLabelKey(0);
+        try {
+            tables.setLabelValue(labelKey_1, poliz.getLast());
+        } catch(TableAccessException& ex) {
+            throw ParserException(ex,
+                getLine(), getPos(),
+                __FILE__, __LINE__);
+        }
         ArgsList_1();
+        int labelKey_2 = tables.getLabelKey(0);
+        poliz.push(new PolizLabel(labelKey_2));
+        poliz.push(new PolizGoFalse());
         Operator();
+        poliz.push(new PolizLabel(labelKey_1));
+        poliz.push(new PolizGo());
+        try {
+            tables.setLabelValue(labelKey_2, poliz.getLast());
+        } catch(TableAccessException& ex) {
+            throw ParserException(ex,
+                getLine(), getPos(),
+                __FILE__, __LINE__);
+        }
     } else {
         SingleOperator();
         if (! tryLex(SCR_LEX_SEMICOLON)) {
