@@ -24,6 +24,11 @@ public:
     {
         return STR_EQUAL(name, aName);
     }
+
+    char* getName()
+    {
+        return name;
+    }
 };
 
 class DynamicTable {

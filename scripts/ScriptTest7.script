@@ -1,2 +1,7 @@
 set $number - -12+24*(53-6)-7;
 print("number: ", $number);
+
+set $i 0;
+@l: set $i $i+1;
+    print("i: ", $i);
+    goto @l;

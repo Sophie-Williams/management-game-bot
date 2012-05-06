@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 class PolizElem;
+
 #include "ParserTables.hpp"
 
 struct PolizItem {
@@ -46,9 +47,21 @@ public:
 // ==============================
 
 class PolizConst : public PolizElem {
+    int key;
+
     virtual PolizConst* clone() const = 0;
 
+protected:
+    int getKey() const
+    {
+        return key;
+    }
+
 public:
+    PolizConst(int aKey)
+        : key(aKey)
+    {}
+
     ~PolizConst() {}
 
     void evaluate(PolizElemList& stack,
@@ -57,75 +70,143 @@ public:
 
 template <class T>
 class PolizGenericConst : public PolizConst {
-    T value;
-
-    PolizConst* clone() const
-    {
-        return new PolizGenericConst<T>(value);
-    }
-
 public:
-    PolizGenericConst<T>(T aValue)
-        : value(aValue)
+    PolizGenericConst<T>(int aKey)
+        : PolizConst(aKey)
     {}
 
     ~PolizGenericConst<T>() {}
 
-    T get() const
-    {
-        return value;
-    }
+    virtual T getValue(ParserTables& tables)
+        const = 0;
 
-    static T popValue(PolizElemList& stack)
+    static T popValue(PolizElemList& stack,
+        ParserTables& tables)
     {
         PolizGenericConst<T>* tmp =
             dynamic_cast<PolizGenericConst<T>*>
             (stack.pop());
+
         if (tmp == 0) {
             throw 10; // TODO
         }
-        T value = tmp->get();
+
+        T value = tmp->getValue(tables);
         delete tmp;
         return value;
     }
 };
 
-typedef PolizGenericConst<int> PolizInt;
-typedef PolizGenericConst<char*> PolizString;
-typedef PolizGenericConst<PolizItem*> PolizLabel;
+class PolizInt : public
+    PolizGenericConst<int> {
 
-class PolizVariable : public PolizConst {
-    int variableKey;
-
-    PolizConst* clone() const {
-        return new PolizVariable(variableKey);
+    PolizConst* clone() const
+    {
+        return new PolizInt(getKey());
     }
 
 public:
-    PolizVariable(int aVariableKey)
-        : variableKey(aVariableKey)
+    PolizInt(int aKey)
+        : PolizGenericConst<int>(aKey)
     {}
 
-    ~PolizVariable() {}
-
-    int get() const
+    int getValue(ParserTables&) const
     {
-        return variableKey;
+        return getKey();
+    }
+};
+
+class PolizString : public
+    PolizGenericConst<char*> {
+
+    PolizConst* clone() const
+    {
+        return new PolizString(getKey());
+    }
+
+public:
+    PolizString(int aKey)
+        : PolizGenericConst<char*>(aKey)
+    {}
+
+    char* getValue(ParserTables& tables) const
+    {
+        return tables.getStringValue(getKey());
+    }
+};
+
+class PolizVariable : public
+    PolizGenericConst<int> {
+
+    PolizConst* clone() const
+    {
+        return new PolizVariable(getKey());
+    }
+
+public:
+    PolizVariable(int aKey)
+        : PolizGenericConst<int>(aKey)
+    {}
+
+    int getValue(ParserTables&) const
+    {
+        return getKey();
+    }
+};
+
+class PolizLabel : public
+    PolizGenericConst<PolizItem*> {
+
+    PolizConst* clone() const
+    {
+        return new PolizLabel(getKey());
+    }
+
+public:
+    PolizLabel(int aKey)
+        : PolizGenericConst<PolizItem*>(aKey)
+    {}
+
+    PolizItem* getValue(ParserTables& tables) const
+    {
+        return tables.getLabelValue(getKey());
+    }
+};
+
+#if 0
+class PolizInt : public PolizConst {
+    int value;
+
+    PolizConst* clone() const {
+        return new PolizInt(value);
+    }
+
+public:
+    PolizInt(int aValue)
+        : value(aValue)
+    {}
+
+    ~PolizInt() {}
+
+    int getValue() const
+    {
+        return value;
     }
 
     static int popValue(PolizElemList& stack)
     {
-        PolizVariable* tmp =
-            dynamic_cast<PolizVariable*>
+        PolizInt* tmp =
+            dynamic_cast<PolizInt*>
             (stack.pop());
         if (tmp == 0) {
             throw 11; // TODO
         }
-        int value = tmp->get();
+        int value = tmp->getValue();
         delete tmp;
         return value;
     }
 };
+#endif
 
 // ================================
 // No need access to stack pointer.
@@ -164,7 +245,7 @@ public:
 
 class PolizOpPrint : public PolizOp {
     PolizElem* evaluateOp(PolizElemList& stack,
-        ParserTables&) const;
+        ParserTables& tables) const;
 
 public:
     PolizOpPrint() {}
@@ -204,7 +285,7 @@ class PolizOpGame : public PolizOp {
     PolizOpGameType op;
 
     PolizElem* evaluateOp(PolizElemList& stack,
-        ParserTables&) const;
+        ParserTables& tables) const;
 
 public:
     PolizOpGame(PolizOpGameType aOp)
@@ -216,7 +297,7 @@ class PolizOpInt1 : public PolizOp {
     PolizOpInt1Type op;
 
     PolizElem* evaluateOp(PolizElemList& stack,
-        ParserTables&) const;
+        ParserTables& tables) const;
 
 public:
     PolizOpInt1(PolizOpInt1Type aOp)
@@ -228,7 +309,7 @@ class PolizOpInt2 : public PolizOp {
     PolizOpInt2Type op;
 
     PolizElem* evaluateOp(PolizElemList& stack,
-        ParserTables&) const;
+        ParserTables& tables) const;
 
 public:
     PolizOpInt2(PolizOpInt2Type aOp)
@@ -241,6 +322,10 @@ public:
 // =====
 
 class PolizGo : public PolizElem {
+public:
+    void evaluate(PolizElemList& stack,
+        PolizItem*& curCmd,
+        ParserTables& tables) const;
 };
 
 class PolizGoFalse : public PolizElem {

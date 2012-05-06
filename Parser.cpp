@@ -220,6 +220,8 @@ void Parser::SingleOperator()
         static_cast<ScriptLangKeywords>(currentLex->intValue);
     getNextLex(); // skip operator name
 
+    int labelKey = -1; // only for SCR_KEYWORD_GOTO swich alternative
+
     switch (keyword) {
     case SCR_KEYWORD_SET:
         Variable(false);
@@ -232,7 +234,19 @@ void Parser::SingleOperator()
                 getLine(), getPos(),
                 __FILE__, __LINE__);
         }
+
+        try {
+            labelKey = tables.getLabelKey(currentLex->strValue);
+        } catch(TableAccessException& ex) {
+            throw ParserException(ex,
+                getLine(), getPos(),
+                __FILE__, __LINE__);
+        }
+
         getNextLex(); // skip 'label'
+        poliz.push(new PolizLabel(labelKey));
+        poliz.push(new PolizGo());
+        break;
     case SCR_KEYWORD_IF:
     case SCR_KEYWORD_ELSE:
     case SCR_KEYWORD_WHILE:
@@ -361,9 +375,8 @@ void Parser::PrintArgsList()
 void Parser::PrintArg()
 {
     if (tryLex(SCR_LEX_STRING)) {
-        // TODO: use tables and PolizString(key)
-        poliz.push(new PolizString(
-            const_cast<char*>(currentLex->strValue)));
+        int stringKey = tables.getStringKey(currentLex->strValue);
+        poliz.push(new PolizString(stringKey));
         getNextLex(); // skip 'string'
     } else {
         Expr();
@@ -541,6 +554,17 @@ void Parser::LabelPrefix()
 {
     if (! tryLex(SCR_LEX_LABEL))
         return; /* Do nothing */
+
+    int labelKey = -1;
+
+    try {
+        labelKey = tables.getLabelKey(currentLex->strValue);
+        tables.setLabelValue(labelKey, poliz.getLast());
+    } catch(TableAccessException& ex) {
+        throw ParserException(ex,
+            getLine(), getPos(),
+            __FILE__, __LINE__);
+    }
 
     getNextLex(); // skip 'label'
     if (! tryLex(SCR_LEX_COLON)) {

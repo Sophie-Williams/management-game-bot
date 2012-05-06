@@ -26,6 +26,32 @@ ScriptLangKeywords ParserTables::getKeywordType(const char* str) const
         str, __FILE__, __LINE__);
 }
 
+int ParserTables::getStringKey(const char* name)
+{
+    int key = strings.search(name);
+
+    if (key == -1) {
+        int nameSize = strlen(name) + 1;
+        char* nameCopy = new char[nameSize];
+        memcpy(nameCopy, name, nameSize); // with '\0'
+        key = strings.add(new StringElem(nameCopy));
+    }
+
+    return key;
+}
+
+char* ParserTables::getStringValue(int key)
+{
+    StringElem* elem = strings.get(key);
+
+    if (elem == 0) {
+        throw TableAccessException("bad string key",
+            key, __FILE__, __LINE__);
+    }
+
+    return elem->getName();
+}
+
 int ParserTables::getVariableKey(const char* name, bool def)
 {
     int key = variables.search(name);
@@ -84,15 +110,12 @@ int ParserTables::getLabelKey(const char* name)
         char* nameCopy = new char[nameSize];
         memcpy(nameCopy, name, nameSize); // with '\0'
         key = labels.add(new LabelElem(nameCopy));
-    } else {
-        throw TableAccessException("label already defined",
-            key, __FILE__, __LINE__);
     }
 
     return key;
 }
 
-PolizElem* ParserTables::getLabelValue(int key)
+PolizItem* ParserTables::getLabelValue(int key)
 {
     LabelElem* elem =
         static_cast<LabelElem*>(labels.get(key));
@@ -111,7 +134,7 @@ PolizElem* ParserTables::getLabelValue(int key)
     return elem->getValue();
 }
 
-void ParserTables::setLabelValue(int key, PolizElem* value)
+void ParserTables::setLabelValue(int key, PolizItem* value)
 {
     LabelElem* elem =
         static_cast<LabelElem*>(labels.get(key));

@@ -1,11 +1,10 @@
 #ifndef PARSER_TABLES_HPP_SENTRY
 #define PARSER_TABLES_HPP_SENTRY
 
-class ParserTables;
+class PolizItem;
 
 #include "String.hpp"
 #include "DynamicTable.hpp"
-#include "PolizElem.hpp"
 #include "TableAccessException.hpp"
 
 enum ScriptLangKeywords {
@@ -51,9 +50,9 @@ public:
     }
 };
 
-typedef NamedElem StringConstElem;
+typedef NamedElem StringElem;
 typedef ValueElemGeneric<int> VariableElem;
-typedef ValueElemGeneric<PolizElem*> LabelElem;
+typedef ValueElemGeneric<PolizItem*> LabelElem;
 
 class ParserTables {
     static const char* keywordStrings[];
@@ -67,6 +66,9 @@ public:
     ScriptLangKeywords getKeywordType(
         const char* str) const;
 
+    int getStringKey(const char* name);
+    char* getStringValue(int key);
+
     // Argument def mean: "must be defined".
     // Make variable entry, if not found.
     int getVariableKey(const char* name, bool def);
@@ -75,9 +77,9 @@ public:
 
     // throw excetion, if already defined
     int getLabelKey(const char* name);
-    PolizElem* getLabelValue(int key);
+    PolizItem* getLabelValue(int key);
     void setLabelValue(int key,
-        PolizElem* value);
+        PolizItem* value);
 };
 
 #endif /* PARSER_TABLES_HPP_SENTRY */
