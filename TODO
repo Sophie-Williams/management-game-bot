@@ -18,6 +18,12 @@ printf("Program paused (syscall pause()) for attaching debugger.\n"
 4.1. Тип player_pointer.
 4.2. Данные представляются списками (или отображениями из player_pointer в
 int/double).
+
+player_pointer my_player;
+player_pointer players_list[];
+set my_player, ?get_my_player();
+set players_list, get_players_list();
+
 4.3. Комментарии: // до конца строки, если не в двойных кавычках. Если встречен
 один '/', то LEX_ERROR. Комментарий должен являться разделителем (как пробел).
 
