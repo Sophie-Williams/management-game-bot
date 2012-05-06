@@ -329,6 +329,10 @@ public:
 };
 
 class PolizGoFalse : public PolizElem {
+public:
+    void evaluate(PolizElemList& stack,
+        PolizItem*& curCmd,
+        ParserTables& tables) const;
 };
 
 #endif /* POLIZ_ELEM_HPP_SENTRY */

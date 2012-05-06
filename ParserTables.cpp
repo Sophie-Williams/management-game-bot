@@ -103,6 +103,10 @@ void ParserTables::setVariableValue(int key, int value)
 
 int ParserTables::getLabelKey(const char* name)
 {
+    if (name == 0) {
+        return labels.add(new LabelElem(0));
+    }
+
     int key = labels.search(name);
 
     if (key == -1) {

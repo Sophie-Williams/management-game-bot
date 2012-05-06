@@ -71,8 +71,9 @@ void PolizOp::evaluate(PolizElemList& stack,
     PolizItem*&, ParserTables& tables) const
 {
     PolizElem *res = evaluateOp(stack, tables);
-    if (res != 0)
+    if (res != 0) {
         stack.push(res);
+    }
 }
 
 PolizElem* PolizOpVariableValue::evaluateOp(PolizElemList&,
@@ -212,4 +213,15 @@ void PolizGo::evaluate(PolizElemList& stack,
     PolizItem*& curCmd, ParserTables& tables) const
 {
     curCmd = PolizLabel::popValue(stack, tables);
+}
+
+void PolizGoFalse::evaluate(PolizElemList& stack,
+    PolizItem*& curCmd, ParserTables& tables) const
+{
+    PolizItem* cmd = PolizLabel::popValue(stack, tables);
+    int condition = PolizInt::popValue(stack, tables);
+
+    if (!condition) {
+        curCmd = cmd;
+    }
 }

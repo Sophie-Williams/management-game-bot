@@ -50,7 +50,7 @@ class Parser {
     void LabelOperator();
     void Operator();
     void SingleOperator();
-    void ElseSuffix();
+    void ElseSuffix(int falseLabelKey);
     void ArgsList_0();
     void ArgsList_1();
     void ArgsList_2();

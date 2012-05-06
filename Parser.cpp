@@ -188,8 +188,11 @@ void Parser::Operator()
     } else if (tryLex(SCR_LEX_KEYWORD, SCR_KEYWORD_IF)) {
         getNextLex(); // skip 'if'
         ArgsList_1();
+        int labelKey = tables.getLabelKey(0);
+        poliz.push(new PolizLabel(labelKey));
+        poliz.push(new PolizGoFalse());
         Operator();
-        ElseSuffix();
+        ElseSuffix(labelKey);
     } else if (tryLex(SCR_LEX_KEYWORD, SCR_KEYWORD_WHILE)) {
         getNextLex(); // skip 'while'
         ArgsList_1();
@@ -235,13 +238,7 @@ void Parser::SingleOperator()
                 __FILE__, __LINE__);
         }
 
-        try {
-            labelKey = tables.getLabelKey(currentLex->strValue);
-        } catch(TableAccessException& ex) {
-            throw ParserException(ex,
-                getLine(), getPos(),
-                __FILE__, __LINE__);
-        }
+        labelKey = tables.getLabelKey(currentLex->strValue);
 
         getNextLex(); // skip 'label'
         poliz.push(new PolizLabel(labelKey));
@@ -284,13 +281,43 @@ void Parser::SingleOperator()
     }
 }
 
-void Parser::ElseSuffix()
+void Parser::ElseSuffix(int falseLabelKey)
 {
-    if (! tryLex(SCR_LEX_KEYWORD, SCR_KEYWORD_ELSE))
-        return; /* Do nothing */
+    if (! tryLex(SCR_LEX_KEYWORD, SCR_KEYWORD_ELSE)) {
+        try {
+            tables.setLabelValue(falseLabelKey, poliz.getLast());
+        } catch(TableAccessException& ex) {
+            throw ParserException(ex,
+                getLine(), getPos(),
+                __FILE__, __LINE__);
+        }
+
+        return;
+    }
+
+    int labelKey = tables.getLabelKey(0);
+    poliz.push(new PolizLabel(labelKey));
+    poliz.push(new PolizGo());
 
     getNextLex(); // skip 'else'
+
+    try {
+        tables.setLabelValue(falseLabelKey, poliz.getLast());
+    } catch(TableAccessException& ex) {
+        throw ParserException(ex,
+            getLine(), getPos(),
+            __FILE__, __LINE__);
+    }
+
     Operator();
+
+    try {
+        tables.setLabelValue(labelKey, poliz.getLast());
+    } catch(TableAccessException& ex) {
+        throw ParserException(ex,
+            getLine(), getPos(),
+            __FILE__, __LINE__);
+    }
 }
 
 void Parser::ArgsList_0()
@@ -555,10 +582,9 @@ void Parser::LabelPrefix()
     if (! tryLex(SCR_LEX_LABEL))
         return; /* Do nothing */
 
-    int labelKey = -1;
+    int labelKey = tables.getLabelKey(currentLex->strValue);
 
     try {
-        labelKey = tables.getLabelKey(currentLex->strValue);
         tables.setLabelValue(labelKey, poliz.getLast());
     } catch(TableAccessException& ex) {
         throw ParserException(ex,
@@ -591,7 +617,14 @@ void Parser::parse()
     Program();
 
     PolizElemList stack; // for constants
-    poliz.evaluate(stack, tables);
+
+    try {
+        poliz.evaluate(stack, tables);
+    } catch(TableAccessException& ex) {
+        throw ParserException(ex,
+            getLine(), getPos(),
+            __FILE__, __LINE__);
+    }
 
     if (!stack.isEmpty()) {
         throw ParserException("Not empty stack"

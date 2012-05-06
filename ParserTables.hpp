@@ -76,6 +76,8 @@ public:
     void setVariableValue(int key, int value);
 
     // throw excetion, if already defined
+    // if (name == 0) returns key of
+    // new label without name.
     int getLabelKey(const char* name);
     PolizItem* getLabelValue(int key);
     void setLabelValue(int key,

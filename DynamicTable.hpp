@@ -17,15 +17,19 @@ public:
 
     virtual ~NamedElem()
     {
-        delete name;
+        if (name != 0)
+            delete name;
     }
 
-    bool hasName(const char* aName)
+    bool hasName(const char* aName) const
     {
+        if (name == 0)
+            return false;
+
         return STR_EQUAL(name, aName);
     }
 
-    char* getName()
+    char* getName() const
     {
         return name;
     }
