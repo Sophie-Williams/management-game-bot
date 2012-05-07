@@ -259,8 +259,9 @@ void Parser::SingleOperator()
 
     switch (keyword) {
     case SCR_KEYWORD_SET:
-        // Argument false mean that variable can
-        // be defined or not defined.
+        /* Argument false mean that variable can
+         * be defined or not defined, array must
+         * be not defined. */
         Variable(false);
         Expr();
         poliz.push(new PolizOpSet());
@@ -470,7 +471,8 @@ void Parser::Expr_0()
             ArgsList_0();
         }
     } else {
-        // Argument true mean that variable must be defined.
+        /* Argument true mean that variable or array
+         * must be defined. */
         Variable(true);
     }
 }
