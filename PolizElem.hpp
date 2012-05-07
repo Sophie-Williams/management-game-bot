@@ -82,36 +82,6 @@ public:
         PolizItem*&, ParserTables&) const;
 };
 
-#if 0
-template <class T>
-class PolizGenericConst : public PolizConst {
-public:
-    PolizGenericConst<T>(int aKey)
-        : PolizConst(aKey)
-    {}
-
-    virtual int getKey() const = 0;
-
-    static T popValue(PolizElemList& stack,
-        ParserTables& tables)
-    {
-        PolizGenericConst<T>* tmp =
-            dynamic_cast<PolizGenericConst<T>*>
-            (stack.pop());
-
-        if (tmp == 0) {
-            throw PolizException("Cannot"
-                " pop value of requested type",
-                __FILE__, __LINE__);
-        }
-
-        T value = tmp->getValue(tables);
-        delete tmp;
-        return value;
-    }
-};
-#endif
-
 class PolizInt : public PolizConst {
     PolizConst* clone() const
     {
