@@ -1,18 +1,21 @@
 #include "ParserTables.hpp"
 
 const char* ParserTables::keywordStrings[] = {
-    "set", "goto", "if", "else",
-    "while", "print", "buy", "sell",
-    "make", "build", "turn", ""
+    "set", "array", "goto", "if",
+    "else", "while", "print", "buy",
+    "sell", "make", "build", "turn",
+    ""
 };
 
 ParserTables::ParserTables()
     : strings(),
     variables(),
+    arrays(),
     labels()
 {}
 
 ScriptLangKeywords ParserTables::getKeywordType(const char* str) const
+    throw (TableAccessException)
 {
     for (unsigned int i = 0;
         i < sizeof(keywordStrings) / sizeof(const char*);
@@ -22,11 +25,12 @@ ScriptLangKeywords ParserTables::getKeywordType(const char* str) const
             return (ScriptLangKeywords) i;
     }
 
-    throw TableAccessException("unknown keyword",
+    throw TableAccessException("Unknown keyword.",
         str, __FILE__, __LINE__);
 }
 
 int ParserTables::getStringKey(const char* name)
+    throw ()
 {
     int key = strings.search(name);
 
@@ -40,12 +44,13 @@ int ParserTables::getStringKey(const char* name)
     return key;
 }
 
-char* ParserTables::getStringValue(int key)
+char* ParserTables::getStringValue(int key) const
+    throw (TableAccessException)
 {
     StringElem* elem = strings.get(key);
 
     if (elem == 0) {
-        throw TableAccessException("bad string key",
+        throw TableAccessException("Bad string key.",
             key, __FILE__, __LINE__);
     }
 
@@ -53,11 +58,12 @@ char* ParserTables::getStringValue(int key)
 }
 
 int ParserTables::getVariableKey(const char* name, bool def)
+    throw (TableAccessException)
 {
     int key = variables.search(name);
 
     if (def && key == -1) {
-        throw TableAccessException("bad variable key",
+        throw TableAccessException("Variable not found.",
             key, __FILE__, __LINE__);
     } else if (!def && key == -1) {
         int nameSize = strlen(name) + 1;
@@ -69,19 +75,20 @@ int ParserTables::getVariableKey(const char* name, bool def)
     return key;
 }
 
-int ParserTables::getVariableValue(int key)
+int ParserTables::getVariableValue(int key) const
+    throw (TableAccessException)
 {
     VariableElem* elem =
         static_cast<VariableElem*>(variables.get(key));
 
     if (elem == 0) {
-        throw TableAccessException("bad variable key",
+        throw TableAccessException("Bad variable key.",
             key, __FILE__, __LINE__);
     }
 
-    if (!elem->isDefined()) {
-        throw TableAccessException("try to get value of"
-            " undefined variable",
+    if (! elem->isDefined()) {
+        throw TableAccessException("Try to get value of"
+            " undefined variable.",
             key, __FILE__, __LINE__);
     }
 
@@ -89,19 +96,134 @@ int ParserTables::getVariableValue(int key)
 }
 
 void ParserTables::setVariableValue(int key, int value)
+    throw (TableAccessException)
 {
     VariableElem* elem =
         static_cast<VariableElem*>(variables.get(key));
 
     if (elem == 0) {
-        throw TableAccessException("bad variable key",
+        throw TableAccessException("Bad variable key.",
             key, __FILE__, __LINE__);
     }
 
     elem->setValue(value);
 }
 
+int ParserTables::getArrayKey(const char* name, bool def)
+    throw (TableAccessException)
+{
+    int key = arrays.search(name);
+
+    if (def && key == -1) {
+        throw TableAccessException("Array not found.",
+            key, __FILE__, __LINE__);
+    } else if (!def && key == -1) {
+        int nameSize = strlen(name) + 1;
+        char* nameCopy = new char[nameSize];
+        memcpy(nameCopy, name, nameSize); // with '\0'
+        key = arrays.add(new ArrayElem(nameCopy));
+    } else if (!def && key > -1) {
+        throw TableAccessException("Double array definition.",
+            key, __FILE__, __LINE__);
+    }
+
+    return key;
+}
+
+int ParserTables::getArraySize(int key)
+    throw (TableAccessException)
+{
+    ArrayElem* elem =
+        static_cast<ArrayElem*>(arrays.get(key));
+
+    if (elem == 0) {
+        throw TableAccessException("Bad array key.",
+            key, __FILE__, __LINE__);
+    }
+
+    if (! elem->isDefined()) {
+        throw TableAccessException("Try to get size of"
+            " undefined array.",
+            key, __FILE__, __LINE__);
+    }
+
+    return elem->getSize();
+}
+
+void ParserTables::setArraySize(int key, int size)
+    throw (TableAccessException)
+{
+    ArrayElem* elem =
+        static_cast<ArrayElem*>(arrays.get(key));
+
+    if (elem == 0) {
+        throw TableAccessException("Bad array key.",
+            key, __FILE__, __LINE__);
+    }
+
+    if (elem->isDefined()) {
+        throw TableAccessException("Try to redefine"
+            " (change size) array.",
+            key, __FILE__, __LINE__);
+    }
+
+    elem->setSize(size);
+}
+
+int ParserTables::getArrayElementValue(int key, int index)
+    throw (TableAccessException)
+{
+    ArrayElem* elem =
+        static_cast<ArrayElem*>(arrays.get(key));
+
+    if (elem == 0) {
+        throw TableAccessException("Bad array key.",
+            key, __FILE__, __LINE__);
+    }
+
+    if (! elem->isDefined()) {
+        throw TableAccessException("Try to get value"
+            " of element from undefined array.",
+            key, __FILE__, __LINE__);
+    }
+
+    try {
+        return elem->getElementValue(index);
+    } catch(ArrayAccessException& ex) {
+        throw TableAccessException(ex, key,
+            __FILE__, __LINE__);
+    }
+
+    return 0; // unreachable code
+}
+
+void ParserTables::setArrayElementValue(int key, int index, int value)
+    throw (TableAccessException)
+{
+    ArrayElem* elem =
+        static_cast<ArrayElem*>(arrays.get(key));
+
+    if (elem == 0) {
+        throw TableAccessException("Bad array key.",
+            key, __FILE__, __LINE__);
+    }
+
+    if (! elem->isDefined()) {
+        throw TableAccessException("Try to set value"
+            " of element from undefined array.",
+            key, __FILE__, __LINE__);
+    }
+
+    try {
+        elem->setElementValue(index, value);
+    } catch(ArrayAccessException& ex) {
+        throw TableAccessException(ex, key,
+            __FILE__, __LINE__);
+    }
+}
+
 int ParserTables::getLabelKey(const char* name)
+    throw ()
 {
     if (name == 0) {
         return labels.add(new LabelElem(0));
@@ -119,19 +241,20 @@ int ParserTables::getLabelKey(const char* name)
     return key;
 }
 
-PolizItem* ParserTables::getLabelValue(int key)
+PolizItem* ParserTables::getLabelValue(int key) const
+    throw (TableAccessException)
 {
     LabelElem* elem =
         static_cast<LabelElem*>(labels.get(key));
 
     if (elem == 0) {
-        throw TableAccessException("bad label key",
+        throw TableAccessException("Bad label key.",
             key, __FILE__, __LINE__);
     }
 
-    if (!elem->isDefined()) {
-        throw TableAccessException("try to get value of"
-            " undefined label",
+    if (! elem->isDefined()) {
+        throw TableAccessException("Try to get value of"
+            " undefined label.",
             key, __FILE__, __LINE__);
     }
 
@@ -139,18 +262,19 @@ PolizItem* ParserTables::getLabelValue(int key)
 }
 
 void ParserTables::setLabelValue(int key, PolizItem* value)
+    throw (TableAccessException)
 {
     LabelElem* elem =
         static_cast<LabelElem*>(labels.get(key));
 
     if (elem == 0) {
-        throw TableAccessException("bad label key",
+        throw TableAccessException("Bad label key.",
             key, __FILE__, __LINE__);
     }
 
     if (elem->isDefined()) {
-        throw TableAccessException("try to redefine"
-            " label", key, __FILE__, __LINE__);
+        throw TableAccessException("Try to redefine"
+            " label.", key, __FILE__, __LINE__);
     }
 
     elem->setValue(value);

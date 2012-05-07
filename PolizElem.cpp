@@ -78,20 +78,62 @@ void PolizOp::evaluate(PolizElemList& stack,
     }
 }
 
-PolizElem* PolizOpVariableValue::evaluateOp(PolizElemList&,
+PolizElem* PolizOpVariableValue::evaluateOp(
+    PolizElemList& stack,
     ParserTables& tables) const
 {
+    int key = PolizVariable::popKey(stack);
+    return new PolizInt(tables.getVariableValue(key));
+}
+
+PolizElem* PolizOpArrayElementValue::evaluateOp(
+    PolizElemList& stack,
+    ParserTables& tables) const
+{
+    int index = PolizInt::popKey(stack);
+    int key = PolizArray::popKey(stack);
     return new PolizInt(
-        tables.getVariableValue(variableKey));
+        tables.getArrayElementValue(key, index));
 }
 
 PolizElem* PolizOpSet::evaluateOp(PolizElemList& stack,
     ParserTables& tables) const
 {
-    int value = PolizInt::popValue(stack, tables);
-    int key = PolizVariable::popValue(stack, tables);
+    int value = PolizInt::popKey(stack);
 
-    tables.setVariableValue(key, value);
+    PolizElem* tmp = stack.pop();
+    PolizVariable* tmpVariable = dynamic_cast<PolizVariable*>(tmp);
+
+    if (tmpVariable != 0) {
+        int key = tmpVariable->getKey();
+        tables.setVariableValue(key, value);
+        delete tmp;
+        return 0; // no push anything to stack
+    }
+
+    PolizInt* tmpInt = dynamic_cast<PolizInt*>(tmp);
+    if (tmpInt != 0) {
+        int index = tmpInt->getKey();
+        int key = PolizArray::popKey(stack);
+        tables.setArrayElementValue(key, index, value);
+        delete tmp;
+        return 0; // no push anything to stack
+    }
+
+    throw PolizException("Cannot"
+        " pop variable or int value",
+        __FILE__, __LINE__);
+
+    return 0; // no push anything to stack
+}
+
+PolizElem* PolizOpArrayDefine::evaluateOp(PolizElemList& stack,
+    ParserTables& tables) const
+{
+    int size = PolizInt::popKey(stack);
+    int key = PolizArray::popKey(stack);
+
+    tables.setArraySize(key, size);
     return 0; // no push anything to stack
 }
 
@@ -101,7 +143,7 @@ PolizElem* PolizOpPrint::evaluateOp(PolizElemList& stack,
     PolizElem* tmp;
     PolizInt* tmpInt;
     PolizString* tmpString;
-    int args_count = PolizInt::popValue(stack, tables);
+    int args_count = PolizInt::popKey(stack);
     PolizElemList argStack;
 
     for (int i = 0; i < args_count; ++i) {
@@ -112,13 +154,14 @@ PolizElem* PolizOpPrint::evaluateOp(PolizElemList& stack,
         tmp = argStack.pop();
         tmpInt = dynamic_cast<PolizInt*>(tmp);
         if (tmpInt != 0) {
-            printf("%d", tmpInt->getValue(tables));
+            printf("%d", tmpInt->getKey());
             delete tmp;
             continue;
         }
         tmpString = dynamic_cast<PolizString*>(tmp);
         if (tmpString != 0) {
-            printf("%s", tmpString->getValue(tables));
+            int key = tmpString->getKey();
+            printf("%s", tables.getStringValue(key));
             delete tmp;
             continue;
         }
@@ -126,7 +169,6 @@ PolizElem* PolizOpPrint::evaluateOp(PolizElemList& stack,
         throw PolizException("Cannot"
             " pop int or string value",
             __FILE__, __LINE__);
-
     }
 
     printf("\n");
@@ -136,16 +178,16 @@ PolizElem* PolizOpPrint::evaluateOp(PolizElemList& stack,
 
 
 PolizElem* PolizOpGame::evaluateOp(PolizElemList& stack,
-    ParserTables& tables) const
+    ParserTables&) const
 {
     int arg1;
     int arg2;
 
     if (op == POLIZ_OP_BUY || op == POLIZ_OP_SELL) {
-        arg2 = PolizInt::popValue(stack, tables);
-        arg1 = PolizInt::popValue(stack, tables);
+        arg2 = PolizInt::popKey(stack);
+        arg1 = PolizInt::popKey(stack);
     } else if (op == POLIZ_OP_MAKE || op == POLIZ_OP_BUILD) {
-        arg1 = PolizInt::popValue(stack, tables);
+        arg1 = PolizInt::popKey(stack);
     }
 
     // TODO: game actions
@@ -166,9 +208,9 @@ PolizElem* PolizOpGame::evaluateOp(PolizElemList& stack,
 }
 
 PolizElem* PolizOpInt1::evaluateOp(PolizElemList& stack,
-    ParserTables& tables) const
+    ParserTables&) const
 {
-    int arg = PolizInt::popValue(stack, tables);
+    int arg = PolizInt::popKey(stack);
 
     switch (op) {
     case POLIZ_OP_MONADIC_PLUS:
@@ -183,10 +225,10 @@ PolizElem* PolizOpInt1::evaluateOp(PolizElemList& stack,
 }
 
 PolizElem* PolizOpInt2::evaluateOp(PolizElemList& stack,
-    ParserTables& tables) const
+    ParserTables&) const
 {
-    int arg2 = PolizInt::popValue(stack, tables);
-    int arg1 = PolizInt::popValue(stack, tables);
+    int arg2 = PolizInt::popKey(stack);
+    int arg1 = PolizInt::popKey(stack);
 
     switch (op) {
     case POLIZ_OP_MULTIPLICATION:
@@ -217,16 +259,17 @@ PolizElem* PolizOpInt2::evaluateOp(PolizElemList& stack,
 void PolizGo::evaluate(PolizElemList& stack,
     PolizItem*& curCmd, ParserTables& tables) const
 {
-    curCmd = PolizLabel::popValue(stack, tables);
+    int key = PolizLabel::popKey(stack);
+    curCmd = tables.getLabelValue(key);
 }
 
 void PolizGoFalse::evaluate(PolizElemList& stack,
     PolizItem*& curCmd, ParserTables& tables) const
 {
-    PolizItem* cmd = PolizLabel::popValue(stack, tables);
-    int condition = PolizInt::popValue(stack, tables);
+    int key = PolizLabel::popKey(stack);
+    int condition = PolizInt::popKey(stack);
 
-    if (!condition) {
-        curCmd = cmd;
+    if (! condition) {
+        curCmd = tables.getLabelValue(key);
     }
 }

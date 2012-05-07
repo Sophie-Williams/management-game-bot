@@ -66,6 +66,7 @@ OPERATOR -> '{' LABEL_OPERATOR {LABEL_OPERATOR} '}' |
             SINGLE_OPERATOR ';'
 
 SINGLE_OPERATOR -> 'set' VARIABLE(false) EXPR |
+                   'array' ARRAY_DEFINE EXPR |
                    'goto' label |
                    'print' '(' PRINT_ARGS_LIST ')' |
                    'buy' ARGS_LIST_2 |
@@ -95,6 +96,8 @@ EXPR -> EXPR_5 {_LOGIC_OP_2_ EXPR_5}
 
 VARIABLE(def) -> variable ARRAY_SUFFIX(def)
 ARRAY_SUFFIX(def) -> '[' EXPR ']' | nothing
+// array name is lexeme with type variable.
+ARRAY_DEFINE -> array_name
 
 // define label
 LABEL_PREFIX -> label ':' | nothing

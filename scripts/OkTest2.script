@@ -1,8 +1,10 @@
 print("---- arithmetic and variable ----");
+
 set $number - -12+24*(53-6)-7;
 print("number: ", $number, ", expected 1133");
 
 print("---- if ----");
+
 if (1) {
     print("1. Ok");
 } else {
@@ -15,16 +17,32 @@ if (0) {
     print("2. Ok");
 }
 
+if (1)
+    print("3. Ok");
+
+if (0)
+    print("4. Failed");
+
 print("---- if-goto cycle ----");
+
 set $i 0;
-@l: set $i $i+1;
-    print("i: ", $i);
+@l: print("i: ", $i);
+    set $i $i+1;
     if ($i < 10)
         goto @l;
 
-print("---- while ----");
+print("---- while and array ----");
+
+array $a 10;
 set $i 0;
 while ($i < 10) {
-    set $i $i+1;
+    set $a[$i] $i-5;
     print("i: ", $i);
+    set $i $i+1;
+}
+
+set $i 0;
+while ($i < 10) {
+    print("$a[", $i, "]: ", $a[$i]);
+    set $i $i+1;
 }

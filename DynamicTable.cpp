@@ -33,7 +33,7 @@ int DynamicTable::add(NamedElem* elem)
     return index;
 }
 
-NamedElem* DynamicTable::get(int key)
+NamedElem* DynamicTable::get(int key) const
 {
     if (key < freeElemIndex) {
         return p[key];

@@ -47,7 +47,7 @@ public:
     // returns key
     int add(NamedElem* elem);
 
-    NamedElem* get(int key);
+    NamedElem* get(int key) const;
 
     // returns key
     int search(const char* name);

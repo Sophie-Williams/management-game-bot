@@ -27,6 +27,15 @@ public:
         strKey(aStrKey)
     {}
 
+    TableAccessException(const Exception& ex,
+        int aIntKey,
+        const char* aFile, int aLine)
+        : Exception(aFile, aLine),
+        intKey(aIntKey),
+        strKey(0)
+    {
+        description = ex.toString();
+    }
 
     const char* getDescription() const
     {

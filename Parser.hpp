@@ -40,6 +40,7 @@ class Parser {
     bool isLexCompareOp() const;
     bool isLexLogicOp_1() const;
     bool isLexLogicOp_2() const;
+    bool isOperator() const;
 
     PolizOpInt1Type getPolizOpInt1Type(int op)
         const;
@@ -50,7 +51,9 @@ class Parser {
     void LabelOperator();
     void Operator();
     void SingleOperator();
-    void ElseSuffix(int falseLabelKey);
+    /* Returns true, if POLIZ for
+     * else branch has been constructed. */
+    bool ElseSuffix(int falseLabelKey);
     void ArgsList_0();
     void ArgsList_1();
     void ArgsList_2();
@@ -63,8 +66,14 @@ class Parser {
     void Expr_4();
     void Expr_5();
     void Expr();
+    /* Argument def mean: "must be defined".
+     * See README for more information. */
     void Variable(bool def);
-    void ArraySuffix(bool def);
+    /* Returns true, if POLIZ for array
+     * has been constructed. */
+    bool ArraySuffix(const char* name,
+        bool def);
+    void ArrayDefine();
     void LabelPrefix();
 
 public:

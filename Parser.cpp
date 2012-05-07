@@ -113,6 +113,12 @@ bool Parser::isLexLogicOp_2() const
     return tryLex(SCR_LEX_OPERATION, OP_OR);
 }
 
+bool Parser::isOperator() const
+{
+    return tryLex(SCR_LEX_KEYWORD) &&
+        ! tryLex(SCR_LEX_KEYWORD, SCR_KEYWORD_ELSE);
+}
+
 PolizOpInt1Type Parser::getPolizOpInt1Type(int op) const
 {
     switch (op) {
@@ -192,7 +198,15 @@ void Parser::Operator()
         poliz.push(new PolizLabel(labelKey));
         poliz.push(new PolizGoFalse());
         Operator();
-        ElseSuffix(labelKey);
+        if (ElseSuffix(labelKey))
+            return;
+        try {
+            tables.setLabelValue(labelKey, poliz.getLast());
+        } catch(TableAccessException& ex) {
+            throw ParserException(ex,
+                getLine(), getPos(),
+                __FILE__, __LINE__);
+        }
     } else if (tryLex(SCR_LEX_KEYWORD, SCR_KEYWORD_WHILE)) {
         getNextLex(); // skip 'while'
         int labelKey_1 = tables.getLabelKey(0);
@@ -231,9 +245,7 @@ void Parser::Operator()
 
 void Parser::SingleOperator()
 {
-    if (! tryLex(SCR_LEX_KEYWORD) ||
-        tryLex(SCR_LEX_KEYWORD, SCR_KEYWORD_ELSE))
-    {
+    if (! isOperator()) {
         throw ParserException("Expected operator name.",
             getLine(), getPos(),
             __FILE__, __LINE__);
@@ -247,9 +259,16 @@ void Parser::SingleOperator()
 
     switch (keyword) {
     case SCR_KEYWORD_SET:
+        // Argument false mean that variable can
+        // be defined or not defined.
         Variable(false);
         Expr();
         poliz.push(new PolizOpSet());
+        break;
+    case SCR_KEYWORD_ARRAY:
+        ArrayDefine();
+        Expr();
+        poliz.push(new PolizOpArrayDefine());
         break;
     case SCR_KEYWORD_GOTO:
         if (! tryLex(SCR_LEX_LABEL)) {
@@ -301,18 +320,10 @@ void Parser::SingleOperator()
     }
 }
 
-void Parser::ElseSuffix(int falseLabelKey)
+bool Parser::ElseSuffix(int falseLabelKey)
 {
     if (! tryLex(SCR_LEX_KEYWORD, SCR_KEYWORD_ELSE)) {
-        try {
-            tables.setLabelValue(falseLabelKey, poliz.getLast());
-        } catch(TableAccessException& ex) {
-            throw ParserException(ex,
-                getLine(), getPos(),
-                __FILE__, __LINE__);
-        }
-
-        return;
+        return false;
     }
 
     int labelKey = tables.getLabelKey(0);
@@ -338,6 +349,8 @@ void Parser::ElseSuffix(int falseLabelKey)
             getLine(), getPos(),
             __FILE__, __LINE__);
     }
+
+    return true;
 }
 
 void Parser::ArgsList_0()
@@ -457,7 +470,7 @@ void Parser::Expr_0()
             ArgsList_0();
         }
     } else {
-        // true argument mean that variable must be defined
+        // Argument true mean that variable must be defined.
         Variable(true);
     }
 }
@@ -549,52 +562,92 @@ void Parser::Expr()
     }
 }
 
-/* Argument def mean: "must be defined".
- * See README for more information. */
 void Parser::Variable(bool def)
 {
     if (! tryLex(SCR_LEX_VARIABLE)) {
-        throw ParserException("Expected variable.",
+        throw ParserException("Expected variable or"
+            " array name.",
             getLine(), getPos(),
             __FILE__, __LINE__);
     }
 
+    const char* name = currentLex->strValue;
+    getNextLex(); // skip variable name
+
+    if (ArraySuffix(name, def))
+        return;
+
     int variableKey = -1;
 
     try {
-        variableKey = tables.getVariableKey(currentLex->strValue, def);
+        variableKey = tables.getVariableKey(name, def);
     } catch(TableAccessException& ex) {
         throw ParserException(ex,
             getLine(), getPos(),
             __FILE__, __LINE__);
     }
 
+    poliz.push(new PolizVariable(variableKey));
     if (def) {
-        poliz.push(new PolizOpVariableValue(variableKey));
-    } else {
-        poliz.push(new PolizVariable(variableKey));
+        poliz.push(new PolizOpVariableValue());
     }
-
-    getNextLex(); // skip 'variable'
-    ArraySuffix(def);
 }
 
-/* Argument mean: "must be defined".
- * See README for more information. */
-void Parser::ArraySuffix(bool def)
+bool Parser::ArraySuffix(const char* name, bool def)
 {
-    if (! tryLex(SCR_LEX_BRACKET, BRACKET_SQUARE_OPEN))
-        return; /* Do nothing */
+    if (! tryLex(SCR_LEX_BRACKET, BRACKET_SQUARE_OPEN)) {
+        return false;
+    }
 
+    int arrayKey = -1;
+
+    try {
+        arrayKey = tables.getArrayKey(name, true);
+    } catch(TableAccessException& ex) {
+        throw ParserException(ex,
+            getLine(), getPos(),
+            __FILE__, __LINE__);
+    }
+
+    poliz.push(new PolizArray(arrayKey));
     getNextLex(); // skip '['
     Expr();
+
     if (! tryLex(SCR_LEX_BRACKET, BRACKET_SQUARE_CLOSE)) {
         throw ParserException("Expected ']' lexeme"
             ", unbalanced square brackets.",
             getLine(), getPos(),
             __FILE__, __LINE__);
     }
+
     getNextLex(); // skip ']'
+    if (def) {
+        poliz.push(new PolizOpArrayElementValue());
+    }
+
+    return true;
+}
+
+void Parser::ArrayDefine()
+{
+    if (! tryLex(SCR_LEX_VARIABLE)) {
+        throw ParserException("Expected array name.",
+            getLine(), getPos(),
+            __FILE__, __LINE__);
+    }
+
+    int arrayKey = -1;
+
+    try {
+        arrayKey = tables.getArrayKey(currentLex->strValue, false);
+    } catch(TableAccessException& ex) {
+        throw ParserException(ex,
+            getLine(), getPos(),
+            __FILE__, __LINE__);
+    }
+
+    getNextLex(); // skip array name
+    poliz.push(new PolizArray(arrayKey));
 }
 
 void Parser::LabelPrefix()
@@ -642,7 +695,7 @@ void Parser::parse()
         poliz.evaluate(stack, tables);
     } catch(Exception& ex) {
         throw ParserException(ex,
-            getLine(), getPos(),
+            0, 0,
             __FILE__, __LINE__);
     }
 
