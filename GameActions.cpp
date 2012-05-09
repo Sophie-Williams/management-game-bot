@@ -23,6 +23,10 @@ ServerMsg* GameActions::expectMsg(TypeOfServerMsg type, bool skipFailed)
             msg = lexer.getMsg();
         }
 
+#if !defined(DAEMON) && defined(GAME_ACTIONS_DEBUG)
+        msg->print(stderr);
+#endif
+
         if (msg->type == MSG_WINNERS_ASYNC) {
             winners = msg->str;
             return 0;
@@ -139,8 +143,7 @@ void GameActions::build(int count)
 void GameActions::turn()
 {
     socket.write(MSG("turn\r\n"));
-
-    expectOnlyOk(MSG_TURN_RESPONCE);
+    expectFirstOk(MSG_TURN_RESPONCE);
     expectFirstOk(MSG_MONTH_COMPLETED);
 }
 
@@ -154,4 +157,74 @@ const char* GameActions::getWinners()
 {
     parseAvailable();
     return winners;
+}
+
+const char* GameActions::myNick()
+{
+    socket.write(MSG("nick\r\n"));
+    ServerMsg* msg = expectMsg(MSG_NICK_RESPONCE, false);
+    return msg->str;
+}
+
+int GameActions::getPlayers()
+{
+    socket.write(MSG("status --server\r\n"));
+    ServerMsg* msg = expectMsg(MSG_STATUS_RESPONCE, false);
+    return msg->status->getPlayers();
+}
+
+int GameActions::getMarketRaws()
+{
+    socket.write(MSG("status --market\r\n"));
+    ServerMsg* msg = expectMsg(MSG_STATUS_RESPONCE, false);
+    return msg->status->getMarketRaws();
+}
+
+int GameActions::getRawPrice()
+{
+    socket.write(MSG("status --market\r\n"));
+    ServerMsg* msg = expectMsg(MSG_STATUS_RESPONCE, false);
+    return msg->status->getMarketRawMinPrice();
+}
+
+int GameActions::getMarketProductions()
+{
+    socket.write(MSG("status --market\r\n"));
+    ServerMsg* msg = expectMsg(MSG_STATUS_RESPONCE, false);
+    return msg->status->getMarketProductions();
+}
+
+int GameActions::getProductionPrice()
+{
+    socket.write(MSG("status --market\r\n"));
+    ServerMsg* msg = expectMsg(MSG_STATUS_RESPONCE, false);
+    return msg->status->getMarketProdMaxPrice();
+}
+
+int GameActions::getMoney()
+{
+    socket.write(MSG("status\r\n"));
+    ServerMsg* msg = expectMsg(MSG_STATUS_RESPONCE, false);
+    return msg->status->getPlayerMoney();
+}
+
+int GameActions::getRaws()
+{
+    socket.write(MSG("status\r\n"));
+    ServerMsg* msg = expectMsg(MSG_STATUS_RESPONCE, false);
+    return msg->status->getPlayerRaws();
+}
+
+int GameActions::getProductions()
+{
+    socket.write(MSG("status\r\n"));
+    ServerMsg* msg = expectMsg(MSG_STATUS_RESPONCE, false);
+    return msg->status->getPlayerProductions();
+}
+
+int GameActions::getFactories()
+{
+    socket.write(MSG("status\r\n"));
+    ServerMsg* msg = expectMsg(MSG_STATUS_RESPONCE, false);
+    return msg->status->getPlayerFactories();
 }

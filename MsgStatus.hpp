@@ -27,10 +27,8 @@ public:
         ++size;
     }
 
-#if 0
     int getSize() const
         { return size; }
-#endif
 
 #ifndef DAEMON
     void printValues(FILE *stream)
@@ -45,6 +43,14 @@ public:
         fprintf(stream, "%d\n", values[size - 1]);
     }
 #endif /* DAEMON */
+
+    /* status --server */
+    int getClients()
+        { return values[0]; }
+
+    /* status --server */
+    int getPlayers()
+        { return values[1]; }
 
     /* status --market */
     int getMarketRaws()

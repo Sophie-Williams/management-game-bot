@@ -234,12 +234,35 @@ PolizElem* PolizOpGameFunc::evaluateOp(PolizElemList& stack,
         arg = PolizInt::popKey(stack);
     }
 
+    int key;
+
     switch (op) {
     case SCR_FUNC_IS_WIN:
         return new PolizInt(game.isWin());
     case SCR_FUNC_GET_WINNERS:
-        int key = tables.getStringKey(game.getWinners());
+        key = tables.getStringKey(game.getWinners());
         return new PolizString(key);
+    case SCR_FUNC_MY_NICK:
+        key = tables.getStringKey(game.myNick());
+        return new PolizString(key);
+    case SCR_FUNC_GET_PLAYERS:
+        return new PolizInt(game.getPlayers());
+    case SCR_FUNC_GET_MARKET_RAWS:
+        return new PolizInt(game.getMarketRaws());
+    case SCR_FUNC_GET_RAW_PRICE:
+        return new PolizInt(game.getRawPrice());
+    case SCR_FUNC_GET_MARKET_PRODUCTIONS:
+        return new PolizInt(game.getMarketProductions());
+    case SCR_FUNC_GET_PRODUCTION_PRICE:
+        return new PolizInt(game.getProductionPrice());
+    case SCR_FUNC_GET_MONEY:
+        return new PolizInt(game.getMoney());
+    case SCR_FUNC_GET_RAWS:
+        return new PolizInt(game.getRaws());
+    case SCR_FUNC_GET_PRODUCTIONS:
+        return new PolizInt(game.getProductions());
+    case SCR_FUNC_GET_FACTORIES:
+        return new PolizInt(game.getFactories());
     }
 
     return 0; // no push anything to stack

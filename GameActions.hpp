@@ -38,6 +38,19 @@ public:
 
     bool isWin();
     const char* getWinners();
+
+    const char* myNick();
+    int getPlayers();
+
+    int getMarketRaws();
+    int getRawPrice();
+    int getMarketProductions();
+    int getProductionPrice();
+
+    int getMoney();
+    int getRaws();
+    int getProductions();
+    int getFactories();
 };
 
 #endif /* GAME_ACTIONS_HPP_SENTRY */

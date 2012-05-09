@@ -151,11 +151,13 @@ class ServerMsgLexer {
     int c;
 
     /* Temporally values */
+    bool isStatusServerMessage;
     int tmpValue;
     MsgStatus* tmpStatus;
 
     void die(int line);
-    TypeOfServerMsg getMsgType(const String &str) const;
+    TypeOfServerMsg getMsgType(
+        const String &str) const;
     ServerMsg* stStart();
     ServerMsg* stHeadStart();
     ServerMsg* stHeadSkipTimestamp();

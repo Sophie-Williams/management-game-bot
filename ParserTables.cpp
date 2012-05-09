@@ -8,7 +8,11 @@ const char* ParserTables::keywordStrings[] = {
 };
 
 const char* ParserTables::functionStrings[] = {
-    "isWin", "getWinners"
+    "isWin", "getWinners", "myNick", "getPlayers",
+    "getMarketRaws", "getRawPrice",
+    "getMarketProductions", "getProductionPrice",
+    "getMoney", "getRaws", "getProductions",
+    "getFactories"
 };
 
 ParserTables::ParserTables()

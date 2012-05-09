@@ -1,10 +1,58 @@
-@begin:
-    print("Step number ", ?turn());
-    buy (2, ?raw_price());
-    sell( ?production(?my_id()), ?production_price());
-    set $tomake 2;
-    if (?raw(?my_id()) < $tomake)
-        set $tomake ?raw(?my_id());
-    make($tomake);
+print("join");
+join();
+
+print("-----------------");
+print("My nick: ", ?myNick());
+print("Players: ", ?getPlayers());
+
+set $step 0;
+set $factories ?getFactories();
+
+while(! ?isWin()) {
+    print("---- step ", $step, " ----");
+    print("Money: ", ?getMoney());
+
+    set $marketRaws ?getMarketRaws();
+    if ($factories < $marketRaws)
+        set $toBuy $factories;
+    else
+        set $toBuy $marketRaws;
+    set $rawPrice ?getRawPrice();
+
+    if ($toBuy > 0) {
+        print("buy ", $toBuy, " ", $rawPrice);
+        buy($toBuy, $rawPrice);
+    }
+
+    set $productions ?getProductions();
+    set $marketProductions ?getMarketProductions();
+    if ($productions < $marketProductions)
+        set $toSell $productions;
+    else
+        set $toSell $marketProductions;
+    set $productionPrice ?getProductionPrice();
+
+    if ($toSell > 0) {
+        print("sell ", $toSell, " ", $productionPrice);
+        sell($toSell, $productionPrice);
+    }
+
+    set $raws ?getRaws();
+    if ($raws < $factories)
+        set $toMake $raws;
+    else
+        set $toMake $factories;
+
+    if ($toMake > 0) {
+        print("make ", $toMake);
+        make($toMake);
+    }
+
+    print("turn");
     turn();
-    goto @begin;
+
+    set $step $step+1;
+}
+
+print("-----------------");
+print(?getWinners());

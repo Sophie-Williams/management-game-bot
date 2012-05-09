@@ -188,7 +188,7 @@ ServerMsg* ServerMsgLexer::stSkipToNextHead()
         state = ST_START;
         return 0;
     }
-    
+
     tmpBuffer.clear();
     tmpBuffer += c;
     requestNextChar = 1;
@@ -222,14 +222,20 @@ ServerMsg* ServerMsgLexer::stOkFailResponce()
     int size = tmpBuffer.getLength() + 1; /* with '\0' */
     const char* str = tmpBuffer.getCharPtr();
 
+    /* Only for MSG_NICK_RESPONCE branch. */
+    int usernameIndex;
+    int nickSize;
+
     switch (msgType) {
     case MSG_STATUS_RESPONCE:
         /* Not possible. */
         die(__LINE__);
     case MSG_NICK_RESPONCE:
         msg->ok = tmpBuffer.startsWith("Your username: ");
-        msg->str = new char[size];
-        memcpy(msg->str, str, size);
+        usernameIndex = sizeof("Your username: ") - 1;
+        nickSize = size - sizeof("Your username: ") - 1; // without '\n'
+        msg->str = new char[nickSize];
+        memcpy(msg->str, str + usernameIndex, nickSize);
         break;
     case MSG_BUILD_RESPONCE:
     case MSG_MAKE_RESPONCE:
@@ -314,10 +320,17 @@ ServerMsg* ServerMsgLexer::stAsyncMsg()
     return msg;
 }
 
-/* Supports "status --market" and "status [username]". */
+/* Supports "status --server", "status --market"
+ * and "status [username]". */
 ServerMsg* ServerMsgLexer::stStatusResponce()
 {
     tmpBuffer += c;
+
+    if (c == '\n' && tmpBuffer.isEqual(
+        "==== Server info ====\n"))
+    {
+        isStatusServerMessage = true;
+    }
 
     if (c == '\n' && (
         tmpBuffer.isEqual("You are not player.\n") ||
@@ -334,10 +347,14 @@ ServerMsg* ServerMsgLexer::stStatusResponce()
         tmpStatus = 0;
         requestNextChar = 1;
         state = ST_START;
+        isStatusServerMessage = false;
         return msg;
     } else if ((c == '\n' && tmpBuffer.isEqual(
         "--- Building factories ---\n")) ||
-        (c == ':' && tmpBuffer.isEqual("Next level:")))
+        (c == ':' && tmpBuffer.isEqual("Next level:")) ||
+        (c == '\n' && tmpStatus != 0 &&
+         isStatusServerMessage &&
+         tmpStatus->getSize() == 2))
     {
         tmpBuffer.clear();
         ServerMsg *msg = new ServerMsg;
@@ -349,6 +366,7 @@ ServerMsg* ServerMsgLexer::stStatusResponce()
         tmpStatus = 0;
         requestNextChar = 1;
         state = ST_START;
+        isStatusServerMessage = false;
         return msg;
     } else if (c == ':') {
         tmpBuffer.clear();
@@ -410,6 +428,7 @@ ServerMsgLexer::ServerMsgLexer()
         requestNextChar(1),
         queue(),
         /* c is undefined */
+        isStatusServerMessage(false),
         tmpValue(-1),
         tmpStatus(0)
             {}

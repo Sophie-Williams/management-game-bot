@@ -24,7 +24,7 @@ public:
 
         char *lineStr = 0;
 
-        asprintf(&lineStr, ":%d\n", getLine());
+        asprintf(&lineStr, ":%d", getLine());
         msg += lineStr;
 
         return msg.getCharPtr();
