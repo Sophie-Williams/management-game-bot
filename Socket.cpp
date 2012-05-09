@@ -97,6 +97,27 @@ void Socket::disconnect()
     fd = -1;
 }
 
+bool Socket::isReadAvailable()
+    throw (SocketIOException)
+{
+    fd_set set;
+    FD_ZERO(&set);
+    FD_SET(fd, &set);
+
+    struct timeval tv;
+    tv.tv_sec = 0;
+    tv.tv_usec = 0;
+
+    int selectValue = select(fd + 1, &set, NULL, NULL, &tv);
+
+    if (SocketIOException::isSelectError(selectValue)) {
+        fd = -1; // not connected state
+        throw SocketIOException("select", __FILE__, __LINE__);
+    }
+
+    return FD_ISSET(fd, &set);
+}
+
 bool Socket::read(char *buf, size_t count, int* readed)
     throw (SocketIOException)
 {

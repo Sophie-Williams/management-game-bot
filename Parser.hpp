@@ -10,6 +10,7 @@
 #include "TableAccessException.hpp"
 #include "CharQueueException.hpp"
 #include "PolizElem.hpp"
+#include "GameActions.hpp"
 
 #define READ_ERROR(readValue) ((readValue) == -1)
 #define READ_EOF(readValue) ((readValue) == 0)
@@ -79,6 +80,7 @@ class Parser {
 public:
     Parser(int aReadFD);
     void parse();
+    void evaluate(GameActions& game);
 };
 
 #endif /* PARSER_HPP_SENTRY */

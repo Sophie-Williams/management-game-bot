@@ -7,6 +7,7 @@ class PolizElem;
 
 #include "ParserTables.hpp"
 #include "PolizException.hpp"
+#include "GameActions.hpp"
 
 struct PolizItem {
     PolizElem* elem;
@@ -31,7 +32,8 @@ public:
     bool isEmpty() const;
 
     void evaluate(PolizElemList& stack,
-        ParserTables& tables) const;
+        ParserTables& tables,
+        GameActions& game) const;
 };
 
 class PolizElem {
@@ -40,7 +42,8 @@ public:
 
     virtual void evaluate(PolizElemList& stack,
         PolizItem*& curCmd,
-        ParserTables& tables) const = 0;
+        ParserTables& tables,
+        GameActions& game) const = 0;
 };
 
 // ==============================
@@ -79,7 +82,8 @@ public:
     }
 
     void evaluate(PolizElemList& stack,
-        PolizItem*&, ParserTables&) const;
+        PolizItem*&, ParserTables&,
+        GameActions&) const;
 };
 
 class PolizInt : public PolizConst {
@@ -178,16 +182,19 @@ public:
 
 class PolizOp : public PolizElem {
     virtual PolizElem* evaluateOp(PolizElemList& stack,
-        ParserTables& tables) const = 0;
+        ParserTables& tables,
+        GameActions& game) const = 0;
 
 public:
     void evaluate(PolizElemList& stack,
-        PolizItem*&, ParserTables&) const;
+        PolizItem*&, ParserTables& tables,
+        GameActions& game) const;
 };
 
 class PolizOpVariableValue : public PolizOp {
     PolizElem* evaluateOp(PolizElemList&,
-        ParserTables& tables) const;
+        ParserTables& tables,
+        GameActions&) const;
 
 public:
     PolizOpVariableValue() {}
@@ -195,7 +202,8 @@ public:
 
 class PolizOpArrayElementValue : public PolizOp {
     PolizElem* evaluateOp(PolizElemList&,
-        ParserTables& tables) const;
+        ParserTables& tables,
+        GameActions&) const;
 
 public:
     PolizOpArrayElementValue() {}
@@ -203,7 +211,8 @@ public:
 
 class PolizOpSet : public PolizOp {
     PolizElem* evaluateOp(PolizElemList& stack,
-        ParserTables& tables) const;
+        ParserTables& tables,
+        GameActions&) const;
 
 public:
     PolizOpSet() {}
@@ -211,7 +220,8 @@ public:
 
 class PolizOpArrayDefine : public PolizOp {
     PolizElem* evaluateOp(PolizElemList&,
-        ParserTables& tables) const;
+        ParserTables& tables,
+        GameActions&) const;
 
 public:
     PolizOpArrayDefine() {}
@@ -219,7 +229,8 @@ public:
 
 class PolizOpPrint : public PolizOp {
     PolizElem* evaluateOp(PolizElemList& stack,
-        ParserTables& tables) const;
+        ParserTables& tables,
+        GameActions&) const;
 
 public:
     PolizOpPrint() {}
@@ -231,7 +242,8 @@ enum PolizOpGameType {
     POLIZ_OP_SELL,
     POLIZ_OP_MAKE,
     POLIZ_OP_BUILD,
-    POLIZ_OP_TURN
+    POLIZ_OP_TURN,
+    POLIZ_OP_JOIN
 };
 
 /* Operations with 1 argument */
@@ -259,10 +271,24 @@ class PolizOpGame : public PolizOp {
     PolizOpGameType op;
 
     PolizElem* evaluateOp(PolizElemList& stack,
-        ParserTables&) const;
+        ParserTables&,
+        GameActions& game) const;
 
 public:
     PolizOpGame(PolizOpGameType aOp)
+        : op(aOp)
+    {}
+};
+
+class PolizOpGameFunc : public PolizOp {
+    ScriptGameFunctions op;
+
+    PolizElem* evaluateOp(PolizElemList& stack,
+        ParserTables& tables,
+        GameActions& game) const;
+
+public:
+    PolizOpGameFunc(ScriptGameFunctions aOp)
         : op(aOp)
     {}
 };
@@ -271,7 +297,8 @@ class PolizOpInt1 : public PolizOp {
     PolizOpInt1Type op;
 
     PolizElem* evaluateOp(PolizElemList& stack,
-        ParserTables&) const;
+        ParserTables&,
+        GameActions&) const;
 
 public:
     PolizOpInt1(PolizOpInt1Type aOp)
@@ -283,7 +310,8 @@ class PolizOpInt2 : public PolizOp {
     PolizOpInt2Type op;
 
     PolizElem* evaluateOp(PolizElemList& stack,
-        ParserTables&) const;
+        ParserTables&,
+        GameActions&) const;
 
 public:
     PolizOpInt2(PolizOpInt2Type aOp)
@@ -299,14 +327,16 @@ class PolizGo : public PolizElem {
 public:
     void evaluate(PolizElemList& stack,
         PolizItem*& curCmd,
-        ParserTables& tables) const;
+        ParserTables& tables,
+        GameActions&) const;
 };
 
 class PolizGoFalse : public PolizElem {
 public:
     void evaluate(PolizElemList& stack,
         PolizItem*& curCmd,
-        ParserTables& tables) const;
+        ParserTables& tables,
+        GameActions&) const;
 };
 
 #endif /* POLIZ_ELEM_HPP_SENTRY */

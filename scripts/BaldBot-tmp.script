@@ -1,0 +1,11 @@
+join();
+
+@begin:
+    buy (2, 600);
+    sell(2, 5000);
+    make(2);
+    turn();
+    if (! ?isWin())
+        goto @begin;
+
+print(?getWinners());

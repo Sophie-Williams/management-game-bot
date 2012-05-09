@@ -7,7 +7,7 @@ class PolizItem;
 #include "DynamicTable.hpp"
 #include "TableAccessException.hpp"
 
-enum ScriptLangKeywords {
+enum ScriptKeywords {
     SCR_KEYWORD_SET,
     SCR_KEYWORD_ARRAY,
     SCR_KEYWORD_GOTO,
@@ -19,7 +19,13 @@ enum ScriptLangKeywords {
     SCR_KEYWORD_SELL,
     SCR_KEYWORD_MAKE,
     SCR_KEYWORD_BUILD,
-    SCR_KEYWORD_TURN
+    SCR_KEYWORD_TURN,
+    SCR_KEYWORD_JOIN
+};
+
+enum ScriptGameFunctions {
+    SCR_FUNC_IS_WIN,
+    SCR_FUNC_GET_WINNERS
 };
 
 template <class T>
@@ -140,6 +146,7 @@ public:
 
 class ParserTables {
     static const char* keywordStrings[];
+    static const char* functionStrings[];
     DynamicTable strings;
     DynamicTable variables;
     DynamicTable arrays;
@@ -149,9 +156,17 @@ public:
     ParserTables();
 
     // Throw exception, if keyword is unknown.
-    ScriptLangKeywords getKeywordType(
+    ScriptKeywords getKeywordType(
         const char* str) const
         throw (TableAccessException);
+
+    ScriptGameFunctions getFunctionType(
+        const char* str) const
+        throw (TableAccessException);
+
+    bool functionHasNoArguments(
+        ScriptGameFunctions) const
+        throw ();
 
     // Make string entry, if not found.
     int getStringKey(const char* name)

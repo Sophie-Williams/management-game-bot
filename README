@@ -4,7 +4,8 @@
 * arrays:    $[a-zA-Z_][a-zA-Z0-9_]*\[expression\]
 
 * internal functions:
-  0. TODO
+  1. ?isWin()
+  2. ?getWinners()
 
 * internal operators:
   1. set variable expression;
@@ -73,7 +74,8 @@ SINGLE_OPERATOR -> 'set' VARIABLE(false) EXPR |
                    'sell' ARGS_LIST_2 |
                    'make' ARGS_LIST_1 |
                    'build' ARGS_LIST_1 |
-                   'turn' ARGS_LIST_0
+                   'turn' ARGS_LIST_0 |
+                   'join' ARGS_LIST_0
 
 ELSE_SUFFIX -> 'else' OPERATOR | nothing
 

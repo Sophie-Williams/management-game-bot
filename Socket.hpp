@@ -2,10 +2,13 @@
 #define SOCKET_HPP_SENTRY
 
 #include <stdlib.h>
+#include <sys/time.h>
+#include <sys/types.h>
 #include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <sys/select.h>
 #include "SocketIOException.hpp"
 #include "SocketBadParametersException.hpp"
 
@@ -38,6 +41,9 @@ public:
         throw (SocketIOException);
 
     void disconnect()
+        throw (SocketIOException);
+
+    bool isReadAvailable()
         throw (SocketIOException);
 
     /* Blocking method. */

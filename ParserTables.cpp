@@ -4,7 +4,11 @@ const char* ParserTables::keywordStrings[] = {
     "set", "array", "goto", "if",
     "else", "while", "print", "buy",
     "sell", "make", "build", "turn",
-    ""
+    "join"
+};
+
+const char* ParserTables::functionStrings[] = {
+    "isWin", "getWinners"
 };
 
 ParserTables::ParserTables()
@@ -14,7 +18,7 @@ ParserTables::ParserTables()
     labels()
 {}
 
-ScriptLangKeywords ParserTables::getKeywordType(const char* str) const
+ScriptKeywords ParserTables::getKeywordType(const char* str) const
     throw (TableAccessException)
 {
     for (unsigned int i = 0;
@@ -22,11 +26,33 @@ ScriptLangKeywords ParserTables::getKeywordType(const char* str) const
         ++i)
     {
         if (STR_EQUAL(str, keywordStrings[i]))
-            return (ScriptLangKeywords) i;
+            return (ScriptKeywords) i;
     }
 
     throw TableAccessException("Unknown keyword.",
         str, __FILE__, __LINE__);
+}
+
+ScriptGameFunctions ParserTables::getFunctionType(const char* str) const
+    throw (TableAccessException)
+{
+    for (unsigned int i = 0;
+        i < sizeof(functionStrings) / sizeof(const char*);
+        ++i)
+    {
+        if (STR_EQUAL(str, functionStrings[i]))
+            return (ScriptGameFunctions) i;
+    }
+
+    throw TableAccessException("Unknown game function.",
+        str, __FILE__, __LINE__);
+}
+
+bool ParserTables::functionHasNoArguments(
+    ScriptGameFunctions /*functionKey*/) const
+    throw ()
+{
+    return true;
 }
 
 int ParserTables::getStringKey(const char* name)

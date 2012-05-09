@@ -37,16 +37,21 @@ void Parser::getNextLex()
         currentLex = lexer.getLex();
     }
 
-    if (currentLex->type == SCR_LEX_KEYWORD) {
-        try {
+    try {
+        if (currentLex->type == SCR_LEX_KEYWORD) {
             currentLex->intValue =
                 tables.getKeywordType(currentLex->strValue);
-        } catch(TableAccessException& ex) {
-            throw ParserException(ex,
-                getLine(), getPos(),
-                __FILE__, __LINE__);
+        } else if (currentLex->type == SCR_LEX_FUNCTION) {
+            currentLex->intValue =
+                tables.getFunctionType(currentLex->strValue);
         }
+    } catch(TableAccessException& ex) {
+        throw ParserException(ex,
+            getLine(), getPos(),
+            __FILE__, __LINE__);
     }
+
+
 
 #if !defined(DAEMON) && defined(PARSER_DEBUG)
     lexer.print(stderr, currentLex);
@@ -251,8 +256,9 @@ void Parser::SingleOperator()
             __FILE__, __LINE__);
     }
 
-    ScriptLangKeywords keyword =
-        static_cast<ScriptLangKeywords>(currentLex->intValue);
+    ScriptKeywords keyword =
+        static_cast<ScriptKeywords>(currentLex->intValue);
+
     getNextLex(); // skip operator name
 
     int labelKey = -1; // only for SCR_KEYWORD_GOTO swich alternative
@@ -308,15 +314,28 @@ void Parser::SingleOperator()
         poliz.push(new PolizOpPrint());
         break;
     case SCR_KEYWORD_BUY:
+        ArgsList_2();
+        poliz.push(new PolizOpGame(POLIZ_OP_BUY));
+        break;
     case SCR_KEYWORD_SELL:
         ArgsList_2();
+        poliz.push(new PolizOpGame(POLIZ_OP_SELL));
         break;
     case SCR_KEYWORD_MAKE:
+        ArgsList_1();
+        poliz.push(new PolizOpGame(POLIZ_OP_MAKE));
+        break;
     case SCR_KEYWORD_BUILD:
         ArgsList_1();
+        poliz.push(new PolizOpGame(POLIZ_OP_BUILD));
         break;
     case SCR_KEYWORD_TURN:
         ArgsList_0();
+        poliz.push(new PolizOpGame(POLIZ_OP_TURN));
+        break;
+    case SCR_KEYWORD_JOIN:
+        ArgsList_0();
+        poliz.push(new PolizOpGame(POLIZ_OP_JOIN));
         break;
     }
 }
@@ -460,16 +479,17 @@ void Parser::Expr_0()
         }
         getNextLex(); // skip ')'
     } else if (tryLex(SCR_LEX_FUNCTION)) {
-        // TODO: ArgsList_0 or ArgsList_1 via tables
-        if (STR_EQUAL("production", currentLex->strValue) ||
-            STR_EQUAL("raw", currentLex->strValue))
-        {
-            getNextLex(); // skip function name
-            ArgsList_1();
-        } else {
-            getNextLex(); // skip function name
+        ScriptGameFunctions functionKey =
+            static_cast<ScriptGameFunctions>(currentLex->intValue);
+
+        getNextLex(); // skip function name
+
+        if (tables.functionHasNoArguments(functionKey))
             ArgsList_0();
-        }
+        else
+            ArgsList_1();
+
+        poliz.push(new PolizOpGameFunc(functionKey));
     } else {
         /* Argument true mean that variable or array
          * must be defined. */
@@ -683,22 +703,23 @@ Parser::Parser(int aReadFD)
     currentLex(0),
     poliz(),
     tables()
-        {}
+{}
 
 void Parser::parse()
 {
     getNextLex(); // get first lexeme
-
     Program();
+}
 
+void Parser::evaluate(GameActions& game)
+{
     PolizElemList stack; // for constants
 
     try {
-        poliz.evaluate(stack, tables);
+        poliz.evaluate(stack, tables, game);
     } catch(Exception& ex) {
         throw ParserException(ex,
-            0, 0,
-            __FILE__, __LINE__);
+            0, 0, __FILE__, __LINE__);
     }
 
     if (!stack.isEmpty()) {

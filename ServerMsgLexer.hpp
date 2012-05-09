@@ -7,6 +7,94 @@
 #include "CharQueue.hpp"
 #include "MsgStatus.hpp"
 
+//TODO: make nice messages architecture.
+#if 0
+class ServerMessage {
+public:
+    virtual ~ServerMessage() {}
+};
+
+class ResponceMessage : public ServerMessage {
+};
+
+enum OkFailMessageType {
+    MSG_NICK,
+    MSG_BUILD,
+    MSG_MAKE,
+    MSG_BUY,
+    MSG_SELL,
+    MSG_TURN,
+    MSG_JOIN
+};
+
+class OkFailMessage : public ResponceMessage {
+    OkFailMessageType type;
+    bool ok;
+
+public:
+    bool isOk() const
+    {
+        return ok;
+    }
+
+    bool hasType(OkFailMessageType aType) const
+    {
+        return (type == aType);
+    }
+};
+
+class MarketStatusMessage : public ResponceMessage {
+    int getMarketRaws() const
+        { return values[2]; }
+
+    int getMarketRawMinPrice() const
+        { return values[3]; }
+
+    int getMarketProductions() const
+        { return values[4]; }
+
+    int getMarketProdMaxPrice() const
+        { return values[5]; }
+};
+
+class PlayerStatusMessage : public ResponceMessage {
+    int getPlayerMoney() const
+        { return values[0]; }
+
+    int getPlayerRaws() const
+        { return values[1]; }
+
+    int getPlayerProductions() const
+        { return values[2]; }
+
+    int getPlayerFactories() const
+        { return values[3]; }
+};
+
+class AsyncMessage : public ServerMessage {
+};
+
+class MonthCompletedMessage : public AsyncMessage {
+};
+
+class GameReadyMessage : public AsyncMessage {
+};
+
+class WinMessage : public AsyncMessage {
+    const char* winners;
+
+public:
+    WinMessage(const char* aWinners)
+        : winners(aWinners)
+    {}
+
+    const char* getWinners() const
+    {
+        return winners;
+    }
+};
+#endif
+
 enum TypeOfServerMsg {
     MSG_STATUS_RESPONCE,
     MSG_NICK_RESPONCE,

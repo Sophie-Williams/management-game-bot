@@ -63,7 +63,6 @@ public:
         asprintf(&lineStr, "%d", getLine());
 
         msg += lineStr;
-        msg += "\n";
 
         return msg.getCharPtr();
     }

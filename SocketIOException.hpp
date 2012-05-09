@@ -32,7 +32,6 @@ public:
         asprintf(&lineStr, "%d", getLine());
 
         msg += lineStr;
-        msg += "\n";
 
         return msg.getCharPtr();
     }
@@ -53,6 +52,11 @@ public:
     }
 
     static bool isCloseError(int value)
+    {
+        return (value == -1);
+    }
+
+    static bool isSelectError(int value)
     {
         return (value == -1);
     }

@@ -45,3 +45,5 @@ set players_list, get_players_list();
 9. Дополнительная проверка корректности скрипта перед выполнением (evaluate):
    tables.allStringsDefined();
    tables.allLabelsDefined();
+
+10. Метка первой лексемой.
