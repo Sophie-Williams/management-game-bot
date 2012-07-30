@@ -80,7 +80,7 @@ Socket::Socket(const char* aHost, const char* aPort)
 
 Socket::~Socket()
     throw ()
-    {}
+{}
 
 void Socket::connect()
     throw (SocketIOException)
