@@ -30,6 +30,7 @@ public:
     PolizItem* getLast() const;
 
     bool isEmpty() const;
+    void clear();
 
     void evaluate(PolizElemList& stack,
         ParserTables& tables,

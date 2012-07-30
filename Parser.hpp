@@ -79,6 +79,7 @@ class Parser {
 
 public:
     Parser(int aReadFD);
+    ~Parser();
     void parse();
     void evaluate(GameActions& game);
 };

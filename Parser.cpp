@@ -14,6 +14,8 @@ void Parser::getNextLex()
 {
     int readValue;
 
+    if (currentLex)
+        delete currentLex;
     currentLex = lexer.getLex();
 
     while (currentLex == 0) {
@@ -593,7 +595,9 @@ void Parser::Variable(bool def)
             __FILE__, __LINE__);
     }
 
-    const char* name = currentLex->strValue;
+    int size = strlen(currentLex->strValue) + 1; // with '\0'
+    char* name = new char[size];
+    memcpy(name, currentLex->strValue, size);
     getNextLex(); // skip variable name
 
     if (ArraySuffix(name, def))
@@ -604,10 +608,13 @@ void Parser::Variable(bool def)
     try {
         variableKey = tables.getVariableKey(name, def);
     } catch(TableAccessException& ex) {
+        delete[] name;
         throw ParserException(ex,
             getLine(), getPos(),
             __FILE__, __LINE__);
     }
+
+    delete[] name;
 
     poliz.push(new PolizVariable(variableKey));
     if (def) {
@@ -704,6 +711,13 @@ Parser::Parser(int aReadFD)
     poliz(),
     tables()
 {}
+
+Parser::~Parser()
+{
+    if (currentLex)
+        delete currentLex;
+    poliz.clear();
+}
 
 void Parser::parse()
 {

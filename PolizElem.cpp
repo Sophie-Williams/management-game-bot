@@ -54,6 +54,21 @@ bool PolizElemList::isEmpty() const
     return (first == 0);
 }
 
+void PolizElemList::clear()
+{
+    PolizItem* cur = first;
+    PolizItem* next;
+
+    while (cur) {
+        next = cur->next;
+        delete cur->elem;
+        delete cur;
+        cur = next;
+    }
+
+    first = last = 0;
+}
+
 void PolizElemList::evaluate(PolizElemList& stack,
     ParserTables& tables,
     GameActions& game) const
@@ -237,15 +252,20 @@ PolizElem* PolizOpGameFunc::evaluateOp(PolizElemList& stack,
     }
 
     int key;
+    const char* str;
 
     switch (op) {
     case SCR_FUNC_IS_WIN:
         return new PolizInt(game.isWin());
     case SCR_FUNC_GET_WINNERS:
-        key = tables.getStringKey(game.getWinners());
+        str = game.getWinners();
+        key = tables.getStringKey(str);
+        delete[] str;
         return new PolizString(key);
     case SCR_FUNC_MY_NICK:
-        key = tables.getStringKey(game.myNick());
+        str = game.myNick();
+        key = tables.getStringKey(str);
+        delete[] str;
         return new PolizString(key);
     case SCR_FUNC_GET_PLAYERS:
         return new PolizInt(game.getPlayers());
