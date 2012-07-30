@@ -87,7 +87,8 @@ void GameActions::parseAvailable()
 }
 
 GameActions::GameActions(const char* host, const char* port)
-    : lexer(),
+    : /* buffer contains garbage */
+    lexer(),
     currentMsg(0),
     socket(host, port),
     winners(0)

@@ -160,6 +160,7 @@ class ScriptLexer {
     ScriptLexeme* stError();
 
     ScriptLexeme* invokeStateHandler(LexerState state);
+
 public:
     ScriptLexer();
     void putNewData(char *buffer, int size);

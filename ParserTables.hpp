@@ -95,6 +95,13 @@ public:
         p(0)
     {}
 
+    ~ArrayElem()
+    {
+        if (p) {
+            delete[] p;
+        }
+    }
+
     bool isDefined()
     {
         return (size != -1);

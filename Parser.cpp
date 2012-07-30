@@ -706,6 +706,7 @@ void Parser::LabelPrefix()
 
 Parser::Parser(int aReadFD)
     : readFD(aReadFD),
+    /* buffer contains garbage */
     lexer(),
     currentLex(0),
     poliz(),
