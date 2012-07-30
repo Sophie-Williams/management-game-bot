@@ -3,6 +3,7 @@
 
 #include "Exception.hpp"
 #include "String.hpp"
+#include "ScriptLexer.hpp"
 
 class ParserException : public Exception {
     int scriptLine;

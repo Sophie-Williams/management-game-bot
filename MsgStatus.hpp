@@ -5,6 +5,8 @@
 #include <stdio.h>
 #endif
 
+#include <string.h>
+
 class MsgStatus {
     int *values;
     int size;

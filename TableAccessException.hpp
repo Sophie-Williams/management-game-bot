@@ -2,6 +2,7 @@
 #define TABLE_ITEM_NOT_FOUND_EXCEPTION_HPP_SENTRY
 
 #include "Exception.hpp"
+#include "String.hpp"
 
 class TableAccessException : public Exception {
     const char* description;
