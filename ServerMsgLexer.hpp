@@ -114,12 +114,20 @@ enum TypeOfServerMsg {
 struct ServerMsg {
     TypeOfServerMsg type;
     int ok;
-    char *str;
+    const char *str;
     MsgStatus* status;
 
 #ifndef DAEMON
     void print(FILE *stream);
 #endif
+
+    ~ServerMsg()
+    {
+        if (status != 0)
+            delete status;
+        if (str != 0)
+            delete[] str;
+    }
 };
 
 #ifndef INTERNAL_ERROR

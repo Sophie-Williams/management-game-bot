@@ -216,26 +216,30 @@ ServerMsg* ServerMsgLexer::stOkFailResponce()
     ServerMsg *msg = new ServerMsg;
     msg->type = msgType;
     /* msg->ok is undefined. */
-    /* msg->str is undefined. */
+    msg->str = 0;
     msg->status = 0;
 
     int size = tmpBuffer.getLength() + 1; /* with '\0' */
-    const char* str = tmpBuffer.getCharPtr();
+    const char* str;
 
     /* Only for MSG_NICK_RESPONCE branch. */
     int usernameIndex;
     int nickSize;
+    char* nickStr;
 
     switch (msgType) {
     case MSG_STATUS_RESPONCE:
         /* Not possible. */
         die(__LINE__);
     case MSG_NICK_RESPONCE:
+        str = tmpBuffer.getCharPtr();
         msg->ok = tmpBuffer.startsWith("Your username: ");
         usernameIndex = sizeof("Your username: ") - 1;
         nickSize = size - sizeof("Your username: ") - 1; // without '\n'
-        msg->str = new char[nickSize];
-        memcpy(msg->str, str + usernameIndex, nickSize);
+        nickStr = new char[nickSize];
+        memcpy(nickStr, str + usernameIndex, nickSize);
+        delete[] str;
+        msg->str = nickStr;
         break;
     case MSG_BUILD_RESPONCE:
     case MSG_MAKE_RESPONCE:
@@ -281,11 +285,8 @@ ServerMsg* ServerMsgLexer::stAsyncMsg()
     ServerMsg *msg = new ServerMsg;
     msg->type = msgType;
     /* msg->ok is undefined. */
-    /* msg->str is undefined. */
+    msg->str = 0;
     msg->status = 0;
-
-    int size = tmpBuffer.getLength() + 1; /* with '\0' */
-    const char* str = tmpBuffer.getCharPtr();
 
     switch (msgType) {
     case MSG_STATUS_RESPONCE:
@@ -305,8 +306,7 @@ ServerMsg* ServerMsgLexer::stAsyncMsg()
         break;
     case MSG_WINNERS_ASYNC:
         msg->ok = 1;
-        msg->str = new char[size];
-        memcpy(msg->str, str, size);
+        msg->str = tmpBuffer.getCharPtr();
         break;
     case MSG_UNKNOWN:
     case MSG_LEXER_ERROR:
@@ -341,8 +341,8 @@ ServerMsg* ServerMsgLexer::stStatusResponce()
         ServerMsg *msg = new ServerMsg;
         msg->type = MSG_STATUS_RESPONCE;
         msg->ok = 0;
-        /* msg->str is undefined */
-        /* msg->status is undefined */
+        msg->str = 0;
+        msg->status = 0;
         tmpValue = -1;
         tmpStatus = 0;
         requestNextChar = 1;
@@ -360,7 +360,7 @@ ServerMsg* ServerMsgLexer::stStatusResponce()
         ServerMsg *msg = new ServerMsg;
         msg->type = MSG_STATUS_RESPONCE;
         msg->ok = 1;
-        /* msg->str is undefined */
+        msg->str = 0;
         msg->status = tmpStatus;
         tmpValue = -1;
         tmpStatus = 0;
@@ -415,7 +415,9 @@ ServerMsg* ServerMsgLexer::stError()
 {
     ServerMsg *msg = new ServerMsg;
     msg->type = MSG_LEXER_ERROR;
-    /* ok, str and status is undefined */
+    /* ok is undefined */
+    msg->str = 0;
+    msg->status = 0;
     state = ST_START;
     return msg;
 }
