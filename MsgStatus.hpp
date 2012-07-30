@@ -14,6 +14,12 @@ public:
         : values(0),
         size(0) {}
 
+    ~MsgStatus()
+    {
+        if (values != 0)
+            delete[] values;
+    }
+
     void add(int number)
     {
         int *newValues = new int[size + 1];

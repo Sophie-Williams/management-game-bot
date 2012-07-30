@@ -18,7 +18,7 @@ public:
     virtual ~NamedElem()
     {
         if (name != 0)
-            delete name;
+            delete[] name;
     }
 
     bool hasName(const char* aName) const
