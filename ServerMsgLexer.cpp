@@ -224,7 +224,7 @@ ServerMsg* ServerMsgLexer::stOkFailResponce()
 
     /* Only for MSG_NICK_RESPONCE branch. */
     int usernameIndex;
-    int nickSize;
+    int nickLength;
     char* nickStr;
 
     switch (msgType) {
@@ -235,11 +235,12 @@ ServerMsg* ServerMsgLexer::stOkFailResponce()
         str = tmpBuffer.getCharPtr();
         msg->ok = tmpBuffer.startsWith("Your username: ");
         usernameIndex = sizeof("Your username: ") - 1;
-        nickSize = size - sizeof("Your username: ") - 1; // without '\n'
-        nickStr = new char[nickSize];
-        memcpy(nickStr, str + usernameIndex, nickSize);
-        delete[] str;
+        nickLength = size - sizeof("Your username: ") - 1; // without '\n'
+        nickStr = new char[nickLength + 1]; // nickname only
+        memcpy(nickStr, str + usernameIndex, nickLength);
+        nickStr[nickLength] = '\0';
         msg->str = nickStr;
+        delete[] str;
         break;
     case MSG_BUILD_RESPONCE:
     case MSG_MAKE_RESPONCE:

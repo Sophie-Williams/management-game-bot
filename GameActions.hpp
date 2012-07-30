@@ -13,7 +13,7 @@ class GameActions {
     ServerMsgLexer lexer;
     ServerMsg* currentMsg;
     Socket socket;
-    const char* winners;
+    char* winners;
 
     void getNextMsg();
 

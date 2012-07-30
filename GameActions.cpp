@@ -34,7 +34,9 @@ void GameActions::expectMsg(TypeOfServerMsg type, bool skipFailed)
         getNextMsg();
 
         if (currentMsg->type == MSG_WINNERS_ASYNC) {
-            winners = currentMsg->str;
+            int size = strlen(currentMsg->str) + 1;
+            winners = new char[size];
+            memcpy(winners, currentMsg->str, size);
             return;
         }
     } while ((skipFailed && !currentMsg->ok) ||
@@ -57,7 +59,9 @@ void GameActions::parseAvailable()
 
         while (currentMsg != 0) {
             if (currentMsg->type == MSG_WINNERS_ASYNC) {
-                winners = currentMsg->str;
+                int size = strlen(currentMsg->str) + 1;
+                winners = new char[size];
+                memcpy(winners, currentMsg->str, size);
                 return;
             }
 
@@ -170,15 +174,20 @@ bool GameActions::isWin()
 
 const char* GameActions::getWinners()
 {
+    char* newWinners;
+
     parseAvailable();
+
     if (winners) {
         int size = strlen(winners) + 1;
-        char* newWinners = new char[size];
+        newWinners = new char[size];
         memcpy(newWinners, winners, size);
-        return newWinners;
     } else {
-        return "";
+        newWinners = new char[1];
+        newWinners[0] = '\0';
     }
+
+    return newWinners;
 }
 
 const char* GameActions::myNick()
