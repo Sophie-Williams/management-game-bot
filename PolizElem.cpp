@@ -32,6 +32,8 @@ PolizElem* PolizElemList::pop()
     last = last->prev;
     if (last == 0)
         first = 0;
+    else
+        last->next = 0;
     delete oldLast;
 
     return res;
