@@ -14,3 +14,4 @@ deps.mk
 ScriptLexer-graph.svg
 ScriptLexer-graph.ps
 ScriptLexer-graph.pdf
+valgrind.log

@@ -11,14 +11,14 @@
 class GameActions {
     char buffer[GAME_ACTIONS_BUFFER_SIZE];
     ServerMsgLexer lexer;
+    ServerMsg* currentMsg;
     Socket socket;
     const char* winners;
 
-    ServerMsg* expectMsg(TypeOfServerMsg type,
-        bool skipFailed);
+    void getNextMsg();
 
-    void expectOnlyOk(TypeOfServerMsg type);
-    void expectFirstOk(TypeOfServerMsg type);
+    void expectMsg(TypeOfServerMsg type,
+        bool skipFailed);
 
     void parseAvailable();
 
